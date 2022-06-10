@@ -39,25 +39,25 @@ public isolated function testTypeMismatch() returns error? {
     test:assertEquals(err.message(), expected);
 }
 
-type Chairman record {
-    string name;
-    string id;
-    string department;
-};
+// type Chairman record {
+//     string name;
+//     string id;
+//     string department;
+// };
 
-type Engineer record {
-    string name;
-    int id;
-};
+// type Engineer record {
+//     string name;
+//     int id;
+// };
 
-@test:Config{}
-public isolated function testRecordTypeMismatch() returns error? {
-    string expected = "Failed to Serialize data: Type mismatch";
+// @test:Config{}
+// public isolated function testRecordTypeMismatch() returns error? {
+//     string expected = "Failed to Serialize data: Type mismatch";
 
-    Engineer SE = {name: "Jane Doe", id: 123};
-    Proto3Schema ser = check new(Chairman);
-    byte[]|error encoded = ser.serialize(SE);
-    test:assertTrue(encoded is Error);
-    Error err = <Error> encoded;
-    test:assertEquals(err.message(), expected);
-}
+//     Engineer SE = {name: "Jane Doe", id: 123};
+//     Proto3Schema ser = check new(Chairman);
+//     byte[]|error encoded = ser.serialize(SE);
+//     test:assertTrue(encoded is Error);
+//     Error err = <Error> encoded;
+//     test:assertEquals(err.message(), expected);
+// }

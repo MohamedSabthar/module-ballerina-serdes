@@ -18,23 +18,22 @@
 
 package io.ballerina.stdlib.serdes;
 
-import com.google.protobuf.Descriptors;
+
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
-import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.stdlib.serdes.protobuf.DataTypeMapper;
-import io.ballerina.stdlib.serdes.protobuf.ProtobufMessage;
+import io.ballerina.stdlib.serdes.protobuf.ProtobufFileBuilder;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
-import io.ballerina.stdlib.serdes.protobuf.ProtobufSchemaBuilder;
+import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageFieldBuilder;
 
-import java.util.Map;
-
+import static com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Builder;
+import static com.google.protobuf.Descriptors.Descriptor;
+import static com.google.protobuf.Descriptors.DescriptorValidationException;
 import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
 import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 
@@ -43,201 +42,261 @@ import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
  */
 public class SchemaGenerator {
 
-    static final String SCHEMA_NAME = "schema";
-    static final String SCHEMA_BUILDER_NAME = "Schema.proto";
-    static final String REPEATED_LABEL = "repeated";
-    static final String OPTIONAL_LABEL = "optional";
-
-    static final String ATOMIC_FIELD_NAME = "atomicField";
-    static final String ARRAY_FIELD_NAME = "arrayfield";
-    static final String ARRAY_BUILDER_NAME = "ArrayBuilder";
-    static final String UNION_BUILDER_NAME = "UnionBuilder";
-    static final String UNION_FIELD_NAME = "UnionField";
-    static final String NULL_FIELD_NAME = "nullField";
-
-    static final String NESTED_UNION_FIELD_NAME = "unionelement";
-    static final String UNION_TYPE_IDENTIFIER = "ballerinauniontype";
-    static final String UNION_FIELD_SEPARATOR = "__";
-
-    static final String BYTES = "bytes";
-    static final String RECORD = "_record";
-
-    static final String UNSUPPORTED_DATA_TYPE = "Unsupported data type: ";
-    static final String SCHEMA_GENERATION_FAILURE = "Failed to generate schema: ";
-
     /**
      * Creates a schema for a given data type and adds to native data.
      *
-     * @param serdes  Serializer or Deserializer object.
+     * @param serdes   Serializer or Deserializer object.
      * @param typedesc Data type that is being serialized.
      * @return {@code BError}, if there are schema generation errors, null otherwise.
      */
+    @SuppressWarnings("unused")
     public static Object generateSchema(BObject serdes, BTypedesc typedesc) {
-        ProtobufMessage protobufMessage;
-
         try {
-            protobufMessage = buildProtobufMessageFromBallerinaTypedesc(typedesc);
-        } catch (BError e) {
-            return e;
+            ProtobufFileBuilder protobufFile = new ProtobufFileBuilder();
+            ProtobufMessageBuilder protobufMessageBuilder = buildProtobufMessageFromBallerinaTypedesc(
+                    typedesc.getDescribingType());
+            Descriptor schema = protobufFile.addMessageType(protobufMessageBuilder).build();
+            serdes.addNativeData(Constants.SCHEMA_NAME, schema);
+        } catch (BError ballerinaError) {
+            return ballerinaError;
+        } catch (DescriptorValidationException e) {
+            String errorMessage = Constants.SCHEMA_GENERATION_FAILURE + e.getMessage();
+            return createSerdesError(errorMessage, SERDES_ERROR);
         }
-        ProtobufSchemaBuilder schemaBuilder = ProtobufSchemaBuilder.newSchemaBuilder(SCHEMA_BUILDER_NAME);
-        schemaBuilder.addMessageToProtoSchema(protobufMessage);
-        Descriptors.Descriptor schema = null;
-        try {
-            schema = schemaBuilder.build();
-        } catch (Descriptors.DescriptorValidationException e) {
-            return createSerdesError(SCHEMA_GENERATION_FAILURE + e.getMessage(), SERDES_ERROR);
-        }
-        serdes.addNativeData(SCHEMA_NAME, schema);
         return null;
     }
 
-    private static ProtobufMessage buildProtobufMessageFromBallerinaTypedesc(BTypedesc typedesc) {
-        Type type = typedesc.getDescribingType();
+    private static ProtobufMessageBuilder buildProtobufMessageFromBallerinaTypedesc(Type ballerinaType) {
 
-        if (type.getTag() <= TypeTags.BOOLEAN_TAG) {
-            String ballerinaToProtoMap = DataTypeMapper.getProtoTypeFromTag(type.getTag());
-            ProtobufMessageBuilder messageBuilder = ProtobufMessage.newMessageBuilder(ballerinaToProtoMap);
-            buildProtobufMessageForBallerinaPrimitiveType(messageBuilder, ballerinaToProtoMap, ATOMIC_FIELD_NAME, 1);
-            return messageBuilder.build();
-        } else if (type.getTag() == TypeTags.UNION_TAG) {
-            ProtobufMessage protobufMessage = buildProtobufMessageForBallerinaUnionType(type, UNION_FIELD_NAME);
-            ProtobufMessageBuilder messageBuilder = ProtobufMessage.newMessageBuilder(UNION_BUILDER_NAME);
-            messageBuilder.addNestedMessage(protobufMessage);
-            messageBuilder.addField(OPTIONAL_LABEL, UNION_FIELD_NAME, ATOMIC_FIELD_NAME, 1);
-            return messageBuilder.build();
-        } else if (type.getTag() == TypeTags.ARRAY_TAG) {
-            ArrayType arrayType = (ArrayType) type;
-            ProtobufMessageBuilder messageBuilder = ProtobufMessage.newMessageBuilder(ARRAY_BUILDER_NAME);
-            buildProtobufMessageForBallerinaArrayType(messageBuilder, arrayType, ARRAY_FIELD_NAME, 1, 1);
-            return messageBuilder.build();
-        } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            RecordType recordType = (RecordType) type;
-            return buildProtobufMessageForBallerinaRecordType(recordType.getFields(), type.getName());
-        } else {
-            throw createSerdesError(UNSUPPORTED_DATA_TYPE + type.getName(), SERDES_ERROR);
-        }
-    }
+        ProtobufMessageBuilder messageBuilder;
+        int fieldNumber = 1;
 
-    private static void buildProtobufMessageForBallerinaPrimitiveType(ProtobufMessageBuilder messageBuilder,
-                                                                      String type, String name, int number) {
-        messageBuilder.addField(OPTIONAL_LABEL, type, name, number);
-    }
-
-    private static void buildProtobufMessageForBallerinaArrayType(ProtobufMessageBuilder messageBuilder,
-                                                                  ArrayType arrayType, String name, int number,
-                                                                  int unionFieldIdentifier) {
-        Type type = arrayType.getElementType();
-
-        if (type.getTag() == TypeTags.UNION_TAG) {
-            String fieldName = name + "_" + UNION_TYPE_IDENTIFIER;
-            messageBuilder.addNestedMessage(buildProtobufMessageForBallerinaUnionType(type, fieldName));
-            messageBuilder.addField(REPEATED_LABEL, fieldName, name, number);
-        } else if (type.getTag() <= TypeTags.BOOLEAN_TAG) {
-            String protoElementType = DataTypeMapper.getProtoTypeFromTag(type.getTag());
-            if (protoElementType.equals(BYTES)) {
-                messageBuilder.addField(OPTIONAL_LABEL, protoElementType, name, number);
-            } else {
-                messageBuilder.addField(REPEATED_LABEL, protoElementType, name, number);
+        switch (ballerinaType.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.STRING_TAG:
+            case TypeTags.BOOLEAN_TAG: {
+                messageBuilder = new ProtobufMessageBuilder(Utils.createMessageName(ballerinaType.getName()));
+                String atomicFieldName = Constants.ATOMIC_FIELD_NAME;
+                generateMessageDefinitionForPrimitiveType(messageBuilder, ballerinaType, atomicFieldName, fieldNumber);
+                break;
             }
-        } else if (type.getTag() == TypeTags.ARRAY_TAG) {
-            ArrayType nestedArrayType = (ArrayType) type;
-            String nestedMessageName;
-            int elementTag = nestedArrayType.getElementType().getTag();
-            if (elementTag == TypeTags.UNION_TAG || elementTag == TypeTags.ARRAY_TAG) {
-                nestedMessageName = NESTED_UNION_FIELD_NAME + unionFieldIdentifier;
-                unionFieldIdentifier++;
-            } else {
-                nestedMessageName = nestedArrayType.getElementType().getName();
+
+            case TypeTags.DECIMAL_TAG: {
+                messageBuilder = new ProtobufMessageBuilder(Utils.createMessageName(ballerinaType.getName()));
+                generateMessageDefinitionForPrimitiveDecimal(messageBuilder);
+                break;
             }
-            ProtobufMessageBuilder nestedMessageBuilder = ProtobufMessage.newMessageBuilder(nestedMessageName);
-            buildProtobufMessageForBallerinaArrayType(nestedMessageBuilder, nestedArrayType, nestedMessageName, 1,
-                                                      unionFieldIdentifier);
-            messageBuilder.addNestedMessage(nestedMessageBuilder.build());
-            messageBuilder.addField(REPEATED_LABEL, nestedMessageName, name, number);
-        } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            RecordType recordType = (RecordType) type;
-            String elementType = recordType.getName();
-            messageBuilder.addNestedMessage(
-                    buildProtobufMessageForBallerinaRecordType(recordType.getFields(), elementType)
-            );
-            messageBuilder.addField(REPEATED_LABEL, elementType, name, number);
-        } else {
-            throw createSerdesError(UNSUPPORTED_DATA_TYPE + type.getName(), SERDES_ERROR);
+
+            case TypeTags.UNION_TAG: {
+                messageBuilder = new ProtobufMessageBuilder(Constants.UNION_BUILDER_NAME);
+                generateMessageDefinitionForUnionType(messageBuilder, (UnionType) ballerinaType);
+                break;
+            }
+
+            case TypeTags.ARRAY_TAG: {
+                ArrayType arrayType = (ArrayType) ballerinaType;
+                int dimensions = Utils.getDimensions(arrayType);
+                String messageName = Constants.ARRAY_BUILDER_NAME + Constants.SEPARATOR + dimensions;
+                messageBuilder = new ProtobufMessageBuilder(messageName);
+                generateMessageDefinitionForArrayType(messageBuilder, arrayType, dimensions, fieldNumber, false);
+                break;
+            }
+
+            default:
+                throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + ballerinaType.getName(), SERDES_ERROR);
         }
-        return;
+
+        return messageBuilder;
     }
 
-    private static ProtobufMessage buildProtobufMessageForBallerinaRecordType(Map<String, Field> dataTypeMap,
-                                                                              String name) {
-        ProtobufMessageBuilder messageBuilder = ProtobufMessage.newMessageBuilder(name);
-        int number = 1;
+    // Generate schema for all ballerina primitive types except for decimal type
+    private static void generateMessageDefinitionForPrimitiveType(
+            ProtobufMessageBuilder messageBuilder, Type ballerinaType, String fieldName, int fieldNumber) {
 
-        for (Map.Entry<String, Field> entry : dataTypeMap.entrySet()) {
-            Type fieldType = entry.getValue().getFieldType();
-            String fieldName = entry.getValue().getFieldName();
-            if (fieldType.getTag() == TypeTags.UNION_TAG) {
-                String unionFieldType = fieldName + "_" + UNION_TYPE_IDENTIFIER;
-                ProtobufMessage nestedMessage = buildProtobufMessageForBallerinaUnionType(fieldType, unionFieldType);
-                messageBuilder.addNestedMessage(nestedMessage);
-                messageBuilder.addField(OPTIONAL_LABEL, unionFieldType, fieldName, number);
-            } else if (fieldType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                RecordType recordType = (RecordType) fieldType;
-                ProtobufMessage nestedMessage = buildProtobufMessageForBallerinaRecordType(recordType.getFields(),
-                                                                                           recordType.getName());
-                String nestedFieldType = recordType.getName();
-                messageBuilder.addNestedMessage(nestedMessage);
-                messageBuilder.addField(OPTIONAL_LABEL, nestedFieldType, fieldName, number);
-            } else if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
-                ArrayType arrayType = (ArrayType) fieldType;
-                buildProtobufMessageForBallerinaArrayType(messageBuilder, arrayType, fieldName, number, 1);
-            } else if (fieldType.getTag() <= TypeTags.BOOLEAN_TAG) {
-                String protoFieldType = DataTypeMapper.getProtoTypeFromTag(fieldType.getTag());
-                buildProtobufMessageForBallerinaPrimitiveType(messageBuilder, protoFieldType, fieldName, number);
-            } else {
-                throw createSerdesError(UNSUPPORTED_DATA_TYPE + fieldType.getName(), SERDES_ERROR);
-            }
-            number++;
-        }
-        return messageBuilder.build();
+        String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(ballerinaType.getTag());
+        Builder messageField = ProtobufMessageFieldBuilder.newFieldBuilder(
+                Constants.OPTIONAL_LABEL, protoType, fieldName, fieldNumber);
+
+        messageBuilder.addField(messageField);
     }
 
-    private static ProtobufMessage buildProtobufMessageForBallerinaUnionType(Type type, String name) {
-        UnionType unionType = (UnionType) type;
-        ProtobufMessageBuilder messageBuilder = ProtobufMessage.newMessageBuilder(name);
-        int number = 1;
+    // Generates schema for ballerina decimal type
+    private static void generateMessageDefinitionForPrimitiveDecimal(
+            ProtobufMessageBuilder messageBuilder) {
 
+        int fieldNumber = 1;
+
+        // Uses java BigDecimal properties; scale, precision and value as message fields
+        Builder scaleField = ProtobufMessageFieldBuilder
+                .newFieldBuilder(Constants.OPTIONAL_LABEL, Constants.UINT32, Constants.SCALE, fieldNumber++);
+        Builder precisionField = ProtobufMessageFieldBuilder
+                .newFieldBuilder(Constants.OPTIONAL_LABEL, Constants.UINT32, Constants.PRECISION, fieldNumber++);
+        Builder valueField = ProtobufMessageFieldBuilder
+                .newFieldBuilder(Constants.OPTIONAL_LABEL, Constants.BYTES, Constants.VALUE, fieldNumber);
+
+        messageBuilder.addField(scaleField);
+        messageBuilder.addField(precisionField);
+        messageBuilder.addField(valueField);
+    }
+
+    private static void generateMessageDefinitionForUnionType(
+            ProtobufMessageBuilder messageBuilder, UnionType unionType) {
+
+        int fieldNumber = 1;
+
+        // Member field names are prefixed with ballerina type name to avoid name collision in proto message definition
         for (Type memberType : unionType.getMemberTypes()) {
-            if (memberType.getTag() <= TypeTags.BOOLEAN_TAG) {
-                String ballerinaToProtoMap = DataTypeMapper.getProtoTypeFromTag(memberType.getTag());
-                String fieldName = ballerinaToProtoMap + UNION_FIELD_SEPARATOR + name;
-                buildProtobufMessageForBallerinaPrimitiveType(messageBuilder, ballerinaToProtoMap, fieldName, number);
-                number++;
-            } else if (memberType.getTag() == TypeTags.NULL_TAG) {
-                messageBuilder.addField(OPTIONAL_LABEL, "bool", NULL_FIELD_NAME, number);
-                number++;
-            } else if (memberType.getTag() == TypeTags.ARRAY_TAG) {
-                ArrayType arrayType = (ArrayType) memberType;
-                String protoType = DataTypeMapper.getProtoTypeFromTag(arrayType.getElementType().getTag());
-                if (protoType == null) {
-                    protoType = arrayType.getElementType().getName();
+            switch (memberType.getTag()) {
+                case TypeTags.NULL_TAG: {
+                    String fieldName = Constants.NULL_FIELD_NAME;
+                    Builder nilField = ProtobufMessageFieldBuilder
+                            .newFieldBuilder(Constants.OPTIONAL_LABEL, Constants.BOOL, fieldName, fieldNumber);
+                    messageBuilder.addField(nilField);
+                    break;
                 }
-                String fieldName = protoType + UNION_FIELD_SEPARATOR + "array_" + name;
-                buildProtobufMessageForBallerinaArrayType(messageBuilder, arrayType, fieldName, number, 1);
-                number++;
-            } else if (memberType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                RecordType recordType = (RecordType) memberType;
-                String fieldName = memberType.getName() + UNION_FIELD_SEPARATOR + name;
-                String[] elementNameHolder = recordType.getName().split(":");
-                String elementType = elementNameHolder[elementNameHolder.length - 1] + RECORD;
-                messageBuilder.addNestedMessage(buildProtobufMessageForBallerinaRecordType(recordType.getFields(),
-                        recordType.getName() + RECORD));
-                messageBuilder.addField(OPTIONAL_LABEL, elementType, fieldName, number);
-                number++;
-            } else {
-                throw createSerdesError(UNSUPPORTED_DATA_TYPE + type.getName(), SERDES_ERROR);
+
+                case TypeTags.INT_TAG:
+                case TypeTags.BYTE_TAG:
+                case TypeTags.FLOAT_TAG:
+                case TypeTags.STRING_TAG:
+                case TypeTags.BOOLEAN_TAG: {
+                    String fieldName = memberType.getName() + Constants.TYPE_SEPARATOR + Constants.UNION_FIELD_NAME;
+                    generateMessageDefinitionForPrimitiveType(messageBuilder, memberType, fieldName, fieldNumber);
+                    break;
+                }
+
+                case TypeTags.DECIMAL_TAG: {
+                    String fieldName = memberType.getName() + Constants.TYPE_SEPARATOR + Constants.UNION_FIELD_NAME;
+
+                    ProtobufMessageBuilder decimalMessageBuilder = new ProtobufMessageBuilder(Constants.DECIMAL_VALUE);
+                    generateMessageDefinitionForPrimitiveDecimal(decimalMessageBuilder);
+                    messageBuilder.addNestedMessage(decimalMessageBuilder);
+
+                    String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(memberType.getTag());
+                    Builder messageField = ProtobufMessageFieldBuilder
+                            .newFieldBuilder(Constants.OPTIONAL_LABEL, protoType, fieldName, fieldNumber);
+                    messageBuilder.addField(messageField);
+                    break;
+                }
+
+                case TypeTags.ARRAY_TAG: {
+                    ArrayType arrayType = (ArrayType) memberType;
+                    int dimention = Utils.getDimensions(arrayType);
+                    generateMessageDefinitionForArrayType(messageBuilder, arrayType, dimention, fieldNumber, true);
+                    break;
+                }
+
+                default:
+                    throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + memberType.getName(), SERDES_ERROR);
             }
+            fieldNumber++;
         }
-        return messageBuilder.build();
+    }
+
+    private static void generateMessageDefinitionForArrayType(
+            ProtobufMessageBuilder messageBuilder, ArrayType arrayType, int dimensions, int fieldNumber,
+            boolean isUnionField) {
+
+        Type type = arrayType.getElementType();
+        String fieldName = Constants.ARRAY_FIELD_NAME + Constants.SEPARATOR + dimensions;
+
+        switch (type.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.STRING_TAG:
+            case TypeTags.BOOLEAN_TAG: {
+                String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(type.getTag());
+                String label = protoType.equals(Constants.BYTES) ? Constants.OPTIONAL_LABEL : Constants.REPEATED_LABEL;
+
+                if (isUnionField) {
+                    fieldName = type.getName() + Constants.TYPE_SEPARATOR
+                            + fieldName + Constants.TYPE_SEPARATOR
+                            + Constants.UNION_FIELD_NAME;
+                }
+
+                Builder messageField = ProtobufMessageFieldBuilder
+                        .newFieldBuilder(label, protoType, fieldName, fieldNumber);
+                messageBuilder.addField(messageField);
+                break;
+            }
+
+
+            case TypeTags.DECIMAL_TAG: {
+                String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(type.getTag());
+                String label = Constants.REPEATED_LABEL;
+
+                if (isUnionField) {
+                    fieldName = type.getName() + Constants.TYPE_SEPARATOR
+                            + fieldName + Constants.TYPE_SEPARATOR
+                            + Constants.UNION_FIELD_NAME;
+                }
+
+                ProtobufMessageBuilder decimalMessageBuilder = new ProtobufMessageBuilder(protoType);
+                generateMessageDefinitionForPrimitiveDecimal(decimalMessageBuilder);
+                messageBuilder.addNestedMessage(decimalMessageBuilder);
+                Builder messageField = ProtobufMessageFieldBuilder
+                        .newFieldBuilder(label, protoType, fieldName, fieldNumber);
+
+                messageBuilder.addField(messageField);
+                break;
+            }
+
+            case TypeTags.UNION_TAG: {
+                String nestedMessageName = Constants.UNION_BUILDER_NAME;
+
+                if (isUnionField) {
+                    String ballerinaUnionTypeName = Utils.getElementTypeOfBallerinaArray(arrayType);
+                    // ballerinaType becomes "union_<BallerinaUnionTypeName>"
+                    String ballerinaType = Constants.UNION + Constants.SEPARATOR + ballerinaUnionTypeName;
+                    // Field names and nested message names are prefixed with ballerina type to avoid name collision
+                    nestedMessageName = ballerinaType + Constants.TYPE_SEPARATOR + nestedMessageName;
+                    // fieldName becomes "union_<BallerinaUnionTypeName>__arrayFieldName_<dimention>__unionField"
+                    fieldName = ballerinaType + Constants.TYPE_SEPARATOR
+                            + fieldName + Constants.TYPE_SEPARATOR
+                            + Constants.UNION_FIELD_NAME;
+                }
+
+                ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName);
+                generateMessageDefinitionForUnionType(nestedMessageBuilder, (UnionType) type);
+                messageBuilder.addNestedMessage(nestedMessageBuilder);
+
+                Builder messageField = ProtobufMessageFieldBuilder
+                        .newFieldBuilder(Constants.REPEATED_LABEL, nestedMessageName, fieldName, fieldNumber);
+                messageBuilder.addField(messageField);
+                break;
+            }
+
+            case TypeTags.ARRAY_TAG: {
+                ArrayType nestedArrayType = (ArrayType) type;
+                String nestedMessageName = Constants.ARRAY_BUILDER_NAME + Constants.SEPARATOR + (dimensions - 1);
+
+                if (isUnionField) {
+                    String ballerinaType = Utils.getElementTypeOfBallerinaArray(nestedArrayType);
+                    if (!DataTypeMapper.isBallerinaPrimitiveType(ballerinaType)) {
+                        ballerinaType = Constants.UNION + Constants.SEPARATOR + ballerinaType;
+                    }
+                    // Field names and nested message names are prefixed with ballerina type to avoid name collision
+                    nestedMessageName = ballerinaType + Constants.TYPE_SEPARATOR + nestedMessageName;
+                    fieldName = ballerinaType + Constants.TYPE_SEPARATOR
+                            + fieldName + Constants.TYPE_SEPARATOR
+                            + Constants.UNION_FIELD_NAME;
+                }
+
+                ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName);
+                generateMessageDefinitionForArrayType(nestedMessageBuilder, nestedArrayType, dimensions - 1, 1, false);
+                messageBuilder.addNestedMessage(nestedMessageBuilder);
+
+                Builder messageField = ProtobufMessageFieldBuilder
+                        .newFieldBuilder(Constants.REPEATED_LABEL, nestedMessageName, fieldName, fieldNumber);
+                messageBuilder.addField(messageField);
+                break;
+            }
+
+            default:
+                throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + type.getName(), SERDES_ERROR);
+        }
     }
 }
