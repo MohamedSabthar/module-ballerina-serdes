@@ -21,6 +21,8 @@ package io.ballerina.stdlib.serdes;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BError;
@@ -30,6 +32,8 @@ import io.ballerina.stdlib.serdes.protobuf.DataTypeMapper;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufFileBuilder;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageFieldBuilder;
+
+import java.util.Map;
 
 import static com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Builder;
 import static com.google.protobuf.Descriptors.Descriptor;
@@ -101,6 +105,14 @@ public class SchemaGenerator {
                 String messageName = Constants.ARRAY_BUILDER_NAME + Constants.SEPARATOR + dimensions;
                 messageBuilder = new ProtobufMessageBuilder(messageName);
                 generateMessageDefinitionForArrayType(messageBuilder, arrayType, dimensions, fieldNumber, false);
+                break;
+            }
+
+            case TypeTags.RECORD_TYPE_TAG: {
+                RecordType recordType = (RecordType) ballerinaType;
+                String messageName = recordType.getName();
+                messageBuilder = new ProtobufMessageBuilder(messageName);
+                generateMessageDefinitionForRecordType(messageBuilder, recordType, fieldNumber);
                 break;
             }
 
@@ -187,6 +199,8 @@ public class SchemaGenerator {
                     generateMessageDefinitionForArrayType(messageBuilder, arrayType, dimention, fieldNumber, true);
                     break;
                 }
+
+                // TODO: handle record
 
                 default:
                     throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + memberType.getName(), SERDES_ERROR);
@@ -297,6 +311,56 @@ public class SchemaGenerator {
 
             default:
                 throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + type.getName(), SERDES_ERROR);
+        }
+    }
+
+    private static void generateMessageDefinitionForRecordType(
+            ProtobufMessageBuilder messageBuilder, RecordType recordType, int fieldNumber) {
+
+        Map<String, Field> recordFields = recordType.getFields();
+        int fieldNumberForEntries = 1;
+
+        for (var fieldEntry: recordFields.entrySet()) {
+            String fieldEntryName = fieldEntry.getKey();
+            Type fieldEntryType = fieldEntry.getValue().getFieldType();
+            String fieldName = fieldEntryName;
+
+            switch (fieldEntryType.getTag()) {
+                case TypeTags.INT_TAG:
+                case TypeTags.BYTE_TAG:
+                case TypeTags.FLOAT_TAG:
+                case TypeTags.STRING_TAG:
+                case TypeTags.BOOLEAN_TAG: {
+                    String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(fieldEntryType.getTag());
+                    String label = Constants.OPTIONAL_LABEL;
+
+                    Builder messageField = ProtobufMessageFieldBuilder
+                            .newFieldBuilder(label, protoType, fieldName, fieldNumberForEntries);
+                    messageBuilder.addField(messageField);
+                    break;
+                }
+
+                case TypeTags.DECIMAL_TAG: {
+                    String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(fieldEntryType.getTag());
+                    String label = Constants.OPTIONAL_LABEL;
+
+                    ProtobufMessageBuilder decimalMessageBuilder = new ProtobufMessageBuilder(protoType);
+                    generateMessageDefinitionForPrimitiveDecimal(decimalMessageBuilder);
+                    messageBuilder.addNestedMessage(decimalMessageBuilder);
+                    Builder messageField = ProtobufMessageFieldBuilder
+                            .newFieldBuilder(label, protoType, fieldName, fieldNumberForEntries);
+
+                    messageBuilder.addField(messageField);
+                    break;
+                }
+
+                // TODO: handle record, union and arrays
+
+                default:
+                    throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + fieldEntryType.getName(),
+                            SERDES_ERROR);
+            }
+            fieldNumberForEntries++;
         }
     }
 }
