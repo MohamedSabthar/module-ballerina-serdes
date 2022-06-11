@@ -114,7 +114,7 @@ public class SchemaGenerator {
                 RecordType recordType = (RecordType) ballerinaType;
                 String messageName = recordType.getName();
                 messageBuilder = new ProtobufMessageBuilder(messageName);
-                generateMessageDefinitionForRecordType(messageBuilder, recordType, fieldNumber);
+                generateMessageDefinitionForRecordType(messageBuilder, recordType);
                 break;
             }
 
@@ -203,6 +203,7 @@ public class SchemaGenerator {
                             fieldNumber, true);
                     break;
                 }
+
 
                 // TODO: handle record
 
@@ -315,16 +316,20 @@ public class SchemaGenerator {
                 break;
             }
 
+            // TODO: handle record
+
             default:
                 throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + type.getName(), SERDES_ERROR);
         }
     }
 
     private static void generateMessageDefinitionForRecordType(
-            ProtobufMessageBuilder messageBuilder, RecordType recordType, int fieldNumber) {
+            ProtobufMessageBuilder messageBuilder, RecordType recordType) {
 
         Map<String, Field> recordFields = recordType.getFields();
         int fieldNumberForEntries = 1;
+
+        String label = Constants.OPTIONAL_LABEL;
 
         for (var fieldEntry: recordFields.entrySet()) {
             String fieldEntryName = fieldEntry.getKey();
@@ -338,7 +343,7 @@ public class SchemaGenerator {
                 case TypeTags.STRING_TAG:
                 case TypeTags.BOOLEAN_TAG: {
                     String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(fieldEntryType.getTag());
-                    String label = Constants.OPTIONAL_LABEL;
+
 
                     Builder messageField = ProtobufMessageFieldBuilder
                             .newFieldBuilder(label, protoType, fieldName, fieldNumberForEntries);
@@ -348,7 +353,6 @@ public class SchemaGenerator {
 
                 case TypeTags.DECIMAL_TAG: {
                     String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(fieldEntryType.getTag());
-                    String label = Constants.OPTIONAL_LABEL;
 
                     ProtobufMessageBuilder decimalMessageBuilder = new ProtobufMessageBuilder(protoType);
                     generateMessageDefinitionForPrimitiveDecimal(decimalMessageBuilder);
@@ -360,6 +364,17 @@ public class SchemaGenerator {
                     break;
                 }
 
+                case TypeTags.UNION_TAG: {
+                    String unionTypeName = fieldName + Constants.TYPE_SEPARATOR + Constants.UNION_BUILDER_NAME;
+                    ProtobufMessageBuilder unionMessageBuilder = new ProtobufMessageBuilder(unionTypeName);
+                    generateMessageDefinitionForUnionType(unionMessageBuilder, (UnionType) fieldEntryType);
+                    Builder unionMessageField = ProtobufMessageFieldBuilder
+                            .newFieldBuilder(label, unionTypeName, fieldName, fieldNumberForEntries);
+                    messageBuilder.addNestedMessage(unionMessageBuilder);
+                    messageBuilder.addField(unionMessageField);
+                    break;
+                }
+
                 case TypeTags.ARRAY_TAG: {
                     ArrayType arrayType = (ArrayType) fieldEntryType;
                     int dimention = Utils.getDimensions(arrayType);
@@ -368,7 +383,17 @@ public class SchemaGenerator {
                     break;
                 }
 
-                // TODO: handle record, union
+                case TypeTags.RECORD_TYPE_TAG: {
+                    RecordType nestedRecordType = (RecordType) fieldEntryType;
+                    String messageName = nestedRecordType.getName();
+                    ProtobufMessageBuilder recordMessageBuilder = new ProtobufMessageBuilder(messageName);
+                    generateMessageDefinitionForRecordType(recordMessageBuilder, nestedRecordType);
+                    messageBuilder.addNestedMessage(recordMessageBuilder);
+                    Builder recordField = ProtobufMessageFieldBuilder
+                            .newFieldBuilder(label, messageName, fieldName, fieldNumberForEntries);
+                    messageBuilder.addField(recordField);
+                    break;
+                }
 
                 default:
                     throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + fieldEntryType.getName(),

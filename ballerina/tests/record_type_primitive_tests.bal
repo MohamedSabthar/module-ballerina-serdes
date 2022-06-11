@@ -16,13 +16,21 @@
 
 import ballerina/test;
 
+type Test string[]|int[][];
+
 type Person record {
-    string name;
-    byte age;
+    string|int name;
+    byte|float age;
     decimal balance;
     float height; 
     int weight;
-    int[][] test; 
+    Test[] test; 
+    Account account;
+};
+
+type Account record {
+    string number;
+    decimal amount;
 };
 
 @test:Config {}
@@ -33,7 +41,8 @@ public isolated function testRecordWithPrimitiveTypes() returns error? {
         balance: 12000.45678d,
         height: 6.2,
         weight: 58,
-        test: [[1,2,4],[89, 50, 3]]
+        test: [[[1,2,3]],["module"],["serdes"]],
+        account: {number: "acc-0089", amount: 12e5}
     };
 
     Proto3Schema ser = check new (Person);

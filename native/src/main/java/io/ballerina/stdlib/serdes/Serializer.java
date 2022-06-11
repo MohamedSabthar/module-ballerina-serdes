@@ -324,13 +324,29 @@ public class Serializer {
                     break;
                 }
 
+                case TypeTags.UNION_TAG: {
+                    Descriptor nestedSchema = field.getMessageType();
+                    Builder nestedMessageBuilder = DynamicMessage.newBuilder(nestedSchema);
+                    DynamicMessage nestedMessage = generateMessageForUnionType(nestedMessageBuilder, entryValue)
+                            .build();
+                    messageBuilder.setField(field, nestedMessage);
+                    break;
+                }
+
                 case TypeTags.ARRAY_TAG: {
                     int dimensions = Utils.getDimensions((ArrayType) entryFieldType);
                     generateMessageForArrayType(messageBuilder, field, (BArray) entryValue, dimensions);
                     break;
                 }
 
-                // TODO: handle record, union
+                case TypeTags.RECORD_TYPE_TAG: {
+                    @SuppressWarnings("unchecked")
+                    BMap<BString, Object> nestedRecord = (BMap<BString, Object>) entryValue;
+                    Builder recordBuilder = DynamicMessage.newBuilder(field.getMessageType());
+                    DynamicMessage nestedMessage = generateMessageForRecordType(recordBuilder,  nestedRecord).build();
+                    messageBuilder.setField(field, nestedMessage);
+                    break;
+                }
             }
         }
         return messageBuilder;

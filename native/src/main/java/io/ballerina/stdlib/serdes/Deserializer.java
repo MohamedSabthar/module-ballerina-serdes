@@ -282,6 +282,11 @@ public class Deserializer {
                     break;
                 }
 
+                case TypeTags.UNION_TAG: {
+                    ballerinaValue = getUnionTypeValueFromMessage((DynamicMessage) value, entryFieldType);
+                    break;
+                }
+
                 case TypeTags.ARRAY_TAG: {
                     ArrayType arrayType = (ArrayType) entryFieldType;
                     int dimensions = Utils.getDimensions(arrayType);
@@ -291,11 +296,17 @@ public class Deserializer {
                     break;
                 }
 
+                case TypeTags.RECORD_TYPE_TAG: {
+                    Object recordMessage = dynamicMessage.getField(fieldDescriptor);
+                    ballerinaValue = getRecordTypeValueFromMessage((DynamicMessage) recordMessage,
+                            (RecordType) entryFieldType);
+                    break;
+                }
+
                 default:
                     throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + entryFieldType.getName(),
                             SERDES_ERROR);
 
-                    // TODO: handle record, union
             }
             record.put(StringUtils.fromString(entryFieldName), ballerinaValue);
         }
