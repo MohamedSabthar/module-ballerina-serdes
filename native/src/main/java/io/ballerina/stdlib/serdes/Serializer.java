@@ -324,7 +324,13 @@ public class Serializer {
                     break;
                 }
 
-                // TODO: handle record, union and arrays
+                case TypeTags.ARRAY_TAG: {
+                    int dimensions = Utils.getDimensions((ArrayType) entryFieldType);
+                    generateMessageForArrayType(messageBuilder, field, (BArray) entryValue, dimensions);
+                    break;
+                }
+
+                // TODO: handle record, union
             }
         }
         return messageBuilder;

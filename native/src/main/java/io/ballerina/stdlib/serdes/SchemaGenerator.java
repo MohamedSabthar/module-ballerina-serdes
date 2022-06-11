@@ -104,7 +104,9 @@ public class SchemaGenerator {
                 int dimensions = Utils.getDimensions(arrayType);
                 String messageName = Constants.ARRAY_BUILDER_NAME + Constants.SEPARATOR + dimensions;
                 messageBuilder = new ProtobufMessageBuilder(messageName);
-                generateMessageDefinitionForArrayType(messageBuilder, arrayType, dimensions, fieldNumber, false);
+                String fieldName = Constants.ARRAY_FIELD_NAME + Constants.SEPARATOR + dimensions;
+                generateMessageDefinitionForArrayType(messageBuilder, arrayType, fieldName,
+                        dimensions, fieldNumber, false);
                 break;
             }
 
@@ -196,7 +198,9 @@ public class SchemaGenerator {
                 case TypeTags.ARRAY_TAG: {
                     ArrayType arrayType = (ArrayType) memberType;
                     int dimention = Utils.getDimensions(arrayType);
-                    generateMessageDefinitionForArrayType(messageBuilder, arrayType, dimention, fieldNumber, true);
+                    String fieldName = Constants.ARRAY_FIELD_NAME + Constants.SEPARATOR + dimention;
+                    generateMessageDefinitionForArrayType(messageBuilder, arrayType, fieldName, dimention,
+                            fieldNumber, true);
                     break;
                 }
 
@@ -210,11 +214,11 @@ public class SchemaGenerator {
     }
 
     private static void generateMessageDefinitionForArrayType(
-            ProtobufMessageBuilder messageBuilder, ArrayType arrayType, int dimensions, int fieldNumber,
+            ProtobufMessageBuilder messageBuilder, ArrayType arrayType, String fieldName,
+            int dimensions, int fieldNumber,
             boolean isUnionField) {
 
         Type type = arrayType.getElementType();
-        String fieldName = Constants.ARRAY_FIELD_NAME + Constants.SEPARATOR + dimensions;
 
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
@@ -300,7 +304,9 @@ public class SchemaGenerator {
                 }
 
                 ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName);
-                generateMessageDefinitionForArrayType(nestedMessageBuilder, nestedArrayType, dimensions - 1, 1, false);
+                String nestedFieldName = Constants.ARRAY_FIELD_NAME + Constants.SEPARATOR + (dimensions - 1);
+                generateMessageDefinitionForArrayType(nestedMessageBuilder, nestedArrayType, nestedFieldName,
+                        dimensions - 1, 1, false);
                 messageBuilder.addNestedMessage(nestedMessageBuilder);
 
                 Builder messageField = ProtobufMessageFieldBuilder
@@ -354,7 +360,15 @@ public class SchemaGenerator {
                     break;
                 }
 
-                // TODO: handle record, union and arrays
+                case TypeTags.ARRAY_TAG: {
+                    ArrayType arrayType = (ArrayType) fieldEntryType;
+                    int dimention = Utils.getDimensions(arrayType);
+                    generateMessageDefinitionForArrayType(messageBuilder, arrayType, fieldName,
+                            dimention, fieldNumberForEntries, false);
+                    break;
+                }
+
+                // TODO: handle record, union
 
                 default:
                     throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + fieldEntryType.getName(),

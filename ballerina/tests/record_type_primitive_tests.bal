@@ -17,21 +17,23 @@
 import ballerina/test;
 
 type Person record {
-    // string name;
+    string name;
     byte age;
     decimal balance;
     float height; 
-    int weight; 
+    int weight;
+    int[][] test; 
 };
 
 @test:Config {}
 public isolated function testRecordWithPrimitiveTypes() returns error? {
     Person person = {
-        // name: "Jhon",
+        name: "Jhon",
         age: 30,
         balance: 12000.45678d,
         height: 6.2,
-        weight: 58
+        weight: 58,
+        test: [[1,2,4],[89, 50, 3]]
     };
 
     Proto3Schema ser = check new (Person);

@@ -189,7 +189,7 @@ public class Deserializer {
     }
 
     private static Object getArrayTypeValueFromMessage(
-            Object value, Type type, Descriptor schema, int dimensions, String ballerinaTypePrefixOfUnionField) {
+            Object value, Type elementType, Descriptor schema, int dimensions, String ballerinaTypePrefixOfUnionField) {
 
         if (value instanceof ByteString) {
             ByteString byteString = (ByteString) value;
@@ -197,10 +197,10 @@ public class Deserializer {
         }
 
         Collection<?> collection = ((Collection<?>) value);
-        BArray bArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(type));
+        BArray bArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(elementType));
 
         for (Object element : collection) {
-            switch (type.getTag()) {
+            switch (elementType.getTag()) {
                 case TypeTags.INT_TAG:
                 case TypeTags.BYTE_TAG:
                 case TypeTags.FLOAT_TAG:
@@ -223,13 +223,13 @@ public class Deserializer {
 
                 case TypeTags.UNION_TAG: {
                     DynamicMessage nestedDynamicMessage = (DynamicMessage) element;
-                    Object unionValue = getUnionTypeValueFromMessage(nestedDynamicMessage, type);
+                    Object unionValue = getUnionTypeValueFromMessage(nestedDynamicMessage, elementType);
                     bArray.append(unionValue);
                     break;
                 }
 
                 case TypeTags.ARRAY_TAG: {
-                    Type elementType = ((ArrayType) type).getElementType();
+                    ArrayType arrayType = ((ArrayType) elementType);
                     String fieldName = Constants.ARRAY_FIELD_NAME + Constants.SEPARATOR + (dimensions - 1);
                     String typeName = Constants.ARRAY_BUILDER_NAME + Constants.SEPARATOR + (dimensions - 1);
 
@@ -242,7 +242,7 @@ public class Deserializer {
                     FieldDescriptor fieldDescriptor = nestedSchema.findFieldByName(fieldName);
                     Object nestedArrayContent = nestedDynamicMessage.getField(fieldDescriptor);
                     BArray nestedArray = (BArray) getArrayTypeValueFromMessage(nestedArrayContent,
-                            elementType, nestedSchema, dimensions - 1);
+                            arrayType.getElementType(), nestedSchema, dimensions - 1);
                     bArray.append(nestedArray);
                     break;
                 }
@@ -264,6 +264,8 @@ public class Deserializer {
             Type entryFieldType = entry.getValue().getFieldType();
 
             fieldDescriptor = schema.findFieldByName(entryFieldName);
+            // Get the protobuf field value
+            Object value = dynamicMessage.getField(fieldDescriptor);
 
             switch (entryFieldType.getTag()) {
                 case TypeTags.INT_TAG:
@@ -271,14 +273,21 @@ public class Deserializer {
                 case TypeTags.FLOAT_TAG:
                 case TypeTags.STRING_TAG:
                 case TypeTags.BOOLEAN_TAG: {
-                    Object value = dynamicMessage.getField(fieldDescriptor);
-                    ballerinaValue =  getPrimitiveTypeValueFromMessage(value);
+                    ballerinaValue = getPrimitiveTypeValueFromMessage(value);
                     break;
                 }
 
                 case TypeTags.DECIMAL_TAG: {
-                    Object decimalMessage = dynamicMessage.getField(fieldDescriptor);
-                    ballerinaValue = getDecimalPrimitiveTypeValueFromMessage((DynamicMessage) decimalMessage);
+                    ballerinaValue = getDecimalPrimitiveTypeValueFromMessage((DynamicMessage) value);
+                    break;
+                }
+
+                case TypeTags.ARRAY_TAG: {
+                    ArrayType arrayType = (ArrayType) entryFieldType;
+                    int dimensions = Utils.getDimensions(arrayType);
+                    Descriptor recordSchema = fieldDescriptor.getContainingType();
+                    ballerinaValue = getArrayTypeValueFromMessage(value, arrayType.getElementType(),
+                            recordSchema, dimensions);
                     break;
                 }
 
@@ -286,7 +295,7 @@ public class Deserializer {
                     throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + entryFieldType.getName(),
                             SERDES_ERROR);
 
-                // TODO: handle record, union and arrays
+                    // TODO: handle record, union
             }
             record.put(StringUtils.fromString(entryFieldName), ballerinaValue);
         }
