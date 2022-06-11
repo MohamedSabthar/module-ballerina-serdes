@@ -205,7 +205,19 @@ public class SchemaGenerator {
                 }
 
 
-                // TODO: handle record
+                case TypeTags.RECORD_TYPE_TAG: {
+                    RecordType recordType = (RecordType) memberType;
+                    String recordTypeName = recordType.getName();
+                    ProtobufMessageBuilder recordMessageBuilder = new ProtobufMessageBuilder(recordTypeName);
+                    generateMessageDefinitionForRecordType(recordMessageBuilder, recordType);
+                    messageBuilder.addNestedMessage(recordMessageBuilder);
+                    String fieldName = Constants.RECORD + Constants.SEPARATOR + recordTypeName
+                            + Constants.TYPE_SEPARATOR + Constants.UNION_FIELD_NAME;
+                    Builder recordField = ProtobufMessageFieldBuilder
+                            .newFieldBuilder(Constants.OPTIONAL_LABEL, recordTypeName, fieldName, fieldNumber);
+                    messageBuilder.addField(recordField);
+                    break;
+                }
 
                 default:
                     throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + memberType.getName(), SERDES_ERROR);

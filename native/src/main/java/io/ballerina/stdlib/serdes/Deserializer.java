@@ -165,6 +165,14 @@ public class Deserializer {
                 return null;
             }
 
+            if (fieldDescriptor.getName().contains(Constants.RECORD)) {
+                String fieldName = fieldDescriptor.getName();
+                String[] tokens = fieldName.split(Constants.TYPE_SEPARATOR);
+                String ballerinaType = tokens[0];
+                RecordType recordType = getBallerinaRecordTypeFromUnion((UnionType) type, ballerinaType);
+                return getRecordTypeValueFromMessage((DynamicMessage) value, recordType);
+            }
+
             if (fieldDescriptor.isRepeated()) {
                 String fieldName = fieldDescriptor.getName();
                 String[] tokens = fieldName.split(Constants.TYPE_SEPARATOR);
@@ -246,6 +254,7 @@ public class Deserializer {
                     bArray.append(nestedArray);
                     break;
                 }
+                // TODO: handle record
             }
         }
         return bArray;
@@ -311,6 +320,25 @@ public class Deserializer {
             record.put(StringUtils.fromString(entryFieldName), ballerinaValue);
         }
         return record;
+    }
+
+    private static RecordType getBallerinaRecordTypeFromUnion(UnionType unionType, String ballerinaType) {
+        RecordType type = null;
+
+        if (ballerinaType.contains(Constants.RECORD + Constants.SEPARATOR)) {
+            ballerinaType = ballerinaType.split(Constants.SEPARATOR)[1];
+        }
+
+        for (var memberTypes : unionType.getMemberTypes()) {
+            if (memberTypes instanceof RecordType) {
+                String recordType = memberTypes.getName();
+                if (recordType.equals(ballerinaType)) {
+                    type = (RecordType) memberTypes;
+                    break;
+                }
+            }
+        }
+        return type;
     }
 
     private static ArrayType getBallerinaArrayTypeFromUnion(UnionType unionType, String ballerinaType, int dimention) {

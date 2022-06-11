@@ -103,7 +103,8 @@ public class Serializer {
             }
 
             case TypeTags.RECORD_TYPE_TAG: {
-                @SuppressWarnings("unchecked") BMap<BString, Object> record = (BMap<BString, Object>) anydata;
+                @SuppressWarnings("unchecked")
+                BMap<BString, Object> record = (BMap<BString, Object>) anydata;
                 return generateMessageForRecordType(messageBuilder, record);
             }
 
@@ -184,6 +185,7 @@ public class Serializer {
             return generateMessageForPrimitiveType(messageBuilder, fieldDescriptor, anydata, ballerinaType);
         }
 
+        // Handle ballerina array
         if (anydata instanceof BArray) {
             BArray bArray = (BArray) anydata;
             ballerinaType = bArray.getElementType().getName();
@@ -206,6 +208,24 @@ public class Serializer {
 
             FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
             return generateMessageForArrayType(messageBuilder, fieldDescriptor, bArray, dimention, ballerinaType);
+        }
+
+        // Handle ballerina record
+        if (anydata instanceof BMap) {
+            @SuppressWarnings("unchecked")
+            BMap<BString, Object> ballerinaMapOrRecord = (BMap<BString, Object>) anydata;
+
+            if (ballerinaMapOrRecord.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+                String recordTypename = ballerinaMapOrRecord.getType().getName();
+                String fieldName = Constants.RECORD + Constants.SEPARATOR
+                        + recordTypename + Constants.TYPE_SEPARATOR + Constants.UNION_FIELD_NAME;
+                FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
+                Descriptor recordSchema = fieldDescriptor.getMessageType();
+                Builder recordMessageBuilder = DynamicMessage.newBuilder(recordSchema);
+                DynamicMessage recordMessage = generateMessageForRecordType(
+                        recordMessageBuilder, ballerinaMapOrRecord).build();
+                messageBuilder.setField(fieldDescriptor, recordMessage);
+            }
         }
 
         return messageBuilder;
@@ -286,6 +306,8 @@ public class Serializer {
                     messageBuilder.addRepeatedField(field, nestedMessage);
                     break;
                 }
+
+                // TODO: handle record
             }
         }
         return messageBuilder;

@@ -15,6 +15,7 @@ public class Constants {
     public static final String UNION = "union";
     public static final String BYTE = "byte";
     public static final String DECIMAL = "decimal";
+    public static final String RECORD = "record";
 
     // Constants related to java type
     public static final String INTEGER = "Integer";
@@ -50,5 +51,4 @@ public class Constants {
     public static final String TYPE_MISMATCH_ERROR_MESSAGE = "Type mismatch";
     public static final String SCHEMA_GENERATION_FAILURE = "Failed to generate schema: ";
     public static final BString BALLERINA_TYPEDESC_ATTRIBUTE_NAME = StringUtils.fromString("dataType");
-
 }
