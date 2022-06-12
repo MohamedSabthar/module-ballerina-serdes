@@ -207,7 +207,7 @@ public class Serializer {
                     + Constants.TYPE_SEPARATOR + Constants.UNION_FIELD_NAME;
 
             FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
-            return generateMessageForArrayType(messageBuilder, fieldDescriptor, bArray, dimention, ballerinaType);
+            return generateMessageForArrayType(messageBuilder, fieldDescriptor, bArray, dimention);
         }
 
         // Handle ballerina record
@@ -234,15 +234,8 @@ public class Serializer {
     private static Builder generateMessageForArrayType(
             Builder messageBuilder, FieldDescriptor field, BArray bArray, int dimensions) {
 
-        return generateMessageForArrayType(messageBuilder, field, bArray, dimensions, null);
-    }
-
-    private static Builder generateMessageForArrayType(
-            Builder messageBuilder, FieldDescriptor field, BArray bArray, int dimensions, String ballerinaTypePrefix) {
-
         int len = bArray.size();
         Type type = bArray.getElementType();
-        Descriptor schema = messageBuilder.getDescriptorForType();
 
         for (int i = 0; i < len; i++) {
 
@@ -278,8 +271,7 @@ public class Serializer {
                 }
 
                 case TypeTags.UNION_TAG: {
-                    String nestedTypeName = field.toProto().getTypeName();
-                    Descriptor nestedSchema = schema.findNestedTypeByName(nestedTypeName);
+                    Descriptor nestedSchema = field.getMessageType();
                     Builder nestedMessageBuilder = DynamicMessage.newBuilder(nestedSchema);
                     DynamicMessage nestedMessage = generateMessageForUnionType(nestedMessageBuilder, element)
                             .build();
@@ -288,16 +280,11 @@ public class Serializer {
                 }
 
                 case TypeTags.ARRAY_TAG: {
-                    String nestedTypeName = Constants.ARRAY_BUILDER_NAME + Constants.SEPARATOR + (dimensions - 1);
-                    String nestedFieldName = Constants.ARRAY_FIELD_NAME + Constants.SEPARATOR + (dimensions - 1);
-
-                    if (ballerinaTypePrefix != null) {
-                        nestedTypeName = ballerinaTypePrefix + Constants.TYPE_SEPARATOR + nestedTypeName;
-                    }
-
-                    Descriptor nestedSchema = schema.findNestedTypeByName(nestedTypeName);
+                    Descriptor nestedSchema = field.getMessageType();
                     Builder nestedMessageBuilder = DynamicMessage.newBuilder(nestedSchema);
                     Descriptor messageDescriptor = nestedMessageBuilder.getDescriptorForType();
+
+                    String nestedFieldName = Constants.ARRAY_FIELD_NAME + Constants.SEPARATOR + (dimensions - 1);
                     FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(nestedFieldName);
 
                     DynamicMessage nestedMessage = generateMessageForArrayType(
