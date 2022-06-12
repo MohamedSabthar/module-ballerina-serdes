@@ -18,10 +18,15 @@
 
 package io.ballerina.stdlib.serdes.protobuf;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import static com.google.protobuf.DescriptorProtos.DescriptorProto;
 import static com.google.protobuf.DescriptorProtos.FieldDescriptorProto;
+import static com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Label;
+import static io.ballerina.stdlib.serdes.Constants.EMPTY_STRING;
+import static io.ballerina.stdlib.serdes.Constants.REPEATED_LABEL;
+import static io.ballerina.stdlib.serdes.Constants.SPACE;
 
 /**
  * Dynamically creates a Protocol Buffer message type.
@@ -55,6 +60,68 @@ public class ProtobufMessageBuilder {
         boolean isDefined = nestedMessages.get(nestedMessage.getName()) != null;
         if (!isDefined) {
             messageDescriptorProtoBuilder.addNestedType(nestedProtobufMessage);
+            nestedMessages.put(nestedMessage.getName(), nestedMessage);
         }
+    }
+
+    @Override
+    public String toString() {
+        return toString("");
+    }
+
+    public String toString(String space) {
+        String protoStart = space + "message " + messageName + " {\n";
+        String levelSpace = space + "  ";
+        StringBuilder msgContent = new StringBuilder();
+
+        // Build string for nested types
+        nestedMessages
+                .values()
+                .forEach(nestedMessage -> msgContent.append(nestedMessage.toString(levelSpace)).append("\n"));
+
+        // Build string for field
+        messageDescriptorProtoBuilder
+                .getAllFields()
+                .values()
+                .forEach(value -> msgContent.append(buildStringForField(value, levelSpace)));
+
+        String protoEnd = space + "}\n";
+
+        return protoStart + msgContent + protoEnd;
+    }
+
+
+    public String buildStringForField(Object value, String levelSpace) {
+        StringBuilder msgContent = new StringBuilder();
+        if (value instanceof Collection) {
+            for (var field : (Collection<?>) value) {
+                if (!(field instanceof FieldDescriptorProto)) {
+                    continue;
+                }
+
+                FieldDescriptorProto fieldDescriptor = (FieldDescriptorProto) field;
+
+                String label = fieldDescriptor.getLabel() == Label.LABEL_REPEATED
+                        ? REPEATED_LABEL + SPACE : EMPTY_STRING;
+                String typeName = fieldDescriptor.getTypeName();
+                if (typeName.equals(EMPTY_STRING)) {
+                    typeName = ProtobufMessageFieldProperties.getFieldName(fieldDescriptor.getType());
+                }
+                typeName += SPACE;
+                String name = fieldDescriptor.getName();
+                int number = fieldDescriptor.getNumber();
+
+                msgContent
+                        .append(levelSpace)
+                        .append(label)
+                        .append(typeName)
+                        .append(name)
+                        .append(" = ")
+                        .append(number)
+                        .append(";")
+                        .append("\n");
+            }
+        }
+        return msgContent.toString();
     }
 }

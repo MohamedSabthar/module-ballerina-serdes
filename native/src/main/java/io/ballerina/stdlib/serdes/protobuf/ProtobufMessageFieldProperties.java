@@ -30,25 +30,42 @@ import static com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Type;
  */
 public class ProtobufMessageFieldProperties {
 
-    private static final Map<String, Type> fieldTypes = new HashMap<>();
+    private static final Map<String, Type> fieldNameToTypes = new HashMap<>();
+    private static final Map<Type, String> fieldTypeToName = new HashMap<>();
     private static final Map<String, Label> fieldLabels = new HashMap<>();
 
     static {
-        fieldTypes.put("double", Type.TYPE_DOUBLE);
-        fieldTypes.put("float", Type.TYPE_FLOAT);
-        fieldTypes.put("int32", Type.TYPE_INT32);
-        fieldTypes.put("int64", Type.TYPE_INT64);
-        fieldTypes.put("uint32", Type.TYPE_UINT32);
-        fieldTypes.put("uint64", Type.TYPE_UINT64);
-        fieldTypes.put("sint32", Type.TYPE_SINT32);
-        fieldTypes.put("sint64", Type.TYPE_SINT64);
-        fieldTypes.put("fixed32", Type.TYPE_FIXED32);
-        fieldTypes.put("fixed64", Type.TYPE_FIXED64);
-        fieldTypes.put("sfixed32", Type.TYPE_SFIXED32);
-        fieldTypes.put("sfixed64", Type.TYPE_SFIXED64);
-        fieldTypes.put("bool", Type.TYPE_BOOL);
-        fieldTypes.put("string", Type.TYPE_STRING);
-        fieldTypes.put("bytes", Type.TYPE_BYTES);
+        fieldNameToTypes.put("double", Type.TYPE_DOUBLE);
+        fieldNameToTypes.put("float", Type.TYPE_FLOAT);
+        fieldNameToTypes.put("int32", Type.TYPE_INT32);
+        fieldNameToTypes.put("int64", Type.TYPE_INT64);
+        fieldNameToTypes.put("uint32", Type.TYPE_UINT32);
+        fieldNameToTypes.put("uint64", Type.TYPE_UINT64);
+        fieldNameToTypes.put("sint32", Type.TYPE_SINT32);
+        fieldNameToTypes.put("sint64", Type.TYPE_SINT64);
+        fieldNameToTypes.put("fixed32", Type.TYPE_FIXED32);
+        fieldNameToTypes.put("fixed64", Type.TYPE_FIXED64);
+        fieldNameToTypes.put("sfixed32", Type.TYPE_SFIXED32);
+        fieldNameToTypes.put("sfixed64", Type.TYPE_SFIXED64);
+        fieldNameToTypes.put("bool", Type.TYPE_BOOL);
+        fieldNameToTypes.put("string", Type.TYPE_STRING);
+        fieldNameToTypes.put("bytes", Type.TYPE_BYTES);
+
+        fieldTypeToName.put(Type.TYPE_DOUBLE, "double");
+        fieldTypeToName.put(Type.TYPE_FLOAT, "float");
+        fieldTypeToName.put(Type.TYPE_INT32, "int32");
+        fieldTypeToName.put(Type.TYPE_INT64, "int64");
+        fieldTypeToName.put(Type.TYPE_UINT32, "uint32");
+        fieldTypeToName.put(Type.TYPE_UINT64, "uint64");
+        fieldTypeToName.put(Type.TYPE_SINT32, "sint32");
+        fieldTypeToName.put(Type.TYPE_SINT64, "sint64");
+        fieldTypeToName.put(Type.TYPE_FIXED32, "fixed32");
+        fieldTypeToName.put(Type.TYPE_FIXED64, "fixed64");
+        fieldTypeToName.put(Type.TYPE_SFIXED32, "sfixed32");
+        fieldTypeToName.put(Type.TYPE_SFIXED64, "sfixed64");
+        fieldTypeToName.put(Type.TYPE_BOOL, "bool");
+        fieldTypeToName.put(Type.TYPE_STRING, "string");
+        fieldTypeToName.put(Type.TYPE_BYTES, "bytes");
 
         fieldLabels.put("optional", Label.LABEL_OPTIONAL);
         fieldLabels.put("required", Label.LABEL_REQUIRED);
@@ -56,7 +73,11 @@ public class ProtobufMessageFieldProperties {
     }
 
     public static Type getFieldType(String type) {
-        return fieldTypes.get(type);
+        return fieldNameToTypes.get(type);
+    }
+
+    public static String getFieldName(Type type) {
+        return fieldTypeToName.get(type);
     }
 
     public static Label getFieldLabel(String label) {

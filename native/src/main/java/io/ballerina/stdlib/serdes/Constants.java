@@ -33,16 +33,20 @@ public class Constants {
     public static final String SCALE = "scale";
     public static final String PRECISION = "precision";
     public static final String VALUE = "value";
+    public static final String SYNTAX = "syntax";
 
     public static final String SEPARATOR = "_";
     public static final String TYPE_SEPARATOR = "__";
+    public static final String SPACE = " ";
 
     // Constants related to protobuf labels and types
+    public static final String PROTO3 = "proto3";
     public static final String OPTIONAL_LABEL = "optional";
     public static final String REPEATED_LABEL = "repeated";
     public static final String BYTES = "bytes";
     public static final String UINT32 = "uint32";
     public static final String BOOL = "bool";
+    public static final String MESSAGE = "MESSAGE";
 
     // Constants related to error messages
     public static final String UNSUPPORTED_DATA_TYPE = "Unsupported data type: ";

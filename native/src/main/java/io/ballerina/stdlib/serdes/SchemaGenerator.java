@@ -47,6 +47,7 @@ import static io.ballerina.stdlib.serdes.Constants.DECIMAL_VALUE;
 import static io.ballerina.stdlib.serdes.Constants.NULL_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
 import static io.ballerina.stdlib.serdes.Constants.PRECISION;
+import static io.ballerina.stdlib.serdes.Constants.PROTO3;
 import static io.ballerina.stdlib.serdes.Constants.RECORD;
 import static io.ballerina.stdlib.serdes.Constants.REPEATED_LABEL;
 import static io.ballerina.stdlib.serdes.Constants.SCALE;
@@ -83,6 +84,7 @@ public class SchemaGenerator {
                     typedesc.getDescribingType());
             Descriptor schema = protobufFile.addMessageType(protobufMessageBuilder).build();
             serdes.addNativeData(SCHEMA_NAME, schema);
+            serdes.addNativeData(PROTO3, protobufMessageBuilder.toString(""));
         } catch (BError ballerinaError) {
             return ballerinaError;
         } catch (DescriptorValidationException e) {

@@ -18,6 +18,8 @@
 
 package io.ballerina.stdlib.serdes.protobuf;
 
+import io.ballerina.stdlib.serdes.Constants;
+
 import static com.google.protobuf.DescriptorProtos.FileDescriptorProto;
 import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.DescriptorValidationException;
@@ -29,13 +31,17 @@ import static com.google.protobuf.Descriptors.FileDescriptor;
 public class ProtobufFileBuilder {
 
     private final FileDescriptorProto.Builder fileDescProtoBuilder;
+    private ProtobufMessageBuilder protobufMessage;
 
     public ProtobufFileBuilder() {
         fileDescProtoBuilder = FileDescriptorProto.newBuilder();
+        fileDescProtoBuilder.setSyntax(Constants.PROTO3);
     }
 
+    // Utmost one dynamic message schema added to the protobuf file
     public ProtobufFileBuilder addMessageType(ProtobufMessageBuilder protobufMessageBuilder) {
         fileDescProtoBuilder.addMessageType(protobufMessageBuilder.getProtobufMessage());
+        protobufMessage = protobufMessageBuilder;
         return this;
     }
 
@@ -46,6 +52,7 @@ public class ProtobufFileBuilder {
 
     @Override
     public String toString() {
-        return fileDescProtoBuilder.toString();
+        return Constants.SYNTAX + " = \"" + fileDescProtoBuilder.getSyntax() + "\";"
+                + "\n\n" + protobufMessage.toString();
     }
 }
