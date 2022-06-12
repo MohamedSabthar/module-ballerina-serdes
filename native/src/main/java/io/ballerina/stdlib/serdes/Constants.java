@@ -55,4 +55,5 @@ public class Constants {
     public static final String TYPE_MISMATCH_ERROR_MESSAGE = "Type mismatch";
     public static final String SCHEMA_GENERATION_FAILURE = "Failed to generate schema: ";
     public static final BString BALLERINA_TYPEDESC_ATTRIBUTE_NAME = StringUtils.fromString("dataType");
+    public static final String FAILED_WRITE_FILE = "Failed to write proto file: ";
 }

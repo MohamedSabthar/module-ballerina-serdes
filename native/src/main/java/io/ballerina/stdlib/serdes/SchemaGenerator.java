@@ -27,12 +27,16 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.stdlib.serdes.protobuf.DataTypeMapper;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufFileBuilder;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageFieldBuilder;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Builder;
@@ -44,6 +48,7 @@ import static io.ballerina.stdlib.serdes.Constants.ATOMIC_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.BOOL;
 import static io.ballerina.stdlib.serdes.Constants.BYTES;
 import static io.ballerina.stdlib.serdes.Constants.DECIMAL_VALUE;
+import static io.ballerina.stdlib.serdes.Constants.FAILED_WRITE_FILE;
 import static io.ballerina.stdlib.serdes.Constants.NULL_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
 import static io.ballerina.stdlib.serdes.Constants.PRECISION;
@@ -84,11 +89,24 @@ public class SchemaGenerator {
                     typedesc.getDescribingType());
             Descriptor schema = protobufFile.addMessageType(protobufMessageBuilder).build();
             serdes.addNativeData(SCHEMA_NAME, schema);
-            serdes.addNativeData(PROTO3, protobufMessageBuilder.toString(""));
+            serdes.addNativeData(PROTO3, protobufFile.toString());
         } catch (BError ballerinaError) {
             return ballerinaError;
         } catch (DescriptorValidationException e) {
             String errorMessage = SCHEMA_GENERATION_FAILURE + e.getMessage();
+            return createSerdesError(errorMessage, SERDES_ERROR);
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unused")
+    public static Object generateProtoFile(BObject serdes, BString filePath) {
+        String filePathName = filePath.getValue();
+        try (FileWriter file = new FileWriter(filePathName, StandardCharsets.UTF_8)) {
+            String proto3 = (String) serdes.getNativeData(PROTO3);
+            file.write(proto3);
+        } catch (IOException e) {
+            String errorMessage = FAILED_WRITE_FILE + e.getMessage();
             return createSerdesError(errorMessage, SERDES_ERROR);
         }
         return null;
@@ -155,7 +173,8 @@ public class SchemaGenerator {
                 break;
             }
 
-            default: throw createSerdesError(UNSUPPORTED_DATA_TYPE + ballerinaType.getName(), SERDES_ERROR);
+            default:
+                throw createSerdesError(UNSUPPORTED_DATA_TYPE + ballerinaType.getName(), SERDES_ERROR);
         }
 
         return messageBuilder;
@@ -262,7 +281,8 @@ public class SchemaGenerator {
                     break;
                 }
 
-                default: throw createSerdesError(UNSUPPORTED_DATA_TYPE + memberType.getName(), SERDES_ERROR);
+                default:
+                    throw createSerdesError(UNSUPPORTED_DATA_TYPE + memberType.getName(), SERDES_ERROR);
             }
             fieldNumber++;
         }
@@ -402,7 +422,7 @@ public class SchemaGenerator {
         Map<String, Field> recordFields = recordType.getFields();
         int fieldNumber = 1;
 
-        for (var fieldEntry: recordFields.entrySet()) {
+        for (var fieldEntry : recordFields.entrySet()) {
             String fieldEntryName = fieldEntry.getKey();
             Type fieldEntryType = fieldEntry.getValue().getFieldType();
 
@@ -472,9 +492,10 @@ public class SchemaGenerator {
                     break;
                 }
 
-                default: throw createSerdesError(
-                        UNSUPPORTED_DATA_TYPE + fieldEntryType.getName(),
-                        SERDES_ERROR);
+                default:
+                    throw createSerdesError(
+                            UNSUPPORTED_DATA_TYPE + fieldEntryType.getName(),
+                            SERDES_ERROR);
             }
             fieldNumber++;
         }

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+message ArrayBuilder_1 {
+  message Q {
+    message DecimalValue {
+      uint32 scale = 1;
+      uint32 precision = 2;
+      bytes value = 3;
+    }
+
+    message d__UnionBuilder {
+      string string__unionField = 1;
+      repeated sint64 int__arrayField_1__unionField = 2;
+    }
+
+    DecimalValue c = 1;
+    d__UnionBuilder d = 2;
+  }
+
+  repeated Q arrayField_1 = 1;
+}

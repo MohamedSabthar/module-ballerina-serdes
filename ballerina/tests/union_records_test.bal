@@ -42,6 +42,7 @@ public isolated function RecordArrays() returns error? {
 
     Proto3Schema ser = check new (RecordArray);
     byte[] encoded = check ser.serialize(data);
+    check ser.generateProtoFile("RecordArray.proto");
 
     Proto3Schema des = check new (RecordArray);
     RecordArray decoded = check des.deserialize(encoded);
