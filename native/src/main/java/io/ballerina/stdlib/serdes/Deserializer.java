@@ -237,7 +237,7 @@ public class Deserializer {
                 }
 
                 case TypeTags.ARRAY_TAG: {
-                    ArrayType arrayType = ((ArrayType) elementType);
+                    ArrayType arrayType = (ArrayType) elementType;
                     String fieldName = Constants.ARRAY_FIELD_NAME + Constants.SEPARATOR + (dimensions - 1);
                     String typeName = Constants.ARRAY_BUILDER_NAME + Constants.SEPARATOR + (dimensions - 1);
 
@@ -254,7 +254,13 @@ public class Deserializer {
                     bArray.append(nestedArray);
                     break;
                 }
-                // TODO: handle record
+
+                case TypeTags.RECORD_TYPE_TAG: {
+                    RecordType recordType = (RecordType) elementType;
+                    Object record = getRecordTypeValueFromMessage((DynamicMessage) element, recordType);
+                    bArray.append(record);
+                    break;
+                }
             }
         }
         return bArray;

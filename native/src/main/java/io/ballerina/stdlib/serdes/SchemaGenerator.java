@@ -328,7 +328,29 @@ public class SchemaGenerator {
                 break;
             }
 
-            // TODO: handle record
+            case TypeTags.RECORD_TYPE_TAG: {
+                RecordType recordType = (RecordType) type;
+                String nestedMessageName = recordType.getName();
+
+                if (isUnionField) {
+                    String ballerinaType = Constants.RECORD + Constants.SEPARATOR + recordType.getName();
+                    // Field names and nested message names are prefixed with ballerina type to avoid name collision
+                    nestedMessageName = ballerinaType + Constants.TYPE_SEPARATOR + nestedMessageName;
+                    fieldName = ballerinaType + Constants.TYPE_SEPARATOR
+                            + fieldName + Constants.TYPE_SEPARATOR
+                            + Constants.UNION_FIELD_NAME;
+                }
+
+                ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName);
+
+                generateMessageDefinitionForRecordType(nestedMessageBuilder, recordType);
+                messageBuilder.addNestedMessage(nestedMessageBuilder);
+
+                Builder messageField = ProtobufMessageFieldBuilder
+                        .newFieldBuilder(Constants.REPEATED_LABEL, nestedMessageName, fieldName, fieldNumber);
+                messageBuilder.addField(messageField);
+                break;
+            }
 
             default:
                 throw createSerdesError(Constants.UNSUPPORTED_DATA_TYPE + type.getName(), SERDES_ERROR);

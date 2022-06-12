@@ -307,7 +307,16 @@ public class Serializer {
                     break;
                 }
 
-                // TODO: handle record
+                case TypeTags.RECORD_TYPE_TAG: {
+                    Descriptor nestedSchema = field.getMessageType();
+                    Builder nestedMessageBuilder = DynamicMessage.newBuilder(nestedSchema);
+                    @SuppressWarnings("unchecked")
+                    BMap<BString, Object> recordMap = (BMap<BString, Object>) element;
+                    DynamicMessage recordMessage = generateMessageForRecordType(
+                            nestedMessageBuilder, recordMap).build();
+                    messageBuilder.addRepeatedField(field, recordMessage);
+                    break;
+                }
             }
         }
         return messageBuilder;
