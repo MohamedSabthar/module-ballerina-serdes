@@ -53,7 +53,6 @@ import static io.ballerina.stdlib.serdes.Constants.NULL_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
 import static io.ballerina.stdlib.serdes.Constants.PRECISION;
 import static io.ballerina.stdlib.serdes.Constants.PROTO3;
-import static io.ballerina.stdlib.serdes.Constants.RECORD;
 import static io.ballerina.stdlib.serdes.Constants.REPEATED_LABEL;
 import static io.ballerina.stdlib.serdes.Constants.SCALE;
 import static io.ballerina.stdlib.serdes.Constants.SCHEMA_GENERATION_FAILURE;
@@ -268,12 +267,12 @@ public class SchemaGenerator {
 
                 case TypeTags.RECORD_TYPE_TAG: {
                     RecordType recordType = (RecordType) memberType;
-                    String nestedMessageName = recordType.getName();
+                    String nestedMessageName = recordType.getName() + TYPE_SEPARATOR + Constants.RECORD_BUILDER_NAME;
                     ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName);
                     generateMessageDefinitionForRecordType(nestedMessageBuilder, recordType);
                     messageBuilder.addNestedMessage(nestedMessageBuilder);
 
-                    fieldName = RECORD + SEPARATOR + nestedMessageName + TYPE_SEPARATOR + UNION_FIELD_NAME;
+                    fieldName = recordType.getName() + TYPE_SEPARATOR + UNION_FIELD_NAME;
                     Builder messageField = ProtobufMessageFieldBuilder
                             .newFieldBuilder(OPTIONAL_LABEL, nestedMessageName, fieldName, fieldNumber);
                     messageBuilder.addField(messageField);
@@ -390,7 +389,7 @@ public class SchemaGenerator {
                 String nestedMessageName = recordType.getName();
 
                 if (isUnionField) {
-                    String ballerinaType = RECORD + SEPARATOR + recordType.getName();
+                    String ballerinaType = recordType.getName();
                     // Field names and nested message names are prefixed with ballerina type to avoid name collision
                     nestedMessageName = ballerinaType + TYPE_SEPARATOR + nestedMessageName;
                     fieldName = ballerinaType + TYPE_SEPARATOR + fieldName + TYPE_SEPARATOR + UNION_FIELD_NAME;

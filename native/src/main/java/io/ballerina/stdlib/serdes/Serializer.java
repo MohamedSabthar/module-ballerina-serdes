@@ -212,8 +212,7 @@ public class Serializer {
 
             if (ballerinaMapOrRecord.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
                 String recordTypename = ballerinaMapOrRecord.getType().getName();
-                String fieldName = Constants.RECORD + Constants.SEPARATOR
-                        + recordTypename + Constants.TYPE_SEPARATOR + Constants.UNION_FIELD_NAME;
+                String fieldName = recordTypename + Constants.TYPE_SEPARATOR + Constants.UNION_FIELD_NAME;
                 FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
                 Descriptor recordSchema = fieldDescriptor.getMessageType();
                 Builder recordMessageBuilder = DynamicMessage.newBuilder(recordSchema);

@@ -165,7 +165,8 @@ public class Deserializer {
                 return null;
             }
 
-            if (fieldDescriptor.getName().contains(Constants.RECORD)) {
+            if (fieldDescriptor.getType().name().equals(Constants.MESSAGE)
+                    && fieldDescriptor.getMessageType().getName().contains(Constants.RECORD_BUILDER_NAME)) {
                 String fieldName = fieldDescriptor.getName();
                 String[] tokens = fieldName.split(Constants.TYPE_SEPARATOR);
                 String ballerinaType = tokens[0];
@@ -327,10 +328,6 @@ public class Deserializer {
 
     private static RecordType getBallerinaRecordTypeFromUnion(UnionType unionType, String ballerinaType) {
         RecordType type = null;
-
-        if (ballerinaType.contains(Constants.RECORD + Constants.SEPARATOR)) {
-            ballerinaType = ballerinaType.split(Constants.SEPARATOR)[1];
-        }
 
         for (var memberTypes : unionType.getMemberTypes()) {
             if (memberTypes instanceof RecordType) {

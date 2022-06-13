@@ -20,11 +20,8 @@ package io.ballerina.stdlib.serdes.protobuf;
 
 import io.ballerina.runtime.api.TypeTags;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Provides Java and Ballerina data types to Proto3 field types mapping.
@@ -34,7 +31,6 @@ public class DataTypeMapper {
     private static final Map<String, String> javaTypeToProto = new HashMap<>();
     private static final Map<Integer, String> ballerinaTypeTagToProto = new HashMap<>();
     private static final Map<String, String> javaTypeToBallerinaType = new HashMap<>();
-    private static final Set<String> ballerinaPrimitiveTypes = new HashSet<>();
 
     static {
         javaTypeToProto.put("Double", "double");
@@ -64,8 +60,6 @@ public class DataTypeMapper {
         ballerinaTypeTagToProto.put(TypeTags.DECIMAL_TAG, "DecimalValue");
         ballerinaTypeTagToProto.put(TypeTags.STRING_TAG, "string");
         ballerinaTypeTagToProto.put(TypeTags.BOOLEAN_TAG, "bool");
-
-        ballerinaPrimitiveTypes.addAll(Arrays.asList("int", "float", "boolean", "string", "byte", "decimal"));
     }
 
     public static String mapBallerinaTypeToProtoType(int ballerinaTypeTag) {
@@ -74,10 +68,6 @@ public class DataTypeMapper {
 
     public static boolean isValidJavaType(String javaType) {
         return javaTypeToProto.containsKey(javaType);
-    }
-
-    public static boolean isBallerinaPrimitiveType(String ballerinaType) {
-        return ballerinaPrimitiveTypes.contains(ballerinaType);
     }
 
     public static String mapJavaTypeToBallerinaType(String javaType) {
