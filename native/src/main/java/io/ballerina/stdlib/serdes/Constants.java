@@ -12,7 +12,6 @@ public class Constants {
 
     // Constants related to ballerina type
     public static final String STRING = "string";
-    public static final String UNION = "union";
     public static final String BYTE = "byte";
     public static final String DECIMAL = "decimal";
     public static final String RECORD = "record";

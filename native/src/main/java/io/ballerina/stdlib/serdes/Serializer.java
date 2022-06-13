@@ -197,11 +197,6 @@ public class Serializer {
                 dimention += Utils.getDimensions((ArrayType) bArray.getElementType());
             }
 
-            if (!DataTypeMapper.isBallerinaPrimitiveType(ballerinaType)) {
-                ballerinaType = Constants.UNION + Constants.SEPARATOR + ballerinaType;
-            }
-
-
             String fieldName = ballerinaType + Constants.TYPE_SEPARATOR
                     + Constants.ARRAY_FIELD_NAME + Constants.SEPARATOR + dimention
                     + Constants.TYPE_SEPARATOR + Constants.UNION_FIELD_NAME;

@@ -61,7 +61,6 @@ import static io.ballerina.stdlib.serdes.Constants.SCHEMA_NAME;
 import static io.ballerina.stdlib.serdes.Constants.SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.TYPE_SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.UINT32;
-import static io.ballerina.stdlib.serdes.Constants.UNION;
 import static io.ballerina.stdlib.serdes.Constants.UNION_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Constants.UNION_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
@@ -341,7 +340,7 @@ public class SchemaGenerator {
                 if (isUnionField) {
                     String ballerinaUnionTypeName = Utils.getElementTypeOfBallerinaArray(arrayType);
                     // ballerinaType becomes "union_<BallerinaUnionTypeName>"
-                    String ballerinaType = UNION + SEPARATOR + ballerinaUnionTypeName;
+                    String ballerinaType = ballerinaUnionTypeName;
                     // Field names and nested message names are prefixed with ballerina type to avoid name collision
                     nestedMessageName = ballerinaType + TYPE_SEPARATOR + nestedMessageName;
                     // fieldName becomes "union_<BallerinaUnionTypeName>__arrayFieldName_<dimention>__unionField"
@@ -364,9 +363,6 @@ public class SchemaGenerator {
 
                 if (isUnionField) {
                     String ballerinaType = Utils.getElementTypeOfBallerinaArray(nestedArrayType);
-                    if (!DataTypeMapper.isBallerinaPrimitiveType(ballerinaType)) {
-                        ballerinaType = UNION + SEPARATOR + ballerinaType;
-                    }
                     // Field names and nested message names are prefixed with ballerina type to avoid name collision
                     nestedMessageName = ballerinaType + TYPE_SEPARATOR + nestedMessageName;
                     fieldName = ballerinaType + TYPE_SEPARATOR + fieldName + TYPE_SEPARATOR + UNION_FIELD_NAME;

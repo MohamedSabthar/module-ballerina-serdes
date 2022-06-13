@@ -347,11 +347,6 @@ public class Deserializer {
     private static ArrayType getBallerinaArrayTypeFromUnion(UnionType unionType, String ballerinaType, int dimention) {
         ArrayType type = null;
 
-        if (ballerinaType.contains(Constants.UNION + Constants.SEPARATOR)) {
-            ballerinaType = ballerinaType.split(Constants.SEPARATOR)[1];
-            // TODO: compare union trees instead of using name
-        }
-
         for (var memberTypes : unionType.getMemberTypes()) {
             if (memberTypes instanceof ArrayType) {
                 String arrayBasicType = Utils.getElementTypeOfBallerinaArray((ArrayType) memberTypes);
