@@ -46,6 +46,7 @@ public isolated function testRecordWithPrimitiveTypes() returns error? {
     };
 
     Proto3Schema ser = check new (Person);
+    check ser.generateProtoFile("Person.proto");
     byte[] encoded = check ser.serialize(person);
 
     Proto3Schema des = check new (Person);

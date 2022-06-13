@@ -268,19 +268,16 @@ public class Deserializer {
 
     private static Object getRecordTypeValueFromMessage(DynamicMessage dynamicMessage, RecordType recordType) {
 
-        Descriptor schema = dynamicMessage.getDescriptorForType();
-        BMap<BString, Object> record = recordType.getEmptyValue();
+        BMap<BString, Object> record = ValueCreator.createRecordValue(recordType);
 
         FieldDescriptor fieldDescriptor;
         Object ballerinaValue;
 
-        for (var entry : recordType.getFields().entrySet()) {
-            String entryFieldName = entry.getKey();
-            Type entryFieldType = entry.getValue().getFieldType();
-
-            fieldDescriptor = schema.findFieldByName(entryFieldName);
-            // Get the protobuf field value
-            Object value = dynamicMessage.getField(fieldDescriptor);
+        for (var entry : dynamicMessage.getAllFields().entrySet()) {
+            fieldDescriptor = entry.getKey();
+            Object value = entry.getValue();
+            String entryFieldName = fieldDescriptor.getName();
+            Type entryFieldType = recordType.getFields().get(entryFieldName).getFieldType();
 
             switch (entryFieldType.getTag()) {
                 case TypeTags.INT_TAG:
