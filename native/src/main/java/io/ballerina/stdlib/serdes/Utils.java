@@ -50,6 +50,7 @@ public class Utils {
         return ErrorCreator.createError(getModule(), typeId, StringUtils.fromString(message), null, null);
     }
 
+    // Get the dimention of given array type
     public static int getDimensions(ArrayType array) {
         int dimension = 1;
         String messageName = array.getElementType().getName();
@@ -63,6 +64,7 @@ public class Utils {
         return dimension;
     }
 
+    // Get the basic ballerina type of the given array
     public static String getElementTypeOfBallerinaArray(ArrayType array) {
         String messageName = array.getElementType().getName();
 
@@ -73,6 +75,7 @@ public class Utils {
         return messageName;
     }
 
+    // Create protobuf message name for the given ballerina primitive type (string -> StringValue)
     public static String createMessageName(String ballerinaPrimitiveType) {
         return ballerinaPrimitiveType.substring(0, 1).toUpperCase(Locale.ENGLISH)
                 + ballerinaPrimitiveType.substring(1)

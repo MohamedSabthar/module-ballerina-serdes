@@ -419,8 +419,7 @@ public class Serializer {
                 }
 
                 default:
-                    throw createSerdesError(UNSUPPORTED_DATA_TYPE + recordFieldType.getName(),
-                            SERDES_ERROR);
+                    throw createSerdesError(UNSUPPORTED_DATA_TYPE + recordFieldType.getName(), SERDES_ERROR);
             }
         }
         return messageBuilder;

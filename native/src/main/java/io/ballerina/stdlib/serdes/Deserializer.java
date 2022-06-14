@@ -351,43 +351,46 @@ public class Deserializer {
                 }
 
                 default:
-                    throw createSerdesError(UNSUPPORTED_DATA_TYPE + entryFieldType.getName(),
-                            SERDES_ERROR);
-
+                    throw createSerdesError(UNSUPPORTED_DATA_TYPE + entryFieldType.getName(), SERDES_ERROR);
             }
             record.put(StringUtils.fromString(entryFieldName), ballerinaValue);
         }
         return record;
     }
 
-    private static RecordType getBallerinaRecordTypeFromUnion(UnionType unionType, String ballerinaType) {
-        RecordType type = null;
+    private static RecordType getBallerinaRecordTypeFromUnion(UnionType unionType, String targetBallerinaTypeName) {
 
-        for (var memberTypes : unionType.getMemberTypes()) {
-            if (memberTypes instanceof RecordType) {
-                String recordType = memberTypes.getName();
-                if (recordType.equals(ballerinaType)) {
-                    type = (RecordType) memberTypes;
+        RecordType targetRecordType = null;
+
+        for (var memberType : unionType.getMemberTypes()) {
+            if (memberType instanceof RecordType) {
+                String recordType = memberType.getName();
+                if (recordType.equals(targetBallerinaTypeName)) {
+                    targetRecordType = (RecordType) memberType;
                     break;
                 }
             }
         }
-        return type;
+        return targetRecordType;
     }
 
-    private static ArrayType getBallerinaArrayTypeFromUnion(UnionType unionType, String ballerinaType, int dimention) {
-        ArrayType type = null;
+    private static ArrayType getBallerinaArrayTypeFromUnion(
+            UnionType unionType,
+            String targetBallerinaTypeName,
+            int dimention) {
 
-        for (var memberTypes : unionType.getMemberTypes()) {
-            if (memberTypes instanceof ArrayType) {
-                String arrayBasicType = Utils.getElementTypeOfBallerinaArray((ArrayType) memberTypes);
-                int arrayDimention = Utils.getDimensions((ArrayType) memberTypes);
-                if (arrayDimention == dimention && arrayBasicType.equals(ballerinaType)) {
-                    type = (ArrayType) memberTypes;
+        ArrayType targetArrayType = null;
+
+        for (var memberType : unionType.getMemberTypes()) {
+            if (memberType instanceof ArrayType) {
+                String arrayBasicType = Utils.getElementTypeOfBallerinaArray((ArrayType) memberType);
+                int arrayDimention = Utils.getDimensions((ArrayType) memberType);
+                if (arrayDimention == dimention && arrayBasicType.equals(targetBallerinaTypeName)) {
+                    targetArrayType = (ArrayType) memberType;
                     break;
                 }
             }
         }
-        return type;
+        return targetArrayType;
     }
 }
