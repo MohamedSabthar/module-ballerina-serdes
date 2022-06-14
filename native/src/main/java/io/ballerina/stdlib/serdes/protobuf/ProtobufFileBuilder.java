@@ -31,6 +31,7 @@ import static com.google.protobuf.Descriptors.FileDescriptor;
 public class ProtobufFileBuilder {
 
     private final FileDescriptorProto.Builder fileDescProtoBuilder;
+    // This protobufFileDescriptor only contains a single message
     private ProtobufMessageBuilder protobufMessage;
 
     public ProtobufFileBuilder() {
@@ -53,6 +54,7 @@ public class ProtobufFileBuilder {
     @Override
     public String toString() {
         return Constants.SYNTAX + " = \"" + fileDescProtoBuilder.getSyntax() + "\";"
-                + "\n\n" + protobufMessage.toString();
+                + "\n\n"
+                + protobufMessage;
     }
 }

@@ -23,7 +23,6 @@ public class Constants {
     public static final String UNION_BUILDER_NAME = "UnionBuilder";
     public static final String UNION_FIELD_NAME = "unionField";
     public static final String ARRAY_BUILDER_NAME = "ArrayBuilder";
-    public static final String RECORD_BUILDER_NAME = "RecordBuilder";
     public static final String DECIMAL_VALUE = "DecimalValue";
     public static final String ARRAY_FIELD_NAME = "arrayField";
     public static final String ATOMIC_FIELD_NAME = "atomicField";
@@ -45,7 +44,6 @@ public class Constants {
     public static final String BYTES = "bytes";
     public static final String UINT32 = "uint32";
     public static final String BOOL = "bool";
-    public static final String MESSAGE = "MESSAGE";
 
     // Constants related to error messages
     public static final String UNSUPPORTED_DATA_TYPE = "Unsupported data type: ";

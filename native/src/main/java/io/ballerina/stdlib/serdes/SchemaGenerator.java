@@ -75,18 +75,18 @@ public class SchemaGenerator {
     /**
      * Creates a schema for a given data type and adds to native data.
      *
-     * @param serdes   Serializer or Deserializer object.
-     * @param typedesc Data type that is being serialized.
+     * @param serdes    Serializer or Deserializer object.
+     * @param bTypedesc Data type that is being serialized.
      * @return {@code BError}, if there are schema generation errors, null otherwise.
      */
     @SuppressWarnings("unused")
-    public static Object generateSchema(BObject serdes, BTypedesc typedesc) {
+    public static Object generateSchema(BObject serdes, BTypedesc bTypedesc) {
         try {
             ProtobufFileBuilder protobufFile = new ProtobufFileBuilder();
             ProtobufMessageBuilder protobufMessageBuilder = buildProtobufMessageFromBallerinaTypedesc(
-                    typedesc.getDescribingType());
-            Descriptor schema = protobufFile.addMessageType(protobufMessageBuilder).build();
-            serdes.addNativeData(SCHEMA_NAME, schema);
+                    bTypedesc.getDescribingType());
+            Descriptor messageDescriptor = protobufFile.addMessageType(protobufMessageBuilder).build();
+            serdes.addNativeData(SCHEMA_NAME, messageDescriptor);
             serdes.addNativeData(PROTO3, protobufFile.toString());
         } catch (BError ballerinaError) {
             return ballerinaError;
@@ -114,7 +114,6 @@ public class SchemaGenerator {
 
         ProtobufMessageBuilder messageBuilder;
         String messageName;
-        int fieldNumber = 1;
 
         switch (ballerinaType.getTag()) {
             case TypeTags.INT_TAG:
@@ -122,6 +121,7 @@ public class SchemaGenerator {
             case TypeTags.FLOAT_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG: {
+                int fieldNumber = 1;
                 messageName = Utils.createMessageName(ballerinaType.getName());
                 messageBuilder = new ProtobufMessageBuilder(messageName);
                 generateMessageDefinitionForPrimitiveType(
@@ -147,6 +147,7 @@ public class SchemaGenerator {
             }
 
             case TypeTags.ARRAY_TAG: {
+                int fieldNumber = 1;
                 ArrayType arrayType = (ArrayType) ballerinaType;
                 int dimensions = Utils.getDimensions(arrayType);
                 messageName = ARRAY_BUILDER_NAME + SEPARATOR + dimensions;
@@ -267,7 +268,7 @@ public class SchemaGenerator {
 
                 case TypeTags.RECORD_TYPE_TAG: {
                     RecordType recordType = (RecordType) memberType;
-                    String nestedMessageName = recordType.getName() + TYPE_SEPARATOR + Constants.RECORD_BUILDER_NAME;
+                    String nestedMessageName = recordType.getName();
                     ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName);
                     generateMessageDefinitionForRecordType(nestedMessageBuilder, recordType);
                     messageBuilder.addNestedMessage(nestedMessageBuilder);
@@ -306,6 +307,7 @@ public class SchemaGenerator {
                 String label = protoType.equals(BYTES) ? OPTIONAL_LABEL : REPEATED_LABEL;
 
                 if (isUnionField) {
+                    // Field names and nested message names are prefixed with ballerina type to avoid name collision
                     fieldName = elementType.getName() + TYPE_SEPARATOR + fieldName + TYPE_SEPARATOR + UNION_FIELD_NAME;
                 }
 
@@ -337,12 +339,8 @@ public class SchemaGenerator {
                 String nestedMessageName = UNION_BUILDER_NAME;
 
                 if (isUnionField) {
-                    String ballerinaUnionTypeName = Utils.getElementTypeOfBallerinaArray(arrayType);
-                    // ballerinaType becomes "union_<BallerinaUnionTypeName>"
-                    String ballerinaType = ballerinaUnionTypeName;
-                    // Field names and nested message names are prefixed with ballerina type to avoid name collision
+                    String ballerinaType = Utils.getElementTypeOfBallerinaArray(arrayType);
                     nestedMessageName = ballerinaType + TYPE_SEPARATOR + nestedMessageName;
-                    // fieldName becomes "union_<BallerinaUnionTypeName>__arrayFieldName_<dimention>__unionField"
                     fieldName = ballerinaType + TYPE_SEPARATOR + fieldName + TYPE_SEPARATOR + UNION_FIELD_NAME;
                 }
 
@@ -362,7 +360,6 @@ public class SchemaGenerator {
 
                 if (isUnionField) {
                     String ballerinaType = Utils.getElementTypeOfBallerinaArray(nestedArrayType);
-                    // Field names and nested message names are prefixed with ballerina type to avoid name collision
                     nestedMessageName = ballerinaType + TYPE_SEPARATOR + nestedMessageName;
                     fieldName = ballerinaType + TYPE_SEPARATOR + fieldName + TYPE_SEPARATOR + UNION_FIELD_NAME;
                 }
@@ -390,7 +387,6 @@ public class SchemaGenerator {
 
                 if (isUnionField) {
                     String ballerinaType = recordType.getName();
-                    // Field names and nested message names are prefixed with ballerina type to avoid name collision
                     nestedMessageName = ballerinaType + TYPE_SEPARATOR + nestedMessageName;
                     fieldName = ballerinaType + TYPE_SEPARATOR + fieldName + TYPE_SEPARATOR + UNION_FIELD_NAME;
                 }
