@@ -32,17 +32,11 @@ public class ProtobufMessageBuilder {
     private final HashMap<String, ProtobufMessageBuilder> nestedMessages = new HashMap<>();
     private final HashMap<String, ProtobufMessageFieldBuilder> messageFields = new HashMap<>();
     private final String messageName;
-    private final ProtobufMessageBuilder parentMessage;
 
     public ProtobufMessageBuilder(String msgName) {
-        this(msgName, null);
-    }
-
-    public ProtobufMessageBuilder(String msgName, ProtobufMessageBuilder parentMessage) {
         messageName = msgName;
         messageDescriptorProtoBuilder = DescriptorProto.newBuilder();
         messageDescriptorProtoBuilder.setName(msgName);
-        this.parentMessage = parentMessage;
     }
 
     public String getName() {
@@ -70,14 +64,6 @@ public class ProtobufMessageBuilder {
         }
     }
 
-    public boolean hasMessageDefinitionInMessageTree(String targetMsgName) {
-        if (messageName.equals(targetMsgName)) {
-            return true;
-        }
-        boolean hasMessage = nestedMessages.get(targetMsgName) != null;
-        return hasMessage || (parentMessage != null && parentMessage.hasMessageDefinitionInMessageTree(targetMsgName));
-    }
-
     @Override
     public String toString() {
         return toString("");
@@ -89,13 +75,12 @@ public class ProtobufMessageBuilder {
         StringBuilder msgContent = new StringBuilder();
 
         // Build string for nested types
-        nestedMessages.values().forEach(
-                nestedMessage -> msgContent.append(nestedMessage.toString(levelSpace)).append("\n"));
+        nestedMessages.values()
+                .forEach(nestedMessage -> msgContent.append(nestedMessage.toString(levelSpace)).append("\n"));
 
         // Build string for field
-        messageFields.values().stream().sorted(
-                Comparator.comparingInt(ProtobufMessageFieldBuilder::getFieldNumber)).forEach(
-                messageField -> msgContent.append(messageField.toString(levelSpace)));
+        messageFields.values().stream().sorted(Comparator.comparingInt(ProtobufMessageFieldBuilder::getFieldNumber))
+                .forEach(messageField -> msgContent.append(messageField.toString(levelSpace)));
 
         String protoEnd = space + "}\n";
 
