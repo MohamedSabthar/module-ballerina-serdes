@@ -30,6 +30,8 @@ import io.ballerina.runtime.api.values.BError;
 
 import java.util.Locale;
 
+import static io.ballerina.stdlib.serdes.Constants.CURLY_BRACE;
+
 /**
  * Utility functions of SerDes module.
  *
@@ -91,6 +93,10 @@ public class Utils {
     // Get the basic ballerina type name of the given array
     public static String getElementTypeNameOfBallerinaArray(ArrayType array) {
         return getElementTypeOfBallerinaArray(array).getName();
+    }
+
+    public static boolean isNonReferencedRecordType(Type ballerinaType) {
+        return ballerinaType.getName().contains(CURLY_BRACE);
     }
 
     // Create protobuf message name for the given ballerina primitive type (string -> StringValue)

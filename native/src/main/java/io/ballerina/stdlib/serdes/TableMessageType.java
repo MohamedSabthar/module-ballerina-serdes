@@ -21,7 +21,7 @@ import static io.ballerina.stdlib.serdes.Constants.MAP_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.RECORD_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.REPEATED_LABEL;
 import static io.ballerina.stdlib.serdes.Constants.TABLE_ENTRY;
-import static io.ballerina.stdlib.serdes.SchemaGenerator.isNonReferencedRecordType;
+import static io.ballerina.stdlib.serdes.Utils.isNonReferencedRecordType;
 
 /**
  * TableMessageType.

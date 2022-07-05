@@ -40,8 +40,6 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.stdlib.serdes.protobuf.DataTypeMapper;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -50,9 +48,7 @@ import static io.ballerina.stdlib.serdes.Constants.ARRAY_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.ATOMIC_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.BALLERINA_TYPEDESC_ATTRIBUTE_NAME;
 import static io.ballerina.stdlib.serdes.Constants.BYTE;
-import static io.ballerina.stdlib.serdes.Constants.DECIMAL;
 import static io.ballerina.stdlib.serdes.Constants.EMPTY_STRING;
-import static io.ballerina.stdlib.serdes.Constants.INTEGER;
 import static io.ballerina.stdlib.serdes.Constants.KEY_NAME;
 import static io.ballerina.stdlib.serdes.Constants.MAP_FIELD;
 import static io.ballerina.stdlib.serdes.Constants.NULL_FIELD_NAME;
@@ -190,23 +186,42 @@ public class Serializer {
 
     private static Builder generateMessageForUnionType(Builder messageBuilder, Object anydata) {
         Descriptor messageDescriptor = messageBuilder.getDescriptorForType();
+        Type type = TypeUtils.getType(anydata);
+        Type referredType = TypeUtils.getReferredType(type);
 
-        if (anydata == null) {
-            FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(NULL_FIELD_NAME);
-            messageBuilder.setField(fieldDescriptor, true);
-            return messageBuilder;
-        }
+        switch (type.getTag()) {
+            case TypeTags.NULL_TAG: {
+                FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(NULL_FIELD_NAME);
+                messageBuilder.setField(fieldDescriptor, true);
+                return messageBuilder;
+            }
 
-        String javaType = anydata.getClass().getSimpleName();
-        String ballerinaType = DataTypeMapper.mapJavaTypeToBallerinaType(javaType);
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.BOOLEAN_TAG: {
+                String fieldName = referredType.getName() + TYPE_SEPARATOR + UNION_FIELD_NAME;
+                FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
+                return generateMessageForPrimitiveType(messageBuilder, fieldDescriptor, anydata,
+                        referredType.getName());
+            }
 
-        // Handle all ballerina primitive values and enum values
-        if (DataTypeMapper.isValidJavaType(javaType)) {
-            String fieldName = ballerinaType + TYPE_SEPARATOR + UNION_FIELD_NAME;
-            FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
+            case TypeTags.STRING_TAG: {
+                String fieldName =  referredType.getName() + TYPE_SEPARATOR + UNION_FIELD_NAME;
+                FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
 
-            // Handle decimal type
-            if (ballerinaType.equals(DECIMAL)) {
+                if (fieldDescriptor == null) {
+                    // enum value
+                    fieldName = ((BString) anydata).getValue();
+                    fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
+                }
+                return generateMessageForPrimitiveType(messageBuilder, fieldDescriptor, anydata,
+                        referredType.getName());
+            }
+
+            case TypeTags.DECIMAL_TAG: {
+                String fieldName = referredType.getName() + TYPE_SEPARATOR + UNION_FIELD_NAME;
+                FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
                 Descriptor decimalSchema = fieldDescriptor.getMessageType();
                 Builder decimalMessageBuilder = DynamicMessage.newBuilder(decimalSchema);
                 DynamicMessage decimalMessage = generateMessageForPrimitiveDecimalType(decimalMessageBuilder, anydata,
@@ -215,35 +230,9 @@ public class Serializer {
                 return messageBuilder;
             }
 
-            // Handle byte type
-            if (fieldDescriptor == null && javaType.equals(INTEGER)) {
-                fieldName = BYTE + TYPE_SEPARATOR + UNION_FIELD_NAME;
-                fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
-            }
-
-            // Handle enum value
-            if (fieldDescriptor == null && DataTypeMapper.mapJavaTypeToBallerinaType(javaType).equals(STRING)) {
-                fieldName = ((BString) anydata).getValue();
-                fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
-            }
-
-            return generateMessageForPrimitiveType(messageBuilder, fieldDescriptor, anydata, ballerinaType);
-        }
-
-        if (anydata instanceof BArray) {
-            BArray bArray = (BArray) anydata;
-            // Handle ballerina tuple
-            if (bArray.getType().getTag() == TypeTags.TUPLE_TAG) {
-                String fieldName = bArray.getType().getName() + TYPE_SEPARATOR + UNION_FIELD_NAME;
-                FieldDescriptor tupleFieldDescriptor = messageDescriptor.findFieldByName(fieldName);
-                Descriptor tupleSchema = tupleFieldDescriptor.getMessageType();
-                Builder tupleMessageBuilder = DynamicMessage.newBuilder(tupleSchema);
-                generateMessageForTupleType(tupleMessageBuilder, bArray);
-                messageBuilder.setField(tupleFieldDescriptor, tupleMessageBuilder.build());
-                 return messageBuilder;
-            } else {
-                // Handle ballerina array
-                ballerinaType = bArray.getElementType().getName();
+            case TypeTags.ARRAY_TAG: {
+                BArray bArray = (BArray) anydata;
+                String ballerinaType = bArray.getElementType().getName();
                 int dimention = 1;
 
                 if (ballerinaType.equals(EMPTY_STRING)) {
@@ -258,12 +247,10 @@ public class Serializer {
                 FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
                 return generateMessageForArrayType(messageBuilder, fieldDescriptor, bArray);
             }
-        }
 
-        if (anydata instanceof BMap) {
-            @SuppressWarnings("unchecked") BMap<BString, Object> ballerinaMapOrRecord = (BMap<BString, Object>) anydata;
-            // Handle ballerina record
-            if (ballerinaMapOrRecord.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+            case TypeTags.RECORD_TYPE_TAG: {
+                @SuppressWarnings("unchecked") BMap<BString, Object> ballerinaMapOrRecord
+                        = (BMap<BString, Object>) anydata;
                 String recordTypename = ballerinaMapOrRecord.getType().getName();
                 String fieldName = recordTypename + TYPE_SEPARATOR + UNION_FIELD_NAME;
                 FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
@@ -274,12 +261,22 @@ public class Serializer {
                 messageBuilder.setField(fieldDescriptor, recordMessage);
                 return messageBuilder;
             }
-            // TODO: support map
-            // TODO: support table
-        }
 
-        BValue bValue = (BValue) anydata;
-        throw createSerdesError(UNSUPPORTED_DATA_TYPE + bValue.getType().getName(), SERDES_ERROR);
+            case TypeTags.TUPLE_TAG: {
+                BArray bArray = (BArray) anydata;
+                String fieldName = bArray.getType().getName() + TYPE_SEPARATOR + UNION_FIELD_NAME;
+                FieldDescriptor tupleFieldDescriptor = messageDescriptor.findFieldByName(fieldName);
+                Descriptor tupleSchema = tupleFieldDescriptor.getMessageType();
+                Builder tupleMessageBuilder = DynamicMessage.newBuilder(tupleSchema);
+                generateMessageForTupleType(tupleMessageBuilder, bArray);
+                messageBuilder.setField(tupleFieldDescriptor, tupleMessageBuilder.build());
+                return messageBuilder;
+            }
+
+
+            default:
+                throw createSerdesError(UNSUPPORTED_DATA_TYPE + referredType.getName(), SERDES_ERROR);
+        }
     }
 
     private static Builder generateMessageForArrayType(Builder messageBuilder, FieldDescriptor fieldDescriptor,

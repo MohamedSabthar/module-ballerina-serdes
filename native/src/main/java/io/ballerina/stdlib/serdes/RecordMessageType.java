@@ -31,7 +31,7 @@ import static io.ballerina.stdlib.serdes.Constants.TYPE_SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.UINT32;
 import static io.ballerina.stdlib.serdes.Constants.UNION_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Constants.VALUE;
-import static io.ballerina.stdlib.serdes.SchemaGenerator.isNonReferencedRecordType;
+import static io.ballerina.stdlib.serdes.Utils.isNonReferencedRecordType;
 
 /**
  * RecordMessageType.

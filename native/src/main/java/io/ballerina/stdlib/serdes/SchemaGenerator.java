@@ -19,11 +19,6 @@
 package io.ballerina.stdlib.serdes;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.ArrayType;
-import io.ballerina.runtime.api.types.MapType;
-import io.ballerina.runtime.api.types.RecordType;
-import io.ballerina.runtime.api.types.TableType;
-import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -43,7 +38,6 @@ import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.DescriptorValidationException;
 import static io.ballerina.stdlib.serdes.Constants.ARRAY_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Constants.BYTES;
-import static io.ballerina.stdlib.serdes.Constants.CURLY_BRACE;
 import static io.ballerina.stdlib.serdes.Constants.FAILED_WRITE_FILE;
 import static io.ballerina.stdlib.serdes.Constants.MAP_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
@@ -138,41 +132,37 @@ public class SchemaGenerator {
             }
 
             case TypeTags.ARRAY_TAG: {
-                ArrayType arrayType = (ArrayType) referredType;
                 messageName = ARRAY_BUILDER_NAME;
                 messageBuilder = new ProtobufMessageBuilder(messageName);
-                return new BallerinaStructuredTypeMessageGenerator(arrayType,
+                return new BallerinaStructuredTypeMessageGenerator(referredType,
                         messageBuilder).generateMessageDefinition();
             }
 
             case TypeTags.RECORD_TYPE_TAG: {
-                RecordType recordType = (RecordType) referredType;
-                messageName = recordType.getName();
+                messageName = referredType.getName();
                 messageBuilder = new ProtobufMessageBuilder(messageName);
-                return new BallerinaStructuredTypeMessageGenerator(recordType,
+                return new BallerinaStructuredTypeMessageGenerator(referredType,
                         messageBuilder).generateMessageDefinition();
             }
 
             case TypeTags.MAP_TAG: {
-                MapType mapType = (MapType) referredType;
                 messageName = MAP_BUILDER;
                 messageBuilder = new ProtobufMessageBuilder(messageName);
-                return new BallerinaStructuredTypeMessageGenerator(mapType, messageBuilder).generateMessageDefinition();
+                return new BallerinaStructuredTypeMessageGenerator(referredType,
+                        messageBuilder).generateMessageDefinition();
             }
 
             case TypeTags.TABLE_TAG: {
-                TableType tableType = (TableType) referredType;
                 messageName = TABLE_BUILDER;
                 messageBuilder = new ProtobufMessageBuilder(messageName);
-                return new BallerinaStructuredTypeMessageGenerator(tableType,
+                return new BallerinaStructuredTypeMessageGenerator(referredType,
                         messageBuilder).generateMessageDefinition();
             }
 
             case TypeTags.TUPLE_TAG: {
-                TupleType tupleType = (TupleType) referredType;
                 messageName = TUPLE_BUILDER;
                 messageBuilder = new ProtobufMessageBuilder(messageName);
-                return new BallerinaStructuredTypeMessageGenerator(tupleType,
+                return new BallerinaStructuredTypeMessageGenerator(referredType,
                         messageBuilder).generateMessageDefinition();
             }
 
@@ -207,9 +197,5 @@ public class SchemaGenerator {
         messageBuilder.addField(scaleField);
         messageBuilder.addField(precisionField);
         messageBuilder.addField(valueField);
-    }
-
-    public static boolean isNonReferencedRecordType(Type ballerinaType) {
-        return ballerinaType.getName().contains(CURLY_BRACE);
     }
 }
