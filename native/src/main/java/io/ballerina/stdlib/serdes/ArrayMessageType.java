@@ -8,7 +8,6 @@ import io.ballerina.runtime.api.types.DecimalType;
 import io.ballerina.runtime.api.types.FloatType;
 import io.ballerina.runtime.api.types.IntegerType;
 import io.ballerina.runtime.api.types.MapType;
-import io.ballerina.runtime.api.types.NullType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.TableType;
@@ -22,22 +21,17 @@ import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageFieldBuilder;
 import static io.ballerina.stdlib.serdes.Constants.ARRAY_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Constants.ARRAY_OF_MAP_AS_UNION_MEMBER_NOT_YET_SUPPORTED;
 import static io.ballerina.stdlib.serdes.Constants.ARRAY_OF_TABLE_AS_UNION_MEMBER_NOT_YET_SUPPORTED;
-import static io.ballerina.stdlib.serdes.Constants.BYTES;
 import static io.ballerina.stdlib.serdes.Constants.EMPTY_STRING;
 import static io.ballerina.stdlib.serdes.Constants.MAP_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
-import static io.ballerina.stdlib.serdes.Constants.PRECISION;
 import static io.ballerina.stdlib.serdes.Constants.RECORD_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.REPEATED_LABEL;
-import static io.ballerina.stdlib.serdes.Constants.SCALE;
 import static io.ballerina.stdlib.serdes.Constants.SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.TABLE_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.TUPLE_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.TYPE_SEPARATOR;
-import static io.ballerina.stdlib.serdes.Constants.UINT32;
 import static io.ballerina.stdlib.serdes.Constants.UNION_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Constants.UNION_FIELD_NAME;
-import static io.ballerina.stdlib.serdes.Constants.VALUE;
 import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
 import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 import static io.ballerina.stdlib.serdes.Utils.isNonReferencedRecordType;
@@ -59,17 +53,6 @@ public class ArrayMessageType extends MessageType {
         this.parentMessageType = parentMessageType;
     }
 
-    private ProtobufMessageFieldBuilder generateMessageField(Type type) {
-        String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(type.getTag());
-
-        String fieldName = getCurrentFieldName();
-        if (parentMessageType instanceof UnionMessageType) {
-            // Field names and nested message names are prefixed with ballerina type to avoid name collision
-            fieldName = type.getName() + TYPE_SEPARATOR + fieldName + TYPE_SEPARATOR + UNION_FIELD_NAME;
-        }
-
-        return new ProtobufMessageFieldBuilder(REPEATED_LABEL, protoType, fieldName, getCurrentFieldNumber());
-    }
 
     @Override
     public void setCurrentFieldName(String fieldName) {
@@ -79,13 +62,14 @@ public class ArrayMessageType extends MessageType {
     }
 
     @Override
-    void setIntField(IntegerType integerType) {
-        ProtobufMessageFieldBuilder messageField = generateMessageField(integerType);
+    public void setIntField(IntegerType integerType) {
+        ProtobufMessageFieldBuilder messageField = generateMessageFieldWithRepeatedLabelForBallerinaPrimitiveType(
+                integerType);
         getMessageBuilder().addField(messageField);
     }
 
     @Override
-    void setByteField(ByteType byteType) {
+    public void setByteField(ByteType byteType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(TypeTags.BYTE_TAG);
         String fieldName = getCurrentFieldName();
         if (parentMessageType instanceof UnionMessageType) {
@@ -98,52 +82,49 @@ public class ArrayMessageType extends MessageType {
     }
 
     @Override
-    void setFloatField(FloatType floatType) {
-        ProtobufMessageFieldBuilder messageField = generateMessageField(floatType);
+    public void setFloatField(FloatType floatType) {
+        ProtobufMessageFieldBuilder messageField = generateMessageFieldWithRepeatedLabelForBallerinaPrimitiveType(
+                floatType);
         getMessageBuilder().addField(messageField);
     }
 
     @Override
-    void setDecimalField(DecimalType decimalType) {
-        String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(TypeTags.DECIMAL_TAG);
-        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(protoType);
-
-        // Java BigDecimal representation used for serializing ballerina decimal value
-        ProtobufMessageFieldBuilder scaleField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, UINT32, SCALE, 1);
-        ProtobufMessageFieldBuilder precisionField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, UINT32, PRECISION,
-                2);
-        ProtobufMessageFieldBuilder valueField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, BYTES, VALUE, 3);
-
-        nestedMessageBuilder.addField(scaleField);
-        nestedMessageBuilder.addField(precisionField);
-        nestedMessageBuilder.addField(valueField);
-
+    public void setDecimalField(DecimalType decimalType) {
+        ProtobufMessageBuilder nestedMessageBuilder = generateDecimalMessageDefinition();
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         messageBuilder.addNestedMessage(nestedMessageBuilder);
 
-        ProtobufMessageFieldBuilder messageField = generateMessageField(decimalType);
+        ProtobufMessageFieldBuilder messageField = generateMessageFieldWithRepeatedLabelForBallerinaPrimitiveType(
+                decimalType);
         getMessageBuilder().addField(messageField);
     }
 
     @Override
-    void setStringField(StringType stringType) {
-        ProtobufMessageFieldBuilder messageField = generateMessageField(stringType);
+    public void setStringField(StringType stringType) {
+        ProtobufMessageFieldBuilder messageField = generateMessageFieldWithRepeatedLabelForBallerinaPrimitiveType(
+                stringType);
         getMessageBuilder().addField(messageField);
     }
 
     @Override
-    void setBooleanField(BooleanType booleanType) {
-        ProtobufMessageFieldBuilder messageField = generateMessageField(booleanType);
+    public void setBooleanField(BooleanType booleanType) {
+        ProtobufMessageFieldBuilder messageField = generateMessageFieldWithRepeatedLabelForBallerinaPrimitiveType(
+                booleanType);
         getMessageBuilder().addField(messageField);
     }
 
-    @Override
-    void setNullField(NullType nullType) {
-        throw new UnsupportedOperationException();
+    private ProtobufMessageFieldBuilder generateMessageFieldWithRepeatedLabelForBallerinaPrimitiveType(Type type) {
+        String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(type.getTag());
+        String fieldName = getCurrentFieldName();
+        if (parentMessageType instanceof UnionMessageType) {
+            // Field names and nested message names are prefixed with ballerina type to avoid name collision
+            fieldName = type.getName() + TYPE_SEPARATOR + fieldName + TYPE_SEPARATOR + UNION_FIELD_NAME;
+        }
+        return new ProtobufMessageFieldBuilder(REPEATED_LABEL, protoType, fieldName, getCurrentFieldNumber());
     }
 
     @Override
-    void setRecordField(RecordType recordType) {
+    public void setRecordField(RecordType recordType) {
         // if not a referenced recordType use "RecordBuilder" as message name
         String nestedMessageName = isNonReferencedRecordType(recordType) ? RECORD_BUILDER : recordType.getName();
         String fieldName = getCurrentFieldName();
@@ -180,7 +161,7 @@ public class ArrayMessageType extends MessageType {
     }
 
     @Override
-    void setMapField(MapType mapType) {
+    public void setMapField(MapType mapType) {
         String nestedMessageName = MAP_BUILDER;
         if (parentMessageType instanceof UnionMessageType) {
             // TODO: support array of map as union member
@@ -206,7 +187,7 @@ public class ArrayMessageType extends MessageType {
     }
 
     @Override
-    void setTableField(TableType tableType) {
+    public void setTableField(TableType tableType) {
         String nestedMessageName = TABLE_BUILDER;
 
         if (parentMessageType instanceof UnionMessageType) {
@@ -235,7 +216,7 @@ public class ArrayMessageType extends MessageType {
     }
 
     @Override
-    void setArrayField(ArrayType arrayType) {
+    public void setArrayField(ArrayType arrayType) {
         String nestedMessageName = ARRAY_BUILDER_NAME;
         String fieldName = getCurrentFieldName();
         if (parentMessageType instanceof UnionMessageType) {
@@ -277,7 +258,7 @@ public class ArrayMessageType extends MessageType {
     }
 
     @Override
-    void setUnionField(UnionType unionType) {
+    public void setUnionField(UnionType unionType) {
         String fieldName = getCurrentFieldName();
         String nestedMessageName = UNION_BUILDER_NAME;
 
@@ -308,7 +289,7 @@ public class ArrayMessageType extends MessageType {
     }
 
     @Override
-    void setTupleField(TupleType tupleType) {
+    public void setTupleField(TupleType tupleType) {
         String nestedMessageName = TUPLE_BUILDER;
         String fieldName = getCurrentFieldName();
         if (parentMessageType instanceof UnionMessageType) {

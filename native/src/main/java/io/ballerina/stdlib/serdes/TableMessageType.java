@@ -7,7 +7,6 @@ import io.ballerina.runtime.api.types.DecimalType;
 import io.ballerina.runtime.api.types.FloatType;
 import io.ballerina.runtime.api.types.IntegerType;
 import io.ballerina.runtime.api.types.MapType;
-import io.ballerina.runtime.api.types.NullType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.TableType;
@@ -36,42 +35,37 @@ public class TableMessageType extends MessageType {
     }
 
     @Override
-    void setIntField(IntegerType integerType) {
+    public void setIntField(IntegerType integerType) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    void setByteField(ByteType byteType) {
+    public void setByteField(ByteType byteType) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    void setFloatField(FloatType floatType) {
+    public void setFloatField(FloatType floatType) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    void setDecimalField(DecimalType decimalType) {
+    public void setDecimalField(DecimalType decimalType) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    void setStringField(StringType stringType) {
+    public void setStringField(StringType stringType) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    void setBooleanField(BooleanType booleanType) {
+    public void setBooleanField(BooleanType booleanType) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    void setNullField(NullType nullType) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    void setRecordField(RecordType recordType) {
+    public void setRecordField(RecordType recordType) {
         String nestedMessageName = isNonReferencedRecordType(recordType) ? RECORD_BUILDER : recordType.getName();
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
@@ -91,7 +85,7 @@ public class TableMessageType extends MessageType {
     }
 
     @Override
-    void setMapField(MapType mapType) {
+    public void setMapField(MapType mapType) {
         String nestedMessageName = MAP_BUILDER;
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
@@ -110,22 +104,22 @@ public class TableMessageType extends MessageType {
     }
 
     @Override
-    void setTableField(TableType tableType) {
+    public void setTableField(TableType tableType) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    void setArrayField(ArrayType arrayType) {
+    public void setArrayField(ArrayType arrayType) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    void setUnionField(UnionType unionType) {
+    public void setUnionField(UnionType unionType) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    void setTupleField(TupleType tupleType) {
+    public void setTupleField(TupleType tupleType) {
         throw new UnsupportedOperationException();
     }
 }
