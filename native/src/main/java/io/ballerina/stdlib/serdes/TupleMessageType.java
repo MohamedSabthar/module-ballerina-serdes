@@ -18,7 +18,7 @@ import static io.ballerina.stdlib.serdes.Constants.TABLE_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.TUPLE_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.TYPE_SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.UNION_BUILDER_NAME;
-import static io.ballerina.stdlib.serdes.Utils.isNonReferencedRecordType;
+import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
  * TupleMessageType.
@@ -31,7 +31,7 @@ public class TupleMessageType extends MessageType {
 
     @Override
     public void setRecordField(RecordType recordType) {
-        String nestedMessageName = isNonReferencedRecordType(recordType) ?
+        String nestedMessageName = isAnonymousBallerinaRecord(recordType) ?
                 getCurrentFieldName() + TYPE_SEPARATOR + RECORD_BUILDER : recordType.getName();
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         boolean hasMessageDefinition = messageBuilder.hasMessageDefinitionInMessageTree(nestedMessageName);

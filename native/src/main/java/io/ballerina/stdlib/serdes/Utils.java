@@ -95,7 +95,7 @@ public class Utils {
         return getElementTypeOfBallerinaArray(array).getName();
     }
 
-    public static boolean isNonReferencedRecordType(Type ballerinaType) {
+    public static boolean isAnonymousBallerinaRecord(Type ballerinaType) {
         return ballerinaType.getName().contains(CURLY_BRACE);
     }
 

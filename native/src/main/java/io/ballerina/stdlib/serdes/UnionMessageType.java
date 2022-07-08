@@ -19,11 +19,10 @@ import static io.ballerina.stdlib.serdes.Constants.SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.STRING;
 import static io.ballerina.stdlib.serdes.Constants.TUPLE_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.TYPE_SEPARATOR;
-import static io.ballerina.stdlib.serdes.Constants.UNION_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
 import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
 import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
-import static io.ballerina.stdlib.serdes.Utils.isNonReferencedRecordType;
+import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
  * UnionMessageType.
@@ -36,56 +35,43 @@ public class UnionMessageType extends MessageType {
 
     @Override
     public void setEnumField(FiniteType finiteType) {
-        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, STRING,
-                getCurrentFieldName(), getCurrentFieldNumber());
-        getMessageBuilder().addField(messageField);
+        addMemberFieldInMessageBuilder(STRING);
     }
 
     @Override
     public void setNullField(NullType nullType) {
-        ProtobufMessageFieldBuilder nilField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, BOOL,
-                getCurrentFieldName(), getCurrentFieldNumber());
-        getMessageBuilder().addField(nilField);
+        addMemberFieldInMessageBuilder(BOOL);
     }
 
     @Override
     public void setRecordField(RecordType recordType) {
-        String nestedMessageName = recordType.getName();
-
-        if (isNonReferencedRecordType(recordType)) {
+        if (isAnonymousBallerinaRecord(recordType)) {
             throw createSerdesError(Utils.typeNotSupportedErrorMessage(recordType), SERDES_ERROR);
         }
+
+        String nestedMessageName = recordType.getName();
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
-        // Check for cyclic reference in ballerina record
         boolean hasMessageDefinition = messageBuilder.hasMessageDefinitionInMessageTree(nestedMessageName);
+        // Check for cyclic reference in ballerina record
         if (!hasMessageDefinition) {
             ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
-
-            // context switch 1
-            var current = getMessageGenerator().getMessageType();
-            getMessageGenerator().setMessageType(
-                    new RecordMessageType(recordType, nestedMessageBuilder, getMessageGenerator()));
-
-            nestedMessageBuilder = getMessageGenerator().generateMessageDefinition();
-            messageBuilder.addNestedMessage(nestedMessageBuilder);
-
-            // context switch 2
-            getMessageGenerator().setMessageType(current);
+            MessageType childMessageType = new RecordMessageType(recordType, nestedMessageBuilder,
+                    getMessageGenerator());
+            ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
+            messageBuilder.addNestedMessage(nestedMessageDefinition);
         }
-
-        String fieldName = recordType.getName() + TYPE_SEPARATOR + UNION_FIELD_NAME;
-        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, nestedMessageName,
-                fieldName, getCurrentFieldNumber());
-        messageBuilder.addField(messageField);
+        addMemberFieldInMessageBuilder(nestedMessageName);
     }
 
     @Override
     public void setMapField(MapType mapType) {
+        // TODO: add support to map type
         throw createSerdesError(UNSUPPORTED_DATA_TYPE + mapType.getName(), SERDES_ERROR);
     }
 
     @Override
     public void setTableField(TableType tableType) {
+        // TODO: add support to table type
         throw createSerdesError(UNSUPPORTED_DATA_TYPE + tableType.getName(), SERDES_ERROR);
     }
 
@@ -93,17 +79,14 @@ public class UnionMessageType extends MessageType {
     public void setArrayField(ArrayType arrayType) {
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
 
-        // context switch 1
-        var current = getMessageGenerator().getMessageType();
-        getMessageGenerator().setMessageType(
-                new ArrayMessageType(arrayType, messageBuilder, getMessageGenerator(), current));
+        MessageType parentMessageType = getMessageGenerator().getMessageType();
+        // Wrap existing message builder instead of creating new nested message builder
+        MessageType childMessageType = new ArrayMessageType(arrayType, messageBuilder, getMessageGenerator(),
+                parentMessageType);
         int dimention = Utils.getArrayDimensions(arrayType);
-        getMessageGenerator().getMessageType().setCurrentFieldName(ARRAY_FIELD_NAME + SEPARATOR + dimention);
-        getMessageGenerator().getMessageType().setCurrentFieldNumber(getCurrentFieldNumber());
-        getMessageGenerator().generateMessageDefinition();
-
-        // context switch 2
-        getMessageGenerator().setMessageType(current);
+        childMessageType.setCurrentFieldName(ARRAY_FIELD_NAME + SEPARATOR + dimention);
+        childMessageType.setCurrentFieldNumber(getCurrentFieldNumber());
+        getNestedMessageDefinition(childMessageType);
     }
 
     @Override
@@ -116,19 +99,25 @@ public class UnionMessageType extends MessageType {
         String nestedMessageName = tupleType.getName() + TYPE_SEPARATOR + TUPLE_BUILDER;
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
+        MessageType childMessageType = new TupleMessageType(tupleType, nestedMessageBuilder, getMessageGenerator());
+        ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(childMessageDefinition);
+        addMemberFieldInMessageBuilder(nestedMessageName);
+    }
 
-        // context switch 1
-        var current = getMessageGenerator().getMessageType();
-        getMessageGenerator().setMessageType(
-                new TupleMessageType(tupleType, nestedMessageBuilder, getMessageGenerator()));
-        nestedMessageBuilder = getMessageGenerator().generateMessageDefinition();
-        messageBuilder.addNestedMessage(nestedMessageBuilder);
+    private void addMemberFieldInMessageBuilder(String fieldTypeOrNestedMessageName) {
+        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL,
+                fieldTypeOrNestedMessageName, getCurrentFieldName(), getCurrentFieldNumber());
+        getMessageBuilder().addField(messageField);
+    }
 
-        // context switch 2
-        getMessageGenerator().setMessageType(current);
-
-        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, nestedMessageName,
-                getCurrentFieldName(), getCurrentFieldNumber());
-        messageBuilder.addField(messageField);
+    private ProtobufMessageBuilder getNestedMessageDefinition(MessageType childMessageType) {
+        MessageType parentMessageType = getMessageGenerator().getMessageType();
+        // switch to child message type
+        getMessageGenerator().setMessageType(childMessageType);
+        ProtobufMessageBuilder childMessageBuilder = getMessageGenerator().generateMessageDefinition();
+        // switch back to parent message type
+        getMessageGenerator().setMessageType(parentMessageType);
+        return childMessageBuilder;
     }
 }

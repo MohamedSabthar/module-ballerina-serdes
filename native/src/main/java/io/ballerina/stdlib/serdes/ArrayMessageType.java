@@ -34,7 +34,7 @@ import static io.ballerina.stdlib.serdes.Constants.UNION_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Constants.UNION_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
 import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
-import static io.ballerina.stdlib.serdes.Utils.isNonReferencedRecordType;
+import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
  * ArrayMessageType.
@@ -126,12 +126,12 @@ public class ArrayMessageType extends MessageType {
     @Override
     public void setRecordField(RecordType recordType) {
         // if not a referenced recordType use "RecordBuilder" as message name
-        String nestedMessageName = isNonReferencedRecordType(recordType) ? RECORD_BUILDER : recordType.getName();
+        String nestedMessageName = isAnonymousBallerinaRecord(recordType) ? RECORD_BUILDER : recordType.getName();
         String fieldName = getCurrentFieldName();
         if (parentMessageType instanceof UnionMessageType) {
             String ballerinaType = recordType.getName();
             fieldName = ballerinaType + TYPE_SEPARATOR + fieldName + TYPE_SEPARATOR + UNION_FIELD_NAME;
-        } else if (isNonReferencedRecordType(recordType) && (parentMessageType instanceof RecordMessageType
+        } else if (isAnonymousBallerinaRecord(recordType) && (parentMessageType instanceof RecordMessageType
                 || parentMessageType instanceof TupleMessageType)) {
             nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + nestedMessageName;
         }
@@ -231,7 +231,7 @@ public class ArrayMessageType extends MessageType {
 
             nestedMessageName = ARRAY_BUILDER_NAME + SEPARATOR + (dimension - 1);
             if (ballerinaType.getTag() == TypeTags.MAP_TAG || ballerinaType.getTag() == TypeTags.TABLE_TAG
-                    || isNonReferencedRecordType(ballerinaType)) {
+                    || isAnonymousBallerinaRecord(ballerinaType)) {
                 nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + nestedMessageName;
             } else {
                 nestedMessageName = ballerinaType.getName() + TYPE_SEPARATOR + nestedMessageName;

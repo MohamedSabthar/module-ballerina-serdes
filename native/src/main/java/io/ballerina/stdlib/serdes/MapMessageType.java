@@ -30,7 +30,7 @@ import static io.ballerina.stdlib.serdes.Constants.TUPLE_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.TYPE_SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.UNION_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Constants.VALUE_NAME;
-import static io.ballerina.stdlib.serdes.Utils.isNonReferencedRecordType;
+import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
  * MapMessageType.
@@ -84,7 +84,7 @@ public class MapMessageType extends MessageType {
 
     @Override
     public void setRecordField(RecordType recordType) {
-        String nestedMessageName = isNonReferencedRecordType(recordType) ? RECORD_BUILDER : recordType.getName();
+        String nestedMessageName = isAnonymousBallerinaRecord(recordType) ? RECORD_BUILDER : recordType.getName();
         boolean hasMessageDefinition = mapEntryBuilder.hasMessageDefinitionInMessageTree(nestedMessageName);
         // Check for cyclic reference in ballerina record
         if (!hasMessageDefinition) {
@@ -92,8 +92,8 @@ public class MapMessageType extends MessageType {
                     mapEntryBuilder);
             MessageType childMessageType = new RecordMessageType(recordType, nestedMessageBuilder,
                     getMessageGenerator());
-            ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
-            mapEntryBuilder.addNestedMessage(childMessageDefinition);
+            ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
+            mapEntryBuilder.addNestedMessage(nestedMessageDefinition);
         }
 
         buildMapMessageDefinition(nestedMessageName);

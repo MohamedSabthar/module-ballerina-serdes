@@ -20,7 +20,7 @@ import static io.ballerina.stdlib.serdes.Constants.MAP_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.RECORD_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.REPEATED_LABEL;
 import static io.ballerina.stdlib.serdes.Constants.TABLE_ENTRY;
-import static io.ballerina.stdlib.serdes.Utils.isNonReferencedRecordType;
+import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
  * TableMessageType.
@@ -66,7 +66,7 @@ public class TableMessageType extends MessageType {
 
     @Override
     public void setRecordField(RecordType recordType) {
-        String nestedMessageName = isNonReferencedRecordType(recordType) ? RECORD_BUILDER : recordType.getName();
+        String nestedMessageName = isAnonymousBallerinaRecord(recordType) ? RECORD_BUILDER : recordType.getName();
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
         // context switch 1
