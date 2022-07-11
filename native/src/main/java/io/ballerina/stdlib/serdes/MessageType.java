@@ -47,27 +47,25 @@ public abstract class MessageType {
     }
 
     public void setIntField(IntegerType integerType) {
-        ProtobufMessageFieldBuilder messageField = generateMessageFieldForBallerinaPrimitiveType(integerType.getTag());
-        getMessageBuilder().addField(messageField);
+        String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(integerType.getTag());
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, protoType);
     }
 
     public void setByteField(ByteType byteType) {
-        ProtobufMessageFieldBuilder messageField = generateMessageFieldForBallerinaPrimitiveType(byteType.getTag());
-        getMessageBuilder().addField(messageField);
+        String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(byteType.getTag());
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, protoType);
     }
 
     public void setFloatField(FloatType floatType) {
-        ProtobufMessageFieldBuilder messageField = generateMessageFieldForBallerinaPrimitiveType(floatType.getTag());
-        getMessageBuilder().addField(messageField);
+        String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(floatType.getTag());
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, protoType);
     }
 
     public void setDecimalField(DecimalType decimalType) {
         ProtobufMessageBuilder nestedMessageBuilder = generateDecimalMessageDefinition();
-        ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         messageBuilder.addNestedMessage(nestedMessageBuilder);
-
-        ProtobufMessageFieldBuilder messageField = generateMessageFieldForBallerinaPrimitiveType(decimalType.getTag());
-        getMessageBuilder().addField(messageField);
+        String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(decimalType.getTag());
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, protoType);
     }
 
     public ProtobufMessageBuilder generateDecimalMessageDefinition() {
@@ -87,18 +85,13 @@ public abstract class MessageType {
     }
 
     public void setStringField(StringType stringType) {
-        ProtobufMessageFieldBuilder messageField = generateMessageFieldForBallerinaPrimitiveType(stringType.getTag());
-        getMessageBuilder().addField(messageField);
+        String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(stringType.getTag());
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, protoType);
     }
 
     public void setBooleanField(BooleanType booleanType) {
-        ProtobufMessageFieldBuilder messageField = generateMessageFieldForBallerinaPrimitiveType(booleanType.getTag());
-        getMessageBuilder().addField(messageField);
-    }
-
-    private ProtobufMessageFieldBuilder generateMessageFieldForBallerinaPrimitiveType(int typeTag) {
-        String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(typeTag);
-        return new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, protoType, getCurrentFieldName(), currentFieldNumber);
+        String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(booleanType.getTag());
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, protoType);
     }
 
     public void setEnumField(FiniteType finiteType) {
@@ -157,13 +150,67 @@ public abstract class MessageType {
         ++currentFieldNumber;
     }
 
+    public void addNestedMessageDefinitionInMessageBuilder(RecordType recordType, String recordMessageName) {
+        boolean hasMessageDefinition = messageBuilder.hasMessageDefinitionInMessageTree(recordMessageName);
+        // Avoid recursive message definition for ballerina record with cyclic reference
+        if (!hasMessageDefinition) {
+            ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(recordMessageName, messageBuilder);
+            MessageType childMessageType = new RecordMessageType(recordType, nestedMessageBuilder, messageGenerator);
+            ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
+            messageBuilder.addNestedMessage(nestedMessageDefinition);
+        }
+    }
+
+    public void addNestedMessageDefinitionInMessageBuilder(TupleType tupleType, String tupleMessageName) {
+        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(tupleMessageName, messageBuilder);
+        MessageType childMessageType = new TupleMessageType(tupleType, nestedMessageBuilder, messageGenerator);
+        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(nestedMessageDefinition);
+    }
+
+    public void addNestedMessageDefinitionInMessageBuilder(UnionType unionType, String unionMessageName) {
+        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(unionMessageName, messageBuilder);
+        MessageType childMessageType = new UnionMessageType(unionType, nestedMessageBuilder, messageGenerator);
+        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(nestedMessageDefinition);
+    }
+
+    public void addNestedMessageDefinitionInMessageBuilder(TableType tableType, String tableMessageName) {
+        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(tableMessageName, messageBuilder);
+        MessageType childMessageType = new TableMessageType(tableType, nestedMessageBuilder, messageGenerator);
+        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(nestedMessageDefinition);
+    }
+
+    public void addNestedMessageDefinitionInMessageBuilder(ArrayType arrayType, String arrayMessageName) {
+        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(arrayMessageName, messageBuilder);
+        MessageType parentMessageType = messageGenerator.getMessageType();
+        MessageType childMessageType = ArrayMessageType.withParentMessageType(arrayType, nestedMessageBuilder,
+                messageGenerator, parentMessageType);
+        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(nestedMessageDefinition);
+    }
+
+    public void addNestedMessageDefinitionInMessageBuilder(MapType mapType, String mapMessageName) {
+        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(mapMessageName, messageBuilder);
+        MessageType childMessageType = new MapMessageType(mapType, nestedMessageBuilder, messageGenerator);
+        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(nestedMessageDefinition);
+    }
+
     public ProtobufMessageBuilder getNestedMessageDefinition(MessageType childMessageType) {
-        MessageType parentMessageType = getMessageGenerator().getMessageType();
+        MessageType parentMessageType = messageGenerator.getMessageType();
         // switch to child message type
-        getMessageGenerator().setMessageType(childMessageType);
-        ProtobufMessageBuilder childMessageBuilder = getMessageGenerator().generateMessageDefinition();
+        messageGenerator.setMessageType(childMessageType);
+        ProtobufMessageBuilder childMessageBuilder = messageGenerator.generateMessageDefinition();
         // switch back to parent message type
-        getMessageGenerator().setMessageType(parentMessageType);
+        messageGenerator.setMessageType(parentMessageType);
         return childMessageBuilder;
+    }
+
+    public void addMessageFieldInMessageBuilder(String fieldLabel, String fieldType) {
+        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(fieldLabel, fieldType,
+                currentFieldName, currentFieldNumber);
+        messageBuilder.addField(messageField);
     }
 }

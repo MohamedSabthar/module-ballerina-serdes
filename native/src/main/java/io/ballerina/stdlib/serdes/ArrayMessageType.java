@@ -16,7 +16,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.stdlib.serdes.protobuf.DataTypeMapper;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
-import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageFieldBuilder;
 
 import static io.ballerina.stdlib.serdes.Constants.ARRAY_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Constants.ARRAY_OF_MAP_AS_UNION_MEMBER_NOT_YET_SUPPORTED;
@@ -69,22 +68,20 @@ public class ArrayMessageType extends MessageType {
     @Override
     public void setIntField(IntegerType integerType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(integerType.getTag());
-        addElementFieldInMessageBuilder(protoType);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, protoType);
     }
 
     @Override
     public void setByteField(ByteType byteType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(TypeTags.BYTE_TAG);
         // Use optional label instead of repeated label, protobuf supports bytes instead of byte
-        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, protoType,
-                getCurrentFieldName(), getCurrentFieldNumber());
-        getMessageBuilder().addField(messageField);
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, protoType);
     }
 
     @Override
     public void setFloatField(FloatType floatType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(floatType.getTag());
-        addElementFieldInMessageBuilder(protoType);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, protoType);
     }
 
     @Override
@@ -94,19 +91,19 @@ public class ArrayMessageType extends MessageType {
         messageBuilder.addNestedMessage(nestedMessageBuilder);
 
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(decimalType.getTag());
-        addElementFieldInMessageBuilder(protoType);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, protoType);
     }
 
     @Override
     public void setStringField(StringType stringType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(stringType.getTag());
-        addElementFieldInMessageBuilder(protoType);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, protoType);
     }
 
     @Override
     public void setBooleanField(BooleanType booleanType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(booleanType.getTag());
-        addElementFieldInMessageBuilder(protoType);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, protoType);
     }
 
     @Override
@@ -117,20 +114,8 @@ public class ArrayMessageType extends MessageType {
                 || parentMessageType instanceof TupleMessageType)) {
             nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + nestedMessageName;
         }
-
-        ProtobufMessageBuilder messageBuilder = getMessageBuilder();
-
-        // Check for cyclic reference in ballerina record
-        boolean hasMessageDefinition = messageBuilder.hasMessageDefinitionInMessageTree(nestedMessageName);
-        if (!hasMessageDefinition) {
-            ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName);
-            MessageType childMessageType = new RecordMessageType(recordType, nestedMessageBuilder,
-                    getMessageGenerator());
-            ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-            messageBuilder.addNestedMessage(nestedMessageDefinition);
-        }
-
-        addElementFieldInMessageBuilder(nestedMessageName);
+        addNestedMessageDefinitionInMessageBuilder(recordType, nestedMessageName);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
     }
 
     @Override
@@ -142,9 +127,8 @@ public class ArrayMessageType extends MessageType {
         } else if (parentMessageType instanceof RecordMessageType || parentMessageType instanceof TupleMessageType) {
             nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + nestedMessageName;
         }
-        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName);
-        MessageType childMessageType = new MapMessageType(mapType, nestedMessageBuilder, getMessageGenerator());
-        generateNestedMessageDefinitionAndSetElementField(childMessageType);
+        addNestedMessageDefinitionInMessageBuilder(mapType, nestedMessageName);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
     }
 
     @Override
@@ -158,9 +142,8 @@ public class ArrayMessageType extends MessageType {
             nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + nestedMessageName;
         }
 
-        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName);
-        MessageType childMessageType = new TableMessageType(tableType, nestedMessageBuilder, getMessageGenerator());
-        generateNestedMessageDefinitionAndSetElementField(childMessageType);
+        addNestedMessageDefinitionInMessageBuilder(tableType, nestedMessageName);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
     }
 
     @Override
@@ -184,12 +167,8 @@ public class ArrayMessageType extends MessageType {
             }
         }
 
-        ProtobufMessageBuilder messageBuilder = getMessageBuilder();
-        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
-        MessageType parentMessageType = getMessageGenerator().getMessageType();
-        MessageType childMessageType = ArrayMessageType.withParentMessageType(arrayType, nestedMessageBuilder,
-                getMessageGenerator(), parentMessageType);
-        generateNestedMessageDefinitionAndSetElementField(childMessageType);
+        addNestedMessageDefinitionInMessageBuilder(arrayType, nestedMessageName);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
     }
 
     @Override
@@ -203,10 +182,8 @@ public class ArrayMessageType extends MessageType {
             String ballerinaType = Utils.getBaseElementTypeNameOfBallerinaArray((ArrayType) getBallerinaType());
             nestedMessageName = ballerinaType + TYPE_SEPARATOR + nestedMessageName;
         }
-        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName,
-                getMessageBuilder());
-        MessageType childMessageType = new UnionMessageType(unionType, nestedMessageBuilder, getMessageGenerator());
-        generateNestedMessageDefinitionAndSetElementField(childMessageType);
+        addNestedMessageDefinitionInMessageBuilder(unionType, nestedMessageName);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
     }
 
     @Override
@@ -221,20 +198,7 @@ public class ArrayMessageType extends MessageType {
         } else if (parentMessageType instanceof RecordMessageType || parentMessageType instanceof TupleMessageType) {
             nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + nestedMessageName;
         }
-        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName);
-        MessageType childMessageType = new TupleMessageType(tupleType, nestedMessageBuilder, getMessageGenerator());
-        generateNestedMessageDefinitionAndSetElementField(childMessageType);
-    }
-
-    private void generateNestedMessageDefinitionAndSetElementField(MessageType childMessageType) {
-        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-        getMessageBuilder().addNestedMessage(nestedMessageDefinition);
-        addElementFieldInMessageBuilder(childMessageType.getMessageBuilder().getName());
-    }
-
-    private void addElementFieldInMessageBuilder(String fieldTypeOrNestedMessageName) {
-        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(REPEATED_LABEL,
-                fieldTypeOrNestedMessageName, getCurrentFieldName(), getCurrentFieldNumber());
-        getMessageBuilder().addField(messageField);
+        addNestedMessageDefinitionInMessageBuilder(tupleType, nestedMessageName);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
     }
 }
