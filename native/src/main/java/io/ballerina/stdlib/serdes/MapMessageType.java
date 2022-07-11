@@ -49,44 +49,50 @@ public class MapMessageType extends MessageType {
     @Override
     public void setIntField(IntegerType integerType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(integerType.getTag());
-        buildMapMessageDefinition(protoType);
+        addKeyAndValueFieldsInMapEntryBuilder(protoType);
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
     @Override
     public void setByteField(ByteType byteType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(byteType.getTag());
-        buildMapMessageDefinition(protoType);
+        addKeyAndValueFieldsInMapEntryBuilder(protoType);
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
     @Override
     public void setFloatField(FloatType floatType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(floatType.getTag());
-        buildMapMessageDefinition(protoType);
+        addKeyAndValueFieldsInMapEntryBuilder(protoType);
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
     @Override
     public void setDecimalField(DecimalType decimalType) {
         ProtobufMessageBuilder decimalMessageDefinition = generateDecimalMessageDefinition();
-        buildMapMessageDefinitionWithNestedMessage(decimalMessageDefinition);
+        addKeyAndValueFieldsInMapEntryBuilder(decimalMessageDefinition);
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
     @Override
     public void setStringField(StringType stringType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(stringType.getTag());
-        buildMapMessageDefinition(protoType);
+        addKeyAndValueFieldsInMapEntryBuilder(protoType);
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
     @Override
     public void setBooleanField(BooleanType booleanType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(booleanType.getTag());
-        buildMapMessageDefinition(protoType);
+        addKeyAndValueFieldsInMapEntryBuilder(protoType);
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
     @Override
     public void setRecordField(RecordType recordType) {
         String nestedMessageName = isAnonymousBallerinaRecord(recordType) ? RECORD_BUILDER : recordType.getName();
         boolean hasMessageDefinition = mapEntryBuilder.hasMessageDefinitionInMessageTree(nestedMessageName);
-        // Check for cyclic reference in ballerina record
+        // Avoid recursive message definition for ballerina record with cyclic reference
         if (!hasMessageDefinition) {
             ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName,
                     mapEntryBuilder);
@@ -95,37 +101,38 @@ public class MapMessageType extends MessageType {
             ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
             mapEntryBuilder.addNestedMessage(nestedMessageDefinition);
         }
-
-        buildMapMessageDefinition(nestedMessageName);
+        addKeyAndValueFieldsInMapEntryBuilder(nestedMessageName);
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
-    private void buildMapMessageDefinition(String valueFieldType) {
-        setKeyFieldInMapEntryBuilder();
-        setValueFieldInMapEntryBuilder(valueFieldType);
-        addMapEntryFieldInMessageBuilder();
+    private void addKeyAndValueFieldsInMapEntryBuilder(String valueFieldType) {
+        addKeyFieldInMapEntryBuilder();
+        addValueFieldInMapEntryBuilder(valueFieldType);
     }
 
     @Override
     public void setMapField(MapType mapType) {
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(MAP_BUILDER, mapEntryBuilder);
         MessageType childMessageType = new MapMessageType(mapType, nestedMessageBuilder, getMessageGenerator());
-        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-        buildMapMessageDefinitionWithNestedMessage(nestedMessageDefinition);
+        ProtobufMessageBuilder valueMessageDefinition = getNestedMessageDefinition(childMessageType);
+        addKeyAndValueFieldsInMapEntryBuilder(valueMessageDefinition);
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
     @Override
     public void setTableField(TableType tableType) {
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(TABLE_BUILDER, mapEntryBuilder);
         MessageType childMessageType = new TableMessageType(tableType, nestedMessageBuilder, getMessageGenerator());
-        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-        buildMapMessageDefinitionWithNestedMessage(nestedMessageDefinition);
+        ProtobufMessageBuilder valueMessageDefinition = getNestedMessageDefinition(childMessageType);
+        addKeyAndValueFieldsInMapEntryBuilder(valueMessageDefinition);
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
     @Override
     public void setArrayField(ArrayType arrayType) {
-        setKeyFieldInMapEntryBuilder();
-
+        addKeyFieldInMapEntryBuilder();
         MessageType parentMessageType = getMessageGenerator().getMessageType();
+
         // Wrap mapEntryBuilder instead of creating new nested message builder
         MessageType childMessageType = ArrayMessageType.withParentMessageType(arrayType, mapEntryBuilder,
                 getMessageGenerator(), parentMessageType);
@@ -134,7 +141,7 @@ public class MapMessageType extends MessageType {
 
         // This adds the value field in wrapped mapEntryBuilder
         getNestedMessageDefinition(childMessageType);
-        addMapEntryFieldInMessageBuilder();
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
     @Override
@@ -142,39 +149,45 @@ public class MapMessageType extends MessageType {
         String nestedMessageName = VALUE_NAME + TYPE_SEPARATOR + UNION_BUILDER_NAME;
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, mapEntryBuilder);
         MessageType childMessageType = new UnionMessageType(unionType, nestedMessageBuilder, getMessageGenerator());
-        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-        buildMapMessageDefinitionWithNestedMessage(nestedMessageDefinition);
+        ProtobufMessageBuilder valueMessageDefinition = getNestedMessageDefinition(childMessageType);
+        addKeyAndValueFieldsInMapEntryBuilder(valueMessageDefinition);
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
     @Override
     public void setTupleField(TupleType tupleType) {
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(TUPLE_BUILDER, mapEntryBuilder);
         MessageType childMessageType = new TupleMessageType(tupleType, nestedMessageBuilder, getMessageGenerator());
-        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-        buildMapMessageDefinitionWithNestedMessage(nestedMessageDefinition);
+        ProtobufMessageBuilder valueMessageDefinition = getNestedMessageDefinition(childMessageType);
+        addKeyAndValueFieldsInMapEntryBuilder(valueMessageDefinition);
+        addMapEntryFieldAndMessageDefinitionInMessageBuilder();
     }
 
-    private void buildMapMessageDefinitionWithNestedMessage(ProtobufMessageBuilder childMessageBuilder) {
-        setKeyFieldInMapEntryBuilder();
-        mapEntryBuilder.addNestedMessage(childMessageBuilder);
-        setValueFieldInMapEntryBuilder(childMessageBuilder.getName());
-        addMapEntryFieldInMessageBuilder();
+    private void addKeyAndValueFieldsInMapEntryBuilder(ProtobufMessageBuilder valueMessageDefinition) {
+        addKeyFieldInMapEntryBuilder();
+        mapEntryBuilder.addNestedMessage(valueMessageDefinition);
+        addValueFieldInMapEntryBuilder(valueMessageDefinition.getName());
     }
 
-    private void setKeyFieldInMapEntryBuilder() {
+
+    private void addKeyFieldInMapEntryBuilder() {
         ProtobufMessageFieldBuilder keyField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, STRING, KEY_NAME,
                 keyFieldNumber);
         mapEntryBuilder.addField(keyField);
     }
 
-    private void setValueFieldInMapEntryBuilder(String fieldType) {
+    private void addValueFieldInMapEntryBuilder(String fieldType) {
         ProtobufMessageFieldBuilder valueField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, fieldType,
                 getCurrentFieldName(), valueFieldNumber);
         mapEntryBuilder.addField(valueField);
     }
 
-    void addMapEntryFieldInMessageBuilder() {
+    void addMapEntryFieldAndMessageDefinitionInMessageBuilder() {
         getMessageBuilder().addNestedMessage(mapEntryBuilder);
+        addMapEntryFieldInMessageBuilder();
+    }
+
+    void addMapEntryFieldInMessageBuilder() {
         final int mapEntryNumber = 1;
         ProtobufMessageFieldBuilder mapEntryField = new ProtobufMessageFieldBuilder(REPEATED_LABEL, MAP_FIELD_ENTRY,
                 MAP_FIELD, mapEntryNumber);
