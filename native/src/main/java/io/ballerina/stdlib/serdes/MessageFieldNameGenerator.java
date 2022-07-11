@@ -81,21 +81,6 @@ public class MessageFieldNameGenerator {
                 .sorted(Map.Entry.comparingByKey()).collect(Collectors.toList());
     }
 
-    private static List<Map.Entry<String, Type>> getTupleElementNamesAndTypes(TupleType tupleType) {
-        AtomicInteger elementIndex = new AtomicInteger(0);
-        return tupleType.getTupleTypes().stream()
-                .map(type -> Map.entry(TUPLE_FIELD_NAME + SEPARATOR + (elementIndex.incrementAndGet()),
-                        TypeUtils.getReferredType(type))).collect(Collectors.toList());
-    }
-
-    private static List<Map.Entry<String, Type>> getMapValueFieldNameAndConstraintTypeAsList(MapType mapType) {
-        return List.of(Map.entry(VALUE_NAME, TypeUtils.getReferredType(mapType.getConstrainedType())));
-    }
-
-    private static List<Map.Entry<String, Type>> getTableEntryFieldNameAndConstraintTypeAsList(TableType tableType) {
-        return List.of(Map.entry(TABLE_ENTRY, TypeUtils.getReferredType(tableType.getConstrainedType())));
-    }
-
     private static Map.Entry<String, Type> mapUnionMemberToMapEntry(Type type) {
         Type referredType = TypeUtils.getReferredType(type);
         String typeName = referredType.getName();
@@ -144,5 +129,20 @@ public class MessageFieldNameGenerator {
         }
 
         throw createSerdesError(UNSUPPORTED_DATA_TYPE + referredType.getName(), SERDES_ERROR);
+    }
+
+    private static List<Map.Entry<String, Type>> getTupleElementNamesAndTypes(TupleType tupleType) {
+        AtomicInteger elementIndex = new AtomicInteger(0);
+        return tupleType.getTupleTypes().stream()
+                .map(type -> Map.entry(TUPLE_FIELD_NAME + SEPARATOR + (elementIndex.incrementAndGet()),
+                        TypeUtils.getReferredType(type))).collect(Collectors.toList());
+    }
+
+    private static List<Map.Entry<String, Type>> getMapValueFieldNameAndConstraintTypeAsList(MapType mapType) {
+        return List.of(Map.entry(VALUE_NAME, TypeUtils.getReferredType(mapType.getConstrainedType())));
+    }
+
+    private static List<Map.Entry<String, Type>> getTableEntryFieldNameAndConstraintTypeAsList(TableType tableType) {
+        return List.of(Map.entry(TABLE_ENTRY, TypeUtils.getReferredType(tableType.getConstrainedType())));
     }
 }

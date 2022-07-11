@@ -38,22 +38,12 @@ public class RecordMessageType extends MessageType {
         // Check for cyclic reference in ballerina record
         if (!hasMessageDefinition) {
             ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
-
-            // context switch 1
-            var current = getMessageGenerator().getMessageType();
-            getMessageGenerator().setMessageType(
-                    new RecordMessageType(recordType, nestedMessageBuilder, getMessageGenerator()));
-
-            nestedMessageBuilder = getMessageGenerator().generateMessageDefinition();
-            messageBuilder.addNestedMessage(nestedMessageBuilder);
-
-            // context switch 2
-            getMessageGenerator().setMessageType(current);
+            MessageType childMessageType = new RecordMessageType(recordType, nestedMessageBuilder,
+                    getMessageGenerator());
+            ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
+            messageBuilder.addNestedMessage(nestedMessageDefinition);
         }
-
-        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, nestedMessageName,
-                getCurrentFieldName(), getCurrentFieldNumber());
-        messageBuilder.addField(messageField);
+        addFieldInMessageBuilder(nestedMessageName);
     }
 
     @Override
@@ -61,19 +51,8 @@ public class RecordMessageType extends MessageType {
         String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + MAP_BUILDER;
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
-
-        // context switch 1
-        var current = getMessageGenerator().getMessageType();
-        getMessageGenerator().setMessageType(new MapMessageType(mapType, nestedMessageBuilder, getMessageGenerator()));
-        nestedMessageBuilder = getMessageGenerator().generateMessageDefinition();
-        messageBuilder.addNestedMessage(nestedMessageBuilder);
-
-        // context switch 2
-        getMessageGenerator().setMessageType(current);
-
-        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, nestedMessageName,
-                getCurrentFieldName(), getCurrentFieldNumber());
-        messageBuilder.addField(messageField);
+        MessageType childMessageType = new MapMessageType(mapType, nestedMessageBuilder, getMessageGenerator());
+        generateNestedMessageDefinitionAndSetField(childMessageType);
     }
 
     @Override
@@ -81,36 +60,23 @@ public class RecordMessageType extends MessageType {
         String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + TABLE_BUILDER;
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
-        // context switch 1
-        var current = getMessageGenerator().getMessageType();
-        getMessageGenerator().setMessageType(
-                new TableMessageType(tableType, nestedMessageBuilder, getMessageGenerator()));
-
-        nestedMessageBuilder = getMessageGenerator().generateMessageDefinition();
-        messageBuilder.addNestedMessage(nestedMessageBuilder);
-
-        // context switch 2
-        getMessageGenerator().setMessageType(current);
-
-        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, nestedMessageName,
-                getCurrentFieldName(), getCurrentFieldNumber());
-        messageBuilder.addField(messageField);
+        MessageType childMessageType = new TableMessageType(tableType, nestedMessageBuilder, getMessageGenerator());
+        generateNestedMessageDefinitionAndSetField(childMessageType);
     }
 
     @Override
     public void setArrayField(ArrayType arrayType) {
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
+        MessageType parentMessageType = getMessageGenerator().getMessageType();
 
-        // context switch 1
-        var current = getMessageGenerator().getMessageType();
-        getMessageGenerator().setMessageType(
-                new ArrayMessageType(arrayType, messageBuilder, getMessageGenerator(), current));
-        getMessageGenerator().getMessageType().setCurrentFieldName(getCurrentFieldName());
-        getMessageGenerator().getMessageType().setCurrentFieldNumber(getCurrentFieldNumber());
-        getMessageGenerator().generateMessageDefinition();
+        // Wrap messageBuilder instead of creating new nested message builder
+        MessageType childMessageType = new ArrayMessageType(arrayType, messageBuilder, getMessageGenerator(),
+                parentMessageType);
+        childMessageType.setCurrentFieldName(getCurrentFieldName());
+        childMessageType.setCurrentFieldNumber(getCurrentFieldNumber());
 
-        // context switch 2
-        getMessageGenerator().setMessageType(current);
+        // This adds the value field in wrapped messageBuilder
+        getNestedMessageDefinition(childMessageType);
     }
 
     @Override
@@ -118,20 +84,8 @@ public class RecordMessageType extends MessageType {
         String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + UNION_BUILDER_NAME;
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
-
-        // context switch 1
-        var current = getMessageGenerator().getMessageType();
-        getMessageGenerator().setMessageType(
-                new UnionMessageType(unionType, nestedMessageBuilder, getMessageGenerator()));
-        nestedMessageBuilder = getMessageGenerator().generateMessageDefinition();
-        messageBuilder.addNestedMessage(nestedMessageBuilder);
-
-        // context switch 2
-        getMessageGenerator().setMessageType(current);
-
-        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, nestedMessageName,
-                getCurrentFieldName(), getCurrentFieldNumber());
-        messageBuilder.addField(messageField);
+        MessageType childMessageType = new UnionMessageType(unionType, nestedMessageBuilder, getMessageGenerator());
+        generateNestedMessageDefinitionAndSetField(childMessageType);
     }
 
     @Override
@@ -139,19 +93,19 @@ public class RecordMessageType extends MessageType {
         String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + TUPLE_BUILDER;
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
+        MessageType childMessageType = new TupleMessageType(tupleType, nestedMessageBuilder, getMessageGenerator());
+        generateNestedMessageDefinitionAndSetField(childMessageType);
+    }
 
-        // context switch 1
-        var current = getMessageGenerator().getMessageType();
-        getMessageGenerator().setMessageType(
-                new TupleMessageType(tupleType, nestedMessageBuilder, getMessageGenerator()));
-        nestedMessageBuilder = getMessageGenerator().generateMessageDefinition();
-        messageBuilder.addNestedMessage(nestedMessageBuilder);
+    private void generateNestedMessageDefinitionAndSetField(MessageType childMessageType) {
+        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
+        getMessageBuilder().addNestedMessage(nestedMessageDefinition);
+        addFieldInMessageBuilder(childMessageType.getMessageBuilder().getName());
+    }
 
-        // context switch 2
-        getMessageGenerator().setMessageType(current);
-
+    private void addFieldInMessageBuilder(String nestedMessageName) {
         ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, nestedMessageName,
                 getCurrentFieldName(), getCurrentFieldNumber());
-        messageBuilder.addField(messageField);
+        getMessageBuilder().addField(messageField);
     }
 }

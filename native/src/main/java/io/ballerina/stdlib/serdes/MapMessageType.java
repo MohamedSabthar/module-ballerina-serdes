@@ -126,17 +126,14 @@ public class MapMessageType extends MessageType {
         setKeyFieldInMapEntryBuilder();
 
         MessageType parentMessageType = getMessageGenerator().getMessageType();
+        // Wrap mapEntryBuilder instead of creating new nested message builder
         MessageType childMessageType = new ArrayMessageType(arrayType, mapEntryBuilder, getMessageGenerator(),
                 parentMessageType);
         childMessageType.setCurrentFieldName(getCurrentFieldName());
         childMessageType.setCurrentFieldNumber(valueFieldNumber);
 
-        // switch to child message type
-        getMessageGenerator().setMessageType(childMessageType);
-        getMessageGenerator().generateMessageDefinition();
-
-        // switch back to parent message type
-        getMessageGenerator().setMessageType(parentMessageType);
+        // This adds the value field in wrapped mapEntryBuilder
+        getNestedMessageDefinition(childMessageType);
         addMapEntryFieldInMessageBuilder();
     }
 
@@ -155,16 +152,6 @@ public class MapMessageType extends MessageType {
         MessageType childMessageType = new TupleMessageType(tupleType, nestedMessageBuilder, getMessageGenerator());
         ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
         buildMapMessageDefinitionWithNestedMessage(nestedMessageDefinition);
-    }
-
-    private ProtobufMessageBuilder getNestedMessageDefinition(MessageType childMessageType) {
-        MessageType parentMessageType = getMessageGenerator().getMessageType();
-        // switch to child message type
-        getMessageGenerator().setMessageType(childMessageType);
-        ProtobufMessageBuilder childMessageBuilder = getMessageGenerator().generateMessageDefinition();
-        // switch back to parent message type
-        getMessageGenerator().setMessageType(parentMessageType);
-        return childMessageBuilder;
     }
 
     private void buildMapMessageDefinitionWithNestedMessage(ProtobufMessageBuilder childMessageBuilder) {

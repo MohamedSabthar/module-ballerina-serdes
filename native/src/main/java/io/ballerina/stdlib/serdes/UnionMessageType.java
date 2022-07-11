@@ -78,14 +78,16 @@ public class UnionMessageType extends MessageType {
     @Override
     public void setArrayField(ArrayType arrayType) {
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
-
         MessageType parentMessageType = getMessageGenerator().getMessageType();
+
         // Wrap existing message builder instead of creating new nested message builder
         MessageType childMessageType = new ArrayMessageType(arrayType, messageBuilder, getMessageGenerator(),
                 parentMessageType);
         int dimention = Utils.getArrayDimensions(arrayType);
         childMessageType.setCurrentFieldName(ARRAY_FIELD_NAME + SEPARATOR + dimention);
         childMessageType.setCurrentFieldNumber(getCurrentFieldNumber());
+
+        // This adds the value field in wrapped messageBuilder
         getNestedMessageDefinition(childMessageType);
     }
 
@@ -109,15 +111,5 @@ public class UnionMessageType extends MessageType {
         ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL,
                 fieldTypeOrNestedMessageName, getCurrentFieldName(), getCurrentFieldNumber());
         getMessageBuilder().addField(messageField);
-    }
-
-    private ProtobufMessageBuilder getNestedMessageDefinition(MessageType childMessageType) {
-        MessageType parentMessageType = getMessageGenerator().getMessageType();
-        // switch to child message type
-        getMessageGenerator().setMessageType(childMessageType);
-        ProtobufMessageBuilder childMessageBuilder = getMessageGenerator().generateMessageDefinition();
-        // switch back to parent message type
-        getMessageGenerator().setMessageType(parentMessageType);
-        return childMessageBuilder;
     }
 }

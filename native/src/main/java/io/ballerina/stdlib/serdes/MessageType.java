@@ -156,4 +156,14 @@ public abstract class MessageType {
     public void incrementFieldNumber() {
         ++currentFieldNumber;
     }
+
+    public ProtobufMessageBuilder getNestedMessageDefinition(MessageType childMessageType) {
+        MessageType parentMessageType = getMessageGenerator().getMessageType();
+        // switch to child message type
+        getMessageGenerator().setMessageType(childMessageType);
+        ProtobufMessageBuilder childMessageBuilder = getMessageGenerator().generateMessageDefinition();
+        // switch back to parent message type
+        getMessageGenerator().setMessageType(parentMessageType);
+        return childMessageBuilder;
+    }
 }
