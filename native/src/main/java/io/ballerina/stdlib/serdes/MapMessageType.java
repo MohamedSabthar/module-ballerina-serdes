@@ -127,8 +127,8 @@ public class MapMessageType extends MessageType {
 
         MessageType parentMessageType = getMessageGenerator().getMessageType();
         // Wrap mapEntryBuilder instead of creating new nested message builder
-        MessageType childMessageType = new ArrayMessageType(arrayType, mapEntryBuilder, getMessageGenerator(),
-                parentMessageType);
+        MessageType childMessageType = ArrayMessageType.withParentMessageType(arrayType, mapEntryBuilder,
+                getMessageGenerator(), parentMessageType);
         childMessageType.setCurrentFieldName(getCurrentFieldName());
         childMessageType.setCurrentFieldNumber(valueFieldNumber);
 

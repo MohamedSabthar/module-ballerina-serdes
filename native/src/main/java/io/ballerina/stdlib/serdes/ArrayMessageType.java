@@ -47,10 +47,16 @@ public class ArrayMessageType extends MessageType {
         this(ballerinaType, messageBuilder, messageGenerator, null);
     }
 
-    public ArrayMessageType(Type ballerinaType, ProtobufMessageBuilder messageBuilder,
-                            BallerinaStructuredTypeMessageGenerator messageGenerator, MessageType parentMessageType) {
+    private ArrayMessageType(Type ballerinaType, ProtobufMessageBuilder messageBuilder,
+                             BallerinaStructuredTypeMessageGenerator messageGenerator, MessageType parentMessageType) {
         super(ballerinaType, messageBuilder, messageGenerator);
         this.parentMessageType = parentMessageType;
+    }
+
+    public static ArrayMessageType withParentMessageType(Type ballerinaType, ProtobufMessageBuilder messageBuilder,
+                                                         BallerinaStructuredTypeMessageGenerator messageGenerator,
+                                                         MessageType parentMessageType) {
+        return new ArrayMessageType(ballerinaType, messageBuilder, messageGenerator, parentMessageType);
     }
 
 
@@ -76,6 +82,7 @@ public class ArrayMessageType extends MessageType {
             // Field names and nested message names are prefixed with ballerina type to avoid name collision
             fieldName = byteType.getName() + TYPE_SEPARATOR + fieldName + TYPE_SEPARATOR + UNION_FIELD_NAME;
         }
+        // Use optional label instead of repeated label, protobuf supports bytes instead of byte
         ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, protoType, fieldName,
                 getCurrentFieldNumber());
         getMessageBuilder().addField(messageField);

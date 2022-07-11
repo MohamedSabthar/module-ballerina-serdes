@@ -81,8 +81,8 @@ public class UnionMessageType extends MessageType {
         MessageType parentMessageType = getMessageGenerator().getMessageType();
 
         // Wrap existing message builder instead of creating new nested message builder
-        MessageType childMessageType = new ArrayMessageType(arrayType, messageBuilder, getMessageGenerator(),
-                parentMessageType);
+        MessageType childMessageType = ArrayMessageType.withParentMessageType(arrayType, messageBuilder,
+                getMessageGenerator(), parentMessageType);
         int dimention = Utils.getArrayDimensions(arrayType);
         childMessageType.setCurrentFieldName(ARRAY_FIELD_NAME + SEPARATOR + dimention);
         childMessageType.setCurrentFieldNumber(getCurrentFieldNumber());

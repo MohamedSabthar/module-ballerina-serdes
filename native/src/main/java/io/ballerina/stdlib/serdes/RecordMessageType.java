@@ -70,8 +70,8 @@ public class RecordMessageType extends MessageType {
         MessageType parentMessageType = getMessageGenerator().getMessageType();
 
         // Wrap messageBuilder instead of creating new nested message builder
-        MessageType childMessageType = new ArrayMessageType(arrayType, messageBuilder, getMessageGenerator(),
-                parentMessageType);
+        MessageType childMessageType = ArrayMessageType.withParentMessageType(arrayType, messageBuilder,
+                getMessageGenerator(), parentMessageType);
         childMessageType.setCurrentFieldName(getCurrentFieldName());
         childMessageType.setCurrentFieldNumber(getCurrentFieldNumber());
 
