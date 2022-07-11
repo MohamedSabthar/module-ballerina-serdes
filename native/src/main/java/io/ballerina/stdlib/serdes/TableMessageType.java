@@ -26,12 +26,11 @@ import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
  * TableMessageType.
  */
 public class TableMessageType extends MessageType {
-    private final int tableEntryFieldNumber;
+    private static final int tableEntryFieldNumber = 1;
 
     public TableMessageType(Type ballerinaType, ProtobufMessageBuilder messageBuilder,
                             BallerinaStructuredTypeMessageGenerator messageGenerator) {
         super(ballerinaType, messageBuilder, messageGenerator);
-        tableEntryFieldNumber = 1;
     }
 
     @Override
@@ -69,19 +68,8 @@ public class TableMessageType extends MessageType {
         String nestedMessageName = isAnonymousBallerinaRecord(recordType) ? RECORD_BUILDER : recordType.getName();
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
-        // context switch 1
-        var current = getMessageGenerator().getMessageType();
-        getMessageGenerator().setMessageType(
-                new RecordMessageType(recordType, nestedMessageBuilder, getMessageGenerator()));
-        nestedMessageBuilder = getMessageGenerator().generateMessageDefinition();
-        messageBuilder.addNestedMessage(nestedMessageBuilder);
-
-        // context switch 2
-        getMessageGenerator().setMessageType(current);
-
-        ProtobufMessageFieldBuilder valueField = new ProtobufMessageFieldBuilder(REPEATED_LABEL, nestedMessageName,
-                TABLE_ENTRY, tableEntryFieldNumber);
-        messageBuilder.addField(valueField);
+        MessageType childMessageType = new RecordMessageType(recordType, nestedMessageBuilder, getMessageGenerator());
+        generateNestedMessageDefinitionAndSetEntryField(childMessageType);
     }
 
     @Override
@@ -89,18 +77,20 @@ public class TableMessageType extends MessageType {
         String nestedMessageName = MAP_BUILDER;
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
         ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(nestedMessageName, messageBuilder);
-        // context switch 1
-        var current = getMessageGenerator().getMessageType();
-        getMessageGenerator().setMessageType(new MapMessageType(mapType, nestedMessageBuilder, getMessageGenerator()));
-        nestedMessageBuilder = getMessageGenerator().generateMessageDefinition();
-        messageBuilder.addNestedMessage(nestedMessageBuilder);
+        MessageType childMessageType = new MapMessageType(mapType, nestedMessageBuilder, getMessageGenerator());
+        generateNestedMessageDefinitionAndSetEntryField(childMessageType);
+    }
 
-        // context switch 2
-        getMessageGenerator().setMessageType(current);
+    private void generateNestedMessageDefinitionAndSetEntryField(MessageType childMessageType) {
+        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
+        getMessageBuilder().addNestedMessage(nestedMessageDefinition);
+        addEntryFieldInMessageBuilder(childMessageType.getMessageBuilder().getName());
+    }
 
+    private void addEntryFieldInMessageBuilder(String nestedMessageName) {
         ProtobufMessageFieldBuilder valueField = new ProtobufMessageFieldBuilder(REPEATED_LABEL, nestedMessageName,
                 TABLE_ENTRY, tableEntryFieldNumber);
-        messageBuilder.addField(valueField);
+        getMessageBuilder().addField(valueField);
     }
 
     @Override

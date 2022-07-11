@@ -103,9 +103,9 @@ public class TupleMessageType extends MessageType {
         addElementFieldInMessageBuilder(childMessageType.getMessageBuilder().getName());
     }
 
-    private void addElementFieldInMessageBuilder(String fieldTypeOrNestedMessageName) {
-        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL,
-                fieldTypeOrNestedMessageName, getCurrentFieldName(), getCurrentFieldNumber());
+    private void addElementFieldInMessageBuilder(String nestedMessageName) {
+        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, nestedMessageName,
+                getCurrentFieldName(), getCurrentFieldNumber());
         getMessageBuilder().addField(messageField);
     }
 }
