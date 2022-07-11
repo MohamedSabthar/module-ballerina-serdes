@@ -87,7 +87,7 @@ public class MessageFieldNameGenerator {
 
         if (referredType.getTag() == TypeTags.ARRAY_TAG) {
             int dimention = Utils.getArrayDimensions((ArrayType) referredType);
-            typeName = Utils.getElementTypeNameOfBallerinaArray((ArrayType) referredType);
+            typeName = Utils.getBaseElementTypeNameOfBallerinaArray((ArrayType) referredType);
             String key = typeName + TYPE_SEPARATOR + ARRAY_FIELD_NAME + SEPARATOR + dimention + TYPE_SEPARATOR
                     + UNION_FIELD_NAME;
             return Map.entry(key, referredType);

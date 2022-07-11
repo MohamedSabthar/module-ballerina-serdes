@@ -12,10 +12,8 @@ import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageFieldBuilder;
 
-import static io.ballerina.stdlib.serdes.Constants.ARRAY_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.BOOL;
 import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
-import static io.ballerina.stdlib.serdes.Constants.SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.STRING;
 import static io.ballerina.stdlib.serdes.Constants.TUPLE_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.TYPE_SEPARATOR;
@@ -83,8 +81,7 @@ public class UnionMessageType extends MessageType {
         // Wrap existing message builder instead of creating new nested message builder
         MessageType childMessageType = ArrayMessageType.withParentMessageType(arrayType, messageBuilder,
                 getMessageGenerator(), parentMessageType);
-        int dimention = Utils.getArrayDimensions(arrayType);
-        childMessageType.setCurrentFieldName(ARRAY_FIELD_NAME + SEPARATOR + dimention);
+        childMessageType.setCurrentFieldName(getCurrentFieldName());
         childMessageType.setCurrentFieldNumber(getCurrentFieldNumber());
 
         // This adds the value field in wrapped messageBuilder

@@ -237,7 +237,7 @@ public class Serializer {
 
                 if (ballerinaType.equals(EMPTY_STRING)) {
                     // Get the base type of the ballerina multidimensional array
-                    ballerinaType = Utils.getElementTypeNameOfBallerinaArray((ArrayType) bArray.getElementType());
+                    ballerinaType = Utils.getBaseElementTypeNameOfBallerinaArray((ArrayType) bArray.getElementType());
                     dimention += Utils.getArrayDimensions((ArrayType) bArray.getElementType());
                 }
 

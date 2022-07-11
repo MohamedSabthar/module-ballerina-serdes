@@ -80,7 +80,7 @@ public class Utils {
     }
 
     // Get the basic ballerina type of the given array
-    public static Type getElementTypeOfBallerinaArray(ArrayType array) {
+    public static Type getBaseElementTypeOfBallerinaArray(ArrayType array) {
         Type basicElementType = array.getElementType();
 
         while (basicElementType.getTag() == TypeTags.ARRAY_TAG) {
@@ -91,8 +91,8 @@ public class Utils {
     }
 
     // Get the basic ballerina type name of the given array
-    public static String getElementTypeNameOfBallerinaArray(ArrayType array) {
-        return getElementTypeOfBallerinaArray(array).getName();
+    public static String getBaseElementTypeNameOfBallerinaArray(ArrayType array) {
+        return getBaseElementTypeOfBallerinaArray(array).getName();
     }
 
     public static boolean isAnonymousBallerinaRecord(Type ballerinaType) {
