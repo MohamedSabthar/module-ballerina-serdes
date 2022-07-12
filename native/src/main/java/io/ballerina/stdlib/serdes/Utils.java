@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 
 import java.util.Locale;
@@ -68,11 +69,10 @@ public class Utils {
     // Get the dimention of given array type
     public static int getArrayDimensions(ArrayType array) {
         int dimension = 1;
-        Type basicElementType = array.getElementType();
-
+        Type basicElementType = TypeUtils.getReferredType(array.getElementType());
         while (basicElementType.getTag() == TypeTags.ARRAY_TAG) {
-            array = (ArrayType) array.getElementType();
-            basicElementType = array.getElementType();
+            array = (ArrayType) TypeUtils.getReferredType(array.getElementType());
+            basicElementType = TypeUtils.getReferredType(array.getElementType());
             dimension++;
         }
 
@@ -81,11 +81,10 @@ public class Utils {
 
     // Get the basic ballerina type of the given array
     public static Type getBaseElementTypeOfBallerinaArray(ArrayType array) {
-        Type basicElementType = array.getElementType();
-
+        Type basicElementType = TypeUtils.getReferredType(array.getElementType());
         while (basicElementType.getTag() == TypeTags.ARRAY_TAG) {
-            array = (ArrayType) array.getElementType();
-            basicElementType = array.getElementType();
+            array = (ArrayType) TypeUtils.getReferredType(array.getElementType());
+            basicElementType = TypeUtils.getReferredType(array.getElementType());
         }
         return basicElementType;
     }
