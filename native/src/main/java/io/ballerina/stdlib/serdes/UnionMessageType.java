@@ -22,7 +22,7 @@ import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
- * UnionMessageType.
+ * {@link UnionMessageType} class generate protobuf message definition for ballerina union.
  */
 public class UnionMessageType extends MessageType {
     public UnionMessageType(Type ballerinaType, ProtobufMessageBuilder messageBuilder,

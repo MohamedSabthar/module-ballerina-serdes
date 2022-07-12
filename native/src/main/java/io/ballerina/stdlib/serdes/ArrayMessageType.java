@@ -35,7 +35,7 @@ import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
- * ArrayMessageType.
+ * {@link ArrayMessageType} class generate protobuf message definition for ballerina arrays.
  */
 public class ArrayMessageType extends MessageType {
     private final MessageType parentMessageType;

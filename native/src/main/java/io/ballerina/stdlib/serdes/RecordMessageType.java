@@ -19,7 +19,7 @@ import static io.ballerina.stdlib.serdes.Constants.UNION_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
- * RecordMessageType.
+ * {@link RecordMessageType} class generate protobuf message definition for ballerina records.
  */
 public class RecordMessageType extends MessageType {
 

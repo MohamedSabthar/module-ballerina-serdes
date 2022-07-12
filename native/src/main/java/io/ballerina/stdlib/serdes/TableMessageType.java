@@ -22,7 +22,7 @@ import static io.ballerina.stdlib.serdes.Constants.REPEATED_LABEL;
 import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
- * TableMessageType.
+ * {@link TableMessageType} class generate protobuf message definition for ballerina tables.
  */
 public class TableMessageType extends MessageType {
     private static final int tableEntryFieldNumber = 1;

@@ -20,7 +20,7 @@ import static io.ballerina.stdlib.serdes.Constants.UNION_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
- * TupleMessageType.
+ * {@link TupleMessageType} class generate protobuf message definition for ballerina tuples.
  */
 public class TupleMessageType extends MessageType {
     public TupleMessageType(Type ballerinaType, ProtobufMessageBuilder messageBuilder,

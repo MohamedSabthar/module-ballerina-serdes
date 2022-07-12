@@ -29,7 +29,7 @@ import static io.ballerina.stdlib.serdes.Constants.UINT32;
 import static io.ballerina.stdlib.serdes.Constants.VALUE;
 
 /**
- * MessageType.
+ * {@link MessageType} provides generic functions for concrete messageTypes.
  */
 public abstract class MessageType {
     private final ProtobufMessageBuilder messageBuilder;

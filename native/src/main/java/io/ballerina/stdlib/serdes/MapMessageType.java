@@ -33,7 +33,7 @@ import static io.ballerina.stdlib.serdes.Constants.VALUE_NAME;
 import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
- * MapMessageType.
+ * {@link MapMessageType} class generate protobuf message definition for ballerina maps.
  */
 public class MapMessageType extends MessageType {
     private static final int keyFieldNumber = 1;

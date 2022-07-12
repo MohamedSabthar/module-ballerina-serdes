@@ -27,7 +27,8 @@ import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
 import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 
 /**
- * BallerinaStructuredTypeMessageGenerator.
+ * {@link BallerinaStructuredTypeMessageGenerator} generate protobuf message definition for given ballerina structure
+ * type.
  */
 public class BallerinaStructuredTypeMessageGenerator {
     private MessageType messageType;
