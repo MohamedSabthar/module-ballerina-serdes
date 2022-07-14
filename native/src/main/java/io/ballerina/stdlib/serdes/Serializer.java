@@ -118,18 +118,14 @@ public class Serializer {
                 return generateMessageForPrimitiveDecimalType(messageBuilder, anydata, messageDescriptor);
             }
 
-            case TypeTags.UNION_TAG: {
-                return generateMessageForUnionType(messageBuilder, anydata);
-            }
-
             case TypeTags.ARRAY_TAG: {
                 FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(ARRAY_FIELD_NAME);
                 return generateMessageForArrayType(messageBuilder, fieldDescriptor, (BArray) anydata);
             }
 
+            case TypeTags.UNION_TAG:
             case TypeTags.RECORD_TYPE_TAG: {
-                @SuppressWarnings("unchecked") BMap<BString, Object> record = (BMap<BString, Object>) anydata;
-                return generateMessageForRecordType(messageBuilder, record);
+                return new BallerinaStructuredTypeMessageSerializer(referredType, anydata, messageBuilder).serialize();
             }
 
             case TypeTags.MAP_TAG: {
@@ -184,12 +180,12 @@ public class Serializer {
     }
 
 
-    private static Builder generateMessageForUnionType(Builder messageBuilder, Object anydata) {
+    public static Builder generateMessageForUnionType(Builder messageBuilder, Object anydata) {
         Descriptor messageDescriptor = messageBuilder.getDescriptorForType();
         Type type = TypeUtils.getType(anydata);
         Type referredType = TypeUtils.getReferredType(type);
 
-        switch (type.getTag()) {
+        switch (referredType.getTag()) {
             case TypeTags.NULL_TAG: {
                 FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(NULL_FIELD_NAME);
                 messageBuilder.setField(fieldDescriptor, true);
@@ -207,7 +203,7 @@ public class Serializer {
             }
 
             case TypeTags.STRING_TAG: {
-                String fieldName =  referredType.getName() + TYPE_SEPARATOR + UNION_FIELD_NAME;
+                String fieldName = referredType.getName() + TYPE_SEPARATOR + UNION_FIELD_NAME;
                 FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(fieldName);
 
                 if (fieldDescriptor == null) {
@@ -279,7 +275,7 @@ public class Serializer {
         }
     }
 
-    private static Builder generateMessageForArrayType(Builder messageBuilder, FieldDescriptor fieldDescriptor,
+    public static Builder generateMessageForArrayType(Builder messageBuilder, FieldDescriptor fieldDescriptor,
                                                        BArray bArray) {
         int len = bArray.size();
         Type elementType = bArray.getElementType();
@@ -383,7 +379,7 @@ public class Serializer {
         return messageBuilder;
     }
 
-    private static Builder generateMessageForRecordType(Builder messageBuilder, BMap<BString, Object> record) {
+    public static Builder generateMessageForRecordType(Builder messageBuilder, BMap<BString, Object> record) {
         Descriptor schema = messageBuilder.getDescriptorForType();
         RecordType recordType = (RecordType) record.getType();
         Map<String, Field> recordTypeFields = recordType.getFields();
@@ -471,7 +467,7 @@ public class Serializer {
     }
 
 
-    private static Builder generateMessageForMapType(Builder messageBuilder, BMap<BString, Object> ballerinaMap) {
+    public static Builder generateMessageForMapType(Builder messageBuilder, BMap<BString, Object> ballerinaMap) {
 
         Descriptor schema = messageBuilder.getDescriptorForType();
         MapType mapType = (MapType) ballerinaMap.getType();
@@ -573,7 +569,7 @@ public class Serializer {
         return messageBuilder;
     }
 
-    private static Builder generateMessageForTableType(Builder messageBuilder, BTable<?, ?> table) {
+    public static Builder generateMessageForTableType(Builder messageBuilder, BTable<?, ?> table) {
         Type constrainedType = ((TableType) TypeUtils.getType(table)).getConstrainedType();
         Type referredConstrainedType = TypeUtils.getReferredType(constrainedType);
         FieldDescriptor tableEntryField = messageBuilder.getDescriptorForType().findFieldByName(TABLE_ENTRY);
@@ -605,7 +601,7 @@ public class Serializer {
     }
 
 
-    private static Builder generateMessageForTupleType(Builder messageBuilder, BArray tuple) {
+    public static Builder generateMessageForTupleType(Builder messageBuilder, BArray tuple) {
         int elementFieldNumber = 1;
 
         for (Object value : tuple.getValues()) {

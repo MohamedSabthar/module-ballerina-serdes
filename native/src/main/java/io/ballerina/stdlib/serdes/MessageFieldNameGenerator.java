@@ -40,6 +40,8 @@ import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
  */
 public class MessageFieldNameGenerator {
 
+    // TODO: move each to to corresponding ConcreteMessageType class and have a abstract method in MessageType
+
     private MessageFieldNameGenerator() {
     }
 
@@ -81,7 +83,7 @@ public class MessageFieldNameGenerator {
                 .sorted(Map.Entry.comparingByKey()).collect(Collectors.toList());
     }
 
-    private static Map.Entry<String, Type> mapUnionMemberToMapEntry(Type type) {
+    public static Map.Entry<String, Type> mapUnionMemberToMapEntry(Type type) {
         Type referredType = TypeUtils.getReferredType(type);
         String typeName = referredType.getName();
 
