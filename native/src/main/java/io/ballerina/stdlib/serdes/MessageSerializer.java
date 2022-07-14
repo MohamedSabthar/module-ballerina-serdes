@@ -27,7 +27,6 @@ public abstract class MessageSerializer {
     private final Object anydata;
     private final BallerinaStructuredTypeMessageSerializer ballerinaStructuredTypeMessageSerializer;
     private String currentFieldName;
-    private int currentFieldNumber;
 
     public MessageSerializer(Builder dynamicMessageBuilder, Object anydata,
                              BallerinaStructuredTypeMessageSerializer ballerinaStructuredTypeMessageSerializer) {
@@ -102,14 +101,6 @@ public abstract class MessageSerializer {
 
     public void setCurrentFieldName(String currentFieldName) {
         this.currentFieldName = currentFieldName;
-    }
-
-    public int getCurrentFieldNumber() {
-        return currentFieldNumber;
-    }
-
-    public void setCurrentFieldNumber(int currentFieldNumber) {
-        this.currentFieldNumber = currentFieldNumber;
     }
 
     /**
