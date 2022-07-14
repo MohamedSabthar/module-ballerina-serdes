@@ -16,7 +16,6 @@ import java.util.List;
 import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.FieldDescriptor;
 import static io.ballerina.stdlib.serdes.Constants.ARRAY_FIELD_NAME;
-import static io.ballerina.stdlib.serdes.Serializer.generateMessageForMapType;
 import static io.ballerina.stdlib.serdes.Serializer.generateMessageForTableType;
 import static io.ballerina.stdlib.serdes.Serializer.generateMessageForTupleType;
 
@@ -99,8 +98,13 @@ public class ArrayMessageSerializer extends MessageSerializer {
     public void setMapFieldValue(BMap<BString, Object> ballerinaMap) {
         FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
                 .findFieldByName(getCurrentFieldName());
-        Builder mapBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
-        DynamicMessage nestedMessage = generateMessageForMapType(mapBuilder, ballerinaMap).build();
+        Builder mapMessageBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
+        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
+        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
+                new MapMessageSerializer(mapMessageBuilder, ballerinaMap,
+                        getBallerinaStructuredTypeMessageSerializer()));
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, nestedMessage);
     }
 

@@ -34,6 +34,9 @@ public class BallerinaStructuredTypeMessageSerializer {
             case TypeTags.ARRAY_TAG:
                 setMessageSerializer(new ArrayMessageSerializer(dynamicMessageBuilder, anydata, this));
                 break;
+            case TypeTags.MAP_TAG:
+                setMessageSerializer(new MapMessageSerializer(dynamicMessageBuilder, anydata, this));
+                break;
             default:
                 throw createSerdesError(UNSUPPORTED_DATA_TYPE + type.getName(), SERDES_ERROR);
         }

@@ -120,13 +120,9 @@ public class Serializer {
 
             case TypeTags.ARRAY_TAG:
             case TypeTags.UNION_TAG:
-            case TypeTags.RECORD_TYPE_TAG: {
-                return new BallerinaStructuredTypeMessageSerializer(referredType, anydata, messageBuilder).serialize();
-            }
-
+            case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG: {
-                @SuppressWarnings("unchecked") BMap<BString, Object> ballerinaMap = (BMap<BString, Object>) anydata;
-                return generateMessageForMapType(messageBuilder, ballerinaMap);
+                return new BallerinaStructuredTypeMessageSerializer(referredType, anydata, messageBuilder).serialize();
             }
 
             case TypeTags.TABLE_TAG: {
@@ -272,7 +268,7 @@ public class Serializer {
     }
 
     public static Builder generateMessageForArrayType(Builder messageBuilder, FieldDescriptor fieldDescriptor,
-                                                       BArray bArray) {
+                                                      BArray bArray) {
         int len = bArray.size();
         Type elementType = bArray.getElementType();
         Type referredElementType = TypeUtils.getReferredType(elementType);
