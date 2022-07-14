@@ -12,7 +12,6 @@ import io.ballerina.runtime.api.values.BTable;
 import java.util.List;
 
 import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
-import static io.ballerina.stdlib.serdes.MessageSerializer.MessageFieldData;
 import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
 import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 
@@ -31,6 +30,9 @@ public class BallerinaStructuredTypeMessageSerializer {
                 break;
             case TypeTags.UNION_TAG:
                 setMessageSerializer(new UnionMessageSerializer(dynamicMessageBuilder, anydata, this));
+                break;
+            case TypeTags.ARRAY_TAG:
+                setMessageSerializer(new ArrayMessageSerializer(dynamicMessageBuilder, anydata, this));
                 break;
             default:
                 throw createSerdesError(UNSUPPORTED_DATA_TYPE + type.getName(), SERDES_ERROR);

@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.FieldDescriptor;
-import static io.ballerina.stdlib.serdes.Serializer.generateMessageForArrayType;
 import static io.ballerina.stdlib.serdes.Serializer.generateMessageForMapType;
 import static io.ballerina.stdlib.serdes.Serializer.generateMessageForTableType;
 import static io.ballerina.stdlib.serdes.Serializer.generateMessageForTupleType;
@@ -111,9 +110,14 @@ public class RecordMessageSerializer extends MessageSerializer {
 
     @Override
     public void setArrayFieldValue(BArray ballerinaArray) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
-        generateMessageForArrayType(getDynamicMessageBuilder(), fieldDescriptor, ballerinaArray);
+        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
+        var childMessageSerializer = new ArrayMessageSerializer(getDynamicMessageBuilder(), ballerinaArray,
+                getBallerinaStructuredTypeMessageSerializer());
+        childMessageSerializer.setCurrentFieldName(getCurrentFieldName());
+
+        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(childMessageSerializer);
+        getBallerinaStructuredTypeMessageSerializer().serialize();
+        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
     }
 
     @Override

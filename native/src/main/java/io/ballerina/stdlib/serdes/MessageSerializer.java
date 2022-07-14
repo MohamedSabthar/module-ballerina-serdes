@@ -3,7 +3,6 @@ package io.ballerina.stdlib.serdes;
 
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
@@ -101,33 +100,5 @@ public abstract class MessageSerializer {
 
     public void setCurrentFieldName(String currentFieldName) {
         this.currentFieldName = currentFieldName;
-    }
-
-    /**
-     * {@link MessageFieldData} holds the ballerina value, ballerina type and generated field name of a protobuf field.
-     */
-    public static class MessageFieldData {
-        private final String fieldName;
-        private final Object ballerinaValue;
-        private final Type ballerinaType;
-
-        public MessageFieldData(String fieldName, Object ballerinaValue, Type ballerinaType) {
-            this.fieldName = fieldName;
-            this.ballerinaValue = ballerinaValue;
-            this.ballerinaType = ballerinaType;
-        }
-
-        public String getFieldName() {
-            return fieldName;
-        }
-
-        public Object getBallerinaValue() {
-            return ballerinaValue;
-        }
-
-        public Type getBallerinaType() {
-            return ballerinaType;
-        }
-
     }
 }

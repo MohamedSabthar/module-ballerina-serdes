@@ -118,11 +118,7 @@ public class Serializer {
                 return generateMessageForPrimitiveDecimalType(messageBuilder, anydata, messageDescriptor);
             }
 
-            case TypeTags.ARRAY_TAG: {
-                FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(ARRAY_FIELD_NAME);
-                return generateMessageForArrayType(messageBuilder, fieldDescriptor, (BArray) anydata);
-            }
-
+            case TypeTags.ARRAY_TAG:
             case TypeTags.UNION_TAG:
             case TypeTags.RECORD_TYPE_TAG: {
                 return new BallerinaStructuredTypeMessageSerializer(referredType, anydata, messageBuilder).serialize();
