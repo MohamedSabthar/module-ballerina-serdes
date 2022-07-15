@@ -36,12 +36,10 @@ import java.math.BigDecimal;
 
 import static io.ballerina.stdlib.serdes.Constants.ATOMIC_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.BALLERINA_TYPEDESC_ATTRIBUTE_NAME;
-import static io.ballerina.stdlib.serdes.Constants.BYTE;
 import static io.ballerina.stdlib.serdes.Constants.PRECISION;
 import static io.ballerina.stdlib.serdes.Constants.SCALE;
 import static io.ballerina.stdlib.serdes.Constants.SCHEMA_NAME;
 import static io.ballerina.stdlib.serdes.Constants.SERIALIZATION_ERROR_MESSAGE;
-import static io.ballerina.stdlib.serdes.Constants.STRING;
 import static io.ballerina.stdlib.serdes.Constants.TYPE_MISMATCH_ERROR_MESSAGE;
 import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
 import static io.ballerina.stdlib.serdes.Constants.VALUE;
@@ -84,53 +82,47 @@ public class Serializer {
 
         switch (referredType.getTag()) {
             case TypeTags.INT_TAG:
-            case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
-            case TypeTags.STRING_TAG:
-            case TypeTags.BOOLEAN_TAG: {
-                FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(ATOMIC_FIELD_NAME);
-                return generateMessageForPrimitiveType(messageBuilder, fieldDescriptor, anydata,
-                        referredType.getName());
-            }
+            case TypeTags.BOOLEAN_TAG:
+                return generateMessageForPrimitiveType(messageBuilder, anydata);
 
-            case TypeTags.DECIMAL_TAG: {
-                return generateMessageForPrimitiveDecimalType(messageBuilder, anydata, messageDescriptor);
-            }
+            case TypeTags.BYTE_TAG:
+                byte[] bytes = new byte[]{((Integer) anydata).byteValue()};
+                return generateMessageForPrimitiveType(messageBuilder, bytes);
+
+            case TypeTags.STRING_TAG:
+                String string = ((BString) anydata).getValue();
+                return generateMessageForPrimitiveType(messageBuilder, string);
+
+            case TypeTags.DECIMAL_TAG:
+                return generateMessageForPrimitiveDecimalType(messageBuilder, anydata);
 
             case TypeTags.ARRAY_TAG:
             case TypeTags.UNION_TAG:
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
             case TypeTags.TABLE_TAG:
-            case TypeTags.TUPLE_TAG: {
-                return new BallerinaStructuredTypeMessageSerializer(referredType, anydata, messageBuilder).serialize();
-            }
+            case TypeTags.TUPLE_TAG:
+                BallerinaStructuredTypeMessageSerializer structuredTypeMessageSerializer
+                        = new BallerinaStructuredTypeMessageSerializer(referredType, anydata, messageBuilder);
+                return structuredTypeMessageSerializer.generateMessage();
 
             default:
                 throw createSerdesError(UNSUPPORTED_DATA_TYPE + referredType.getName(), SERDES_ERROR);
         }
     }
 
-    private static Builder generateMessageForPrimitiveType(Builder messageBuilder, FieldDescriptor field,
-                                                           Object anydata, String ballerinaTypeName) {
-
-        if (ballerinaTypeName.equals(BYTE)) {
-            byte[] data = new byte[]{((Integer) anydata).byteValue()};
-            messageBuilder.setField(field, data);
-        } else if (ballerinaTypeName.equals(STRING)) {
-            BString bString = (BString) anydata;
-            messageBuilder.setField(field, bString.getValue());
-        } else {
-            messageBuilder.setField(field, anydata);
-        }
-
+    private static Builder generateMessageForPrimitiveType(Builder messageBuilder, Object fieldValue) {
+        Descriptor messageDescriptor = messageBuilder.getDescriptorForType();
+        FieldDescriptor fieldDescriptor = messageDescriptor.findFieldByName(ATOMIC_FIELD_NAME);
+        messageBuilder.setField(fieldDescriptor, fieldValue);
         return messageBuilder;
     }
 
-    private static Builder generateMessageForPrimitiveDecimalType(Builder messageBuilder, Object anydata,
-                                                                  Descriptor decimalSchema) {
+    private static Builder generateMessageForPrimitiveDecimalType(Builder messageBuilder, Object anydata) {
         BigDecimal bigDecimal = ((BDecimal) anydata).decimalValue();
 
+        Descriptor decimalSchema = messageBuilder.getDescriptorForType();
         FieldDescriptor scale = decimalSchema.findFieldByName(SCALE);
         FieldDescriptor precision = decimalSchema.findFieldByName(PRECISION);
         FieldDescriptor value = decimalSchema.findFieldByName(VALUE);
@@ -138,7 +130,6 @@ public class Serializer {
         messageBuilder.setField(scale, bigDecimal.scale());
         messageBuilder.setField(precision, bigDecimal.precision());
         messageBuilder.setField(value, bigDecimal.unscaledValue().toByteArray());
-
         return messageBuilder;
     }
 }

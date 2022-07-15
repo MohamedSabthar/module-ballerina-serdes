@@ -56,7 +56,7 @@ public class BallerinaStructuredTypeMessageSerializer {
         this.messageSerializer = messageSerializer;
     }
 
-    public DynamicMessage.Builder serialize() {
+    public DynamicMessage.Builder generateMessage() {
         List<MessageFieldData> fieldNamesAndValues = messageSerializer.getListOfMessageFieldData();
 
         for (MessageFieldData entry : fieldNamesAndValues) {

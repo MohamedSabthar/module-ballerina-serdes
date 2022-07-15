@@ -88,7 +88,7 @@ public class UnionMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new RecordMessageSerializer(recordMessageBuilder, ballerinaRecord,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().setField(fieldDescriptor, nestedMessage);
     }
@@ -102,7 +102,7 @@ public class UnionMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new MapMessageSerializer(recordMessageBuilder, ballerinaMap,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().setField(fieldDescriptor, nestedMessage);
     }
@@ -116,7 +116,7 @@ public class UnionMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new TableMessageSerializer(tableMessageBuilder, ballerinaTable,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, nestedMessage);
     }
@@ -129,7 +129,7 @@ public class UnionMessageSerializer extends MessageSerializer {
         childMessageSerializer.setCurrentFieldName(getCurrentFieldName());
 
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(childMessageSerializer);
-        getBallerinaStructuredTypeMessageSerializer().serialize();
+        getBallerinaStructuredTypeMessageSerializer().generateMessage();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
     }
 
@@ -143,7 +143,7 @@ public class UnionMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new UnionMessageSerializer(unionMessageBuilder, unionValue,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().setField(fieldDescriptor, nestedMessage);
     }
@@ -158,7 +158,7 @@ public class UnionMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new TupleMessageSerializer(tupleMessageBuilder, ballerinaTuple,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().setField(fieldDescriptor, nestedMessage);
     }

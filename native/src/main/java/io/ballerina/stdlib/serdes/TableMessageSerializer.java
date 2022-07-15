@@ -72,7 +72,7 @@ public class TableMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new RecordMessageSerializer(recordMessageBuilder, ballerinaRecord,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, nestedMessage);
     }
@@ -86,7 +86,7 @@ public class TableMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new MapMessageSerializer(recordMessageBuilder, ballerinaMap,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, nestedMessage);
     }

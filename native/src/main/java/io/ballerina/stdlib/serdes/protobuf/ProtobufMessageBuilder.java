@@ -89,13 +89,12 @@ public class ProtobufMessageBuilder {
         StringBuilder msgContent = new StringBuilder();
 
         // Build string for nested types
-        nestedMessages.values().forEach(
-                nestedMessage -> msgContent.append(nestedMessage.toString(levelSpace)).append("\n"));
+        nestedMessages.values()
+                .forEach(nestedMessage -> msgContent.append(nestedMessage.toString(levelSpace)).append("\n"));
 
         // Build string for field
-        messageFields.values().stream().sorted(
-                Comparator.comparingInt(ProtobufMessageFieldBuilder::getFieldNumber)).forEach(
-                messageField -> msgContent.append(messageField.toString(levelSpace)));
+        messageFields.values().stream().sorted(Comparator.comparingInt(ProtobufMessageFieldBuilder::getFieldNumber))
+                .forEach(messageField -> msgContent.append(messageField.toString(levelSpace)));
 
         String protoEnd = space + "}\n";
 

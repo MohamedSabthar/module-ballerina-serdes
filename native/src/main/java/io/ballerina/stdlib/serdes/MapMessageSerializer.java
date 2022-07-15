@@ -97,7 +97,7 @@ public class MapMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new RecordMessageSerializer(recordMessageBuilder, ballerinaRecord,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         mapEntryBuilder.setField(fieldDescriptor, nestedMessage);
         setMapFieldMessageValueInMessageBuilder();
@@ -112,7 +112,7 @@ public class MapMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new MapMessageSerializer(recordMessageBuilder, ballerinaMap,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         mapEntryBuilder.setField(fieldDescriptor, nestedMessage);
         setMapFieldMessageValueInMessageBuilder();
@@ -127,7 +127,7 @@ public class MapMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new TableMessageSerializer(tableMessageBuilder, ballerinaTable,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         mapEntryBuilder.setField(fieldDescriptor, nestedMessage);
         setMapFieldMessageValueInMessageBuilder();
@@ -142,7 +142,7 @@ public class MapMessageSerializer extends MessageSerializer {
         childMessageSerializer.setCurrentFieldName(VALUE_NAME);
 
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(childMessageSerializer);
-        getBallerinaStructuredTypeMessageSerializer().serialize();
+        getBallerinaStructuredTypeMessageSerializer().generateMessage();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         setMapFieldMessageValueInMessageBuilder();
     }
@@ -157,7 +157,7 @@ public class MapMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new UnionMessageSerializer(unionMessageBuilder, unionValue,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         mapEntryBuilder.setField(fieldDescriptor, nestedMessage);
         setMapFieldMessageValueInMessageBuilder();
@@ -173,7 +173,7 @@ public class MapMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new TupleMessageSerializer(tupleMessageBuilder, ballerinaTuple,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         mapEntryBuilder.setField(fieldDescriptor, nestedMessage);
         setMapFieldMessageValueInMessageBuilder();

@@ -82,7 +82,7 @@ public class RecordMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new RecordMessageSerializer(recordMessageBuilder, ballerinaRecord,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().setField(fieldDescriptor, nestedMessage);
     }
@@ -96,7 +96,7 @@ public class RecordMessageSerializer extends MessageSerializer {
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
                 new MapMessageSerializer(mapMessageBuilder, ballerinaMap,
                         getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().setField(fieldDescriptor, nestedMessage);
     }
@@ -106,12 +106,9 @@ public class RecordMessageSerializer extends MessageSerializer {
         FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
                 .findFieldByName(getCurrentFieldName());
         Builder tableMessageBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
-        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
-                new TableMessageSerializer(tableMessageBuilder, ballerinaTable,
-                        getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
+        MessageSerializer nestedMessageSerializer = new TableMessageSerializer(tableMessageBuilder, ballerinaTable,
+                getBallerinaStructuredTypeMessageSerializer());
+        DynamicMessage nestedMessage = getValueOfNestedMessage(nestedMessageSerializer);
         getDynamicMessageBuilder().setField(fieldDescriptor, nestedMessage);
     }
 
@@ -123,7 +120,7 @@ public class RecordMessageSerializer extends MessageSerializer {
         childMessageSerializer.setCurrentFieldName(getCurrentFieldName());
 
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(childMessageSerializer);
-        getBallerinaStructuredTypeMessageSerializer().serialize();
+        getBallerinaStructuredTypeMessageSerializer().generateMessage();
         getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
     }
 
@@ -133,12 +130,9 @@ public class RecordMessageSerializer extends MessageSerializer {
                 .findFieldByName(getCurrentFieldName());
         Descriptor nestedSchema = fieldDescriptor.getMessageType();
         Builder unionMessageBuilder = DynamicMessage.newBuilder(nestedSchema);
-        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
-                new UnionMessageSerializer(unionMessageBuilder, unionValue,
-                        getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
+        MessageSerializer nestedMessageSerializer = new UnionMessageSerializer(unionMessageBuilder, unionValue,
+                getBallerinaStructuredTypeMessageSerializer());
+        DynamicMessage nestedMessage = getValueOfNestedMessage(nestedMessageSerializer);
         getDynamicMessageBuilder().setField(fieldDescriptor, nestedMessage);
     }
 
@@ -148,13 +142,21 @@ public class RecordMessageSerializer extends MessageSerializer {
                 .findFieldByName(getCurrentFieldName());
         Descriptor nestedSchema = fieldDescriptor.getMessageType();
         Builder tupleMessageBuilder = DynamicMessage.newBuilder(nestedSchema);
-        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
-                new TupleMessageSerializer(tupleMessageBuilder, ballerinaTuple,
-                        getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
+        MessageSerializer nestedMessageSerializer = new TupleMessageSerializer(tupleMessageBuilder, ballerinaTuple,
+                getBallerinaStructuredTypeMessageSerializer());
+        DynamicMessage nestedMessage = getValueOfNestedMessage(nestedMessageSerializer);
         getDynamicMessageBuilder().setField(fieldDescriptor, nestedMessage);
+    }
+
+    private DynamicMessage getValueOfNestedMessage(MessageSerializer childMessageSerializer) {
+        MessageSerializer parentMessageSerializer
+                = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
+        // switch to child message serializer
+        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(childMessageSerializer);
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
+        // switch back to parent message serializer
+        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(parentMessageSerializer);
+        return nestedMessage;
     }
 
     @Override
