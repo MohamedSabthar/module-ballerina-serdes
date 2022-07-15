@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.FieldDescriptor;
-import static io.ballerina.stdlib.serdes.Serializer.generateMessageForTupleType;
 
 /**
  * RecordMessageSerializer.
@@ -147,8 +146,14 @@ public class RecordMessageSerializer extends MessageSerializer {
     public void setTupleFieldValue(BArray ballerinaTuple) {
         FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
                 .findFieldByName(getCurrentFieldName());
-        Builder tableBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
-        DynamicMessage nestedMessage = generateMessageForTupleType(tableBuilder, ballerinaTuple).build();
+        Descriptor nestedSchema = fieldDescriptor.getMessageType();
+        Builder tupleMessageBuilder = DynamicMessage.newBuilder(nestedSchema);
+        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
+        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
+                new TupleMessageSerializer(tupleMessageBuilder, ballerinaTuple,
+                        getBallerinaStructuredTypeMessageSerializer()));
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().setField(fieldDescriptor, nestedMessage);
     }
 

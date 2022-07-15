@@ -40,6 +40,9 @@ public class BallerinaStructuredTypeMessageSerializer {
             case TypeTags.TABLE_TAG:
                 setMessageSerializer(new TableMessageSerializer(dynamicMessageBuilder, anydata, this));
                 break;
+            case TypeTags.TUPLE_TAG:
+                setMessageSerializer(new TupleMessageSerializer(dynamicMessageBuilder, anydata, this));
+                break;
             default:
                 throw createSerdesError(UNSUPPORTED_DATA_TYPE + type.getName(), SERDES_ERROR);
         }
