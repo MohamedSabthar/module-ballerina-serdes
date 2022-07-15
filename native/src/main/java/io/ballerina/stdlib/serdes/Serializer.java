@@ -121,13 +121,9 @@ public class Serializer {
             case TypeTags.ARRAY_TAG:
             case TypeTags.UNION_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-            case TypeTags.MAP_TAG: {
-                return new BallerinaStructuredTypeMessageSerializer(referredType, anydata, messageBuilder).serialize();
-            }
-
+            case TypeTags.MAP_TAG:
             case TypeTags.TABLE_TAG: {
-                BTable<?, ?> table = (BTable<?, ?>) anydata;
-                return generateMessageForTableType(messageBuilder, table);
+                return new BallerinaStructuredTypeMessageSerializer(referredType, anydata, messageBuilder).serialize();
             }
 
             case TypeTags.TUPLE_TAG: {

@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.FieldDescriptor;
-import static io.ballerina.stdlib.serdes.Serializer.generateMessageForTableType;
 import static io.ballerina.stdlib.serdes.Serializer.generateMessageForTupleType;
 
 /**
@@ -107,8 +106,13 @@ public class RecordMessageSerializer extends MessageSerializer {
     public void setTableFieldValue(BTable<?, ?> ballerinaTable) {
         FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
                 .findFieldByName(getCurrentFieldName());
-        Builder tableBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
-        DynamicMessage nestedMessage = generateMessageForTableType(tableBuilder, ballerinaTable).build();
+        Builder tableMessageBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
+        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
+        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
+                new TableMessageSerializer(tableMessageBuilder, ballerinaTable,
+                        getBallerinaStructuredTypeMessageSerializer()));
+        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().serialize().build();
+        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
         getDynamicMessageBuilder().setField(fieldDescriptor, nestedMessage);
     }
 
