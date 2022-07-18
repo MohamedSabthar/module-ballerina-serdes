@@ -13,9 +13,13 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.stdlib.serdes.protobuf.DataTypeMapper;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageFieldBuilder;
+
+import java.util.List;
+import java.util.Map;
 
 import static io.ballerina.stdlib.serdes.Constants.KEY_NAME;
 import static io.ballerina.stdlib.serdes.Constants.MAP_BUILDER;
@@ -193,4 +197,11 @@ public class MapMessageType extends MessageType {
                 MAP_FIELD, mapEntryNumber);
         getMessageBuilder().addField(mapEntryField);
     }
+
+    @Override
+    public List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList() {
+        MapType mapType = (MapType) getBallerinaType();
+        return List.of(Map.entry(VALUE_NAME, TypeUtils.getReferredType(mapType.getConstrainedType())));
+    }
+
 }

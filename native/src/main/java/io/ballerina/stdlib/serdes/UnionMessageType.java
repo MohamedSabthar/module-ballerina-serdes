@@ -1,5 +1,6 @@
 package io.ballerina.stdlib.serdes;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.MapType;
@@ -9,13 +10,28 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.stdlib.serdes.protobuf.DataTypeMapper;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static io.ballerina.stdlib.serdes.Constants.ARRAY_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.BOOL;
+import static io.ballerina.stdlib.serdes.Constants.EMPTY_STRING;
+import static io.ballerina.stdlib.serdes.Constants.MAP_MEMBER_NOT_YET_SUPPORTED;
+import static io.ballerina.stdlib.serdes.Constants.NIL;
+import static io.ballerina.stdlib.serdes.Constants.NULL_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
+import static io.ballerina.stdlib.serdes.Constants.SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.STRING;
+import static io.ballerina.stdlib.serdes.Constants.TABLE_MEMBER_NOT_YET_SUPPORTED;
 import static io.ballerina.stdlib.serdes.Constants.TUPLE_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.TYPE_SEPARATOR;
+import static io.ballerina.stdlib.serdes.Constants.UNION_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
 import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
 import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
@@ -28,6 +44,56 @@ public class UnionMessageType extends MessageType {
     public UnionMessageType(Type ballerinaType, ProtobufMessageBuilder messageBuilder,
                             BallerinaStructuredTypeMessageGenerator messageGenerator) {
         super(ballerinaType, messageBuilder, messageGenerator);
+    }
+
+    public static Map.Entry<String, Type> mapUnionMemberToMapEntry(Type type) {
+        Type referredType = TypeUtils.getReferredType(type);
+        String typeName = referredType.getName();
+
+        if (referredType.getTag() == TypeTags.ARRAY_TAG) {
+            int dimention = Utils.getArrayDimensions((ArrayType) referredType);
+            typeName = Utils.getBaseElementTypeNameOfBallerinaArray((ArrayType) referredType);
+            String key = typeName + TYPE_SEPARATOR + ARRAY_FIELD_NAME + SEPARATOR + dimention + TYPE_SEPARATOR
+                    + UNION_FIELD_NAME;
+            return Map.entry(key, referredType);
+        }
+
+        // Handle enum members
+        if (referredType.getTag() == TypeTags.FINITE_TYPE_TAG
+                && TypeUtils.getType(referredType.getEmptyValue()).getTag() == TypeTags.STRING_TAG) {
+            return Map.entry(((BString) referredType.getEmptyValue()).getValue(), referredType);
+        }
+
+        if (DataTypeMapper.isValidBallerinaPrimitiveType(typeName)
+                || referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            String key = typeName + TYPE_SEPARATOR + UNION_FIELD_NAME;
+            return Map.entry(key, referredType);
+        }
+
+        if (typeName.equals(NIL)) {
+            return Map.entry(NULL_FIELD_NAME, referredType);
+        }
+
+        if (referredType.getTag() == TypeTags.TUPLE_TAG) {
+            if (!typeName.equals(EMPTY_STRING)) {
+                String key = typeName + TYPE_SEPARATOR + UNION_FIELD_NAME;
+                return Map.entry(key, referredType);
+            } else {
+                throw createSerdesError(Utils.typeNotSupportedErrorMessage(type), SERDES_ERROR);
+            }
+        }
+
+        if (referredType.getTag() == TypeTags.MAP_TAG) {
+            // TODO: support map member
+            throw createSerdesError(MAP_MEMBER_NOT_YET_SUPPORTED, SERDES_ERROR);
+        }
+
+        if (referredType.getTag() == TypeTags.TABLE_TAG) {
+            // TODO: support table member
+            throw createSerdesError(TABLE_MEMBER_NOT_YET_SUPPORTED, SERDES_ERROR);
+        }
+
+        throw createSerdesError(UNSUPPORTED_DATA_TYPE + referredType.getName(), SERDES_ERROR);
     }
 
     @Override
@@ -87,5 +153,12 @@ public class UnionMessageType extends MessageType {
         String nestedMessageName = tupleType.getName() + TYPE_SEPARATOR + TUPLE_BUILDER;
         addNestedMessageDefinitionInMessageBuilder(tupleType, nestedMessageName);
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
+    }
+
+    @Override
+    public List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList() {
+        UnionType unionType = (UnionType) getBallerinaType();
+        return unionType.getMemberTypes().stream().map(UnionMessageType::mapUnionMemberToMapEntry)
+                .sorted(Map.Entry.comparingByKey()).collect(Collectors.toList());
     }
 }

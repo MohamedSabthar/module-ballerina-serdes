@@ -13,12 +13,17 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageFieldBuilder;
+
+import java.util.List;
+import java.util.Map;
 
 import static io.ballerina.stdlib.serdes.Constants.MAP_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.RECORD_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.REPEATED_LABEL;
+import static io.ballerina.stdlib.serdes.Constants.TABLE_ENTRY;
 import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
@@ -100,5 +105,11 @@ public class TableMessageType extends MessageType {
     @Override
     public void setTupleField(TupleType tupleType) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList() {
+        TableType tableType = (TableType) getBallerinaType();
+        return List.of(Map.entry(TABLE_ENTRY, TypeUtils.getReferredType(tableType.getConstrainedType())));
     }
 }

@@ -7,7 +7,13 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static io.ballerina.stdlib.serdes.Constants.MAP_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
@@ -15,6 +21,7 @@ import static io.ballerina.stdlib.serdes.Constants.RECORD_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.TABLE_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.TUPLE_BUILDER;
+import static io.ballerina.stdlib.serdes.Constants.TUPLE_FIELD_NAME;
 import static io.ballerina.stdlib.serdes.Constants.TYPE_SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.UNION_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
@@ -77,5 +84,14 @@ public class TupleMessageType extends MessageType {
         String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + TUPLE_BUILDER;
         addNestedMessageDefinitionInMessageBuilder(tupleType, nestedMessageName);
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
+    }
+
+    @Override
+    public List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList() {
+        TupleType tupleType = (TupleType) getBallerinaType();
+        AtomicInteger elementIndex = new AtomicInteger(0);
+        return tupleType.getTupleTypes().stream()
+                .map(type -> Map.entry(TUPLE_FIELD_NAME + SEPARATOR + (elementIndex.incrementAndGet()),
+                        TypeUtils.getReferredType(type))).collect(Collectors.toList());
     }
 }

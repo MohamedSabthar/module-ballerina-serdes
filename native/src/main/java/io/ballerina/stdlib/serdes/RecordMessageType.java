@@ -1,13 +1,20 @@
 package io.ballerina.stdlib.serdes;
 
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static io.ballerina.stdlib.serdes.Constants.MAP_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
@@ -77,5 +84,14 @@ public class RecordMessageType extends MessageType {
         String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + TUPLE_BUILDER;
         addNestedMessageDefinitionInMessageBuilder(tupleType, nestedMessageName);
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
+    }
+
+    @Override
+    public List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList() {
+        RecordType recordType = (RecordType) getBallerinaType();
+        Map<String, Field> recordFields = recordType.getFields();
+        return recordFields.values().stream().sorted(Comparator.comparing(Field::getFieldName))
+                .map(field -> Map.entry(field.getFieldName(), TypeUtils.getReferredType(field.getFieldType())))
+                .collect(Collectors.toList());
     }
 }

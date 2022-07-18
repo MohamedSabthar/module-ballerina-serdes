@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
-import static io.ballerina.stdlib.serdes.MessageFieldNameGenerator.getFiledNameAndBallerinaTypeEntryList;
 import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
 import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 
@@ -67,8 +66,7 @@ public class BallerinaStructuredTypeMessageGenerator {
     }
 
     public ProtobufMessageBuilder generateMessageDefinition() {
-        Type ballerinaType = messageType.getBallerinaType();
-        List<Map.Entry<String, Type>> fieldNamesAndTypes = getFiledNameAndBallerinaTypeEntryList(ballerinaType);
+        List<Map.Entry<String, Type>> fieldNamesAndTypes = messageType.getFiledNameAndBallerinaTypeEntryList();
 
         for (Map.Entry<String, Type> entry : fieldNamesAndTypes) {
             String fieldEntryName = entry.getKey();

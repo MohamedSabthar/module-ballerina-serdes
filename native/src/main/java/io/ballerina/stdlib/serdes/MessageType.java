@@ -20,6 +20,9 @@ import io.ballerina.stdlib.serdes.protobuf.DataTypeMapper;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
 import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageFieldBuilder;
 
+import java.util.List;
+import java.util.Map;
+
 import static io.ballerina.stdlib.serdes.Constants.BYTES;
 import static io.ballerina.stdlib.serdes.Constants.DECIMAL_VALUE;
 import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
@@ -93,6 +96,8 @@ public abstract class MessageType {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(booleanType.getTag());
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, protoType);
     }
+
+    public abstract List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList();
 
     public void setEnumField(FiniteType finiteType) {
         throw new UnsupportedOperationException();
