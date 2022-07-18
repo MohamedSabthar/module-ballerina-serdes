@@ -61,7 +61,7 @@ public class TupleMessageType extends MessageType {
         childMessageType.setCurrentFieldName(getCurrentFieldName());
         childMessageType.setCurrentFieldNumber(getCurrentFieldNumber());
 
-        // This adds the value field in wrapped mapEntryBuilder
+        // This call adds the value field in wrapped mapEntryBuilder
         getNestedMessageDefinition(childMessageType);
     }
 

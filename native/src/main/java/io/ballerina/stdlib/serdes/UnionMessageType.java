@@ -73,7 +73,7 @@ public class UnionMessageType extends MessageType {
         childMessageType.setCurrentFieldName(getCurrentFieldName());
         childMessageType.setCurrentFieldNumber(getCurrentFieldNumber());
 
-        // This adds the value field in wrapped messageBuilder
+        // This call adds the value field in wrapped messageBuilder
         getNestedMessageDefinition(childMessageType);
     }
 

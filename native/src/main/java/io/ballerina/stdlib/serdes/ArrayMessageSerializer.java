@@ -5,16 +5,10 @@ import com.google.protobuf.DynamicMessage.Builder;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BDecimal;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.protobuf.Descriptors.Descriptor;
-import static com.google.protobuf.Descriptors.FieldDescriptor;
 import static io.ballerina.stdlib.serdes.Constants.ARRAY_FIELD_NAME;
 
 /**
@@ -27,7 +21,6 @@ public class ArrayMessageSerializer extends MessageSerializer {
         super(dynamicMessageBuilder, anydata, messageSerializer);
     }
 
-
     @Override
     public void setCurrentFieldName(String fieldName) {
         if (super.getCurrentFieldName() == null) {
@@ -36,135 +29,19 @@ public class ArrayMessageSerializer extends MessageSerializer {
     }
 
     @Override
-    public void setIntFieldValue(Object ballerinaInt) {
-        setMessageFieldValueInMessageBuilder(ballerinaInt);
-    }
-
-    @Override
     public void setByteFieldValue(Integer ballerinaByte) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
         // Discard ballerinaByte parameter and set the entire byte array without repeating the field
-        getDynamicMessageBuilder().setField(fieldDescriptor, ((BArray) getAnydata()).getBytes());
-    }
-
-    @Override
-    public void setFloatFieldValue(Object ballerinaFloat) {
-        setMessageFieldValueInMessageBuilder(ballerinaFloat);
-    }
-
-    @Override
-    public void setDecimalFieldValue(BDecimal ballerinaDecimal) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
-        Descriptor decimalMessageDescriptor = fieldDescriptor.getMessageType();
-        Builder decimalMessageBuilder = DynamicMessage.newBuilder(decimalMessageDescriptor);
-        DynamicMessage decimalMessage = generateDecimalValueMessage(decimalMessageBuilder, ballerinaDecimal);
-        getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, decimalMessage);
-    }
-
-    @Override
-    public void setStringFieldValue(BString ballerinaString) {
-        setMessageFieldValueInMessageBuilder(ballerinaString.getValue());
-    }
-
-    @Override
-    public void setBooleanFieldValue(Boolean ballerinaBoolean) {
-        setMessageFieldValueInMessageBuilder(ballerinaBoolean);
-    }
-
-    @Override
-    public void setNullFieldValue(Object ballerinaNil) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setRecordFieldValue(BMap<BString, Object> ballerinaRecord) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
-        Builder recordMessageBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
-        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
-                new RecordMessageSerializer(recordMessageBuilder, ballerinaRecord,
-                        getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
-        getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, nestedMessage);
-    }
-
-    @Override
-    public void setMapFieldValue(BMap<BString, Object> ballerinaMap) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
-        Builder mapMessageBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
-        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
-                new MapMessageSerializer(mapMessageBuilder, ballerinaMap,
-                        getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
-        getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, nestedMessage);
-    }
-
-    @Override
-    public void setTableFieldValue(BTable<?, ?> ballerinaTable) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
-        Builder tableMessageBuilder = DynamicMessage.newBuilder(fieldDescriptor.getMessageType());
-        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
-                new TableMessageSerializer(tableMessageBuilder, ballerinaTable,
-                        getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
-        getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, nestedMessage);
+        setCurrentFieldValueInDynamicMessageBuilder(((BArray) getAnydata()).getBytes());
     }
 
     @Override
     public void setArrayFieldValue(BArray ballerinaArray) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
-        Descriptor nestedSchema = fieldDescriptor.getMessageType();
-        Builder nestedMessageBuilder = DynamicMessage.newBuilder(nestedSchema);
-
-        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
-        var childMessageSerializer = new ArrayMessageSerializer(nestedMessageBuilder, ballerinaArray,
+        Builder arrayMessageBuilder = getDynamicMessageBuilderOfCurrentField();
+        MessageSerializer nestedMessageSerializer = new ArrayMessageSerializer(arrayMessageBuilder, ballerinaArray,
                 getBallerinaStructuredTypeMessageSerializer());
-        childMessageSerializer.setCurrentFieldName(ARRAY_FIELD_NAME);
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(childMessageSerializer);
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
-        getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, nestedMessage);
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
-    }
-
-    @Override
-    public void setUnionFieldValue(Object unionValue) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
-        Descriptor nestedSchema = fieldDescriptor.getMessageType();
-        Builder unionMessageBuilder = DynamicMessage.newBuilder(nestedSchema);
-        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
-                new UnionMessageSerializer(unionMessageBuilder, unionValue,
-                        getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
-        getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, nestedMessage);
-    }
-
-    @Override
-    public void setTupleFieldValue(BArray ballerinaTuple) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
-        Descriptor nestedSchema = fieldDescriptor.getMessageType();
-        Builder tupleMessageBuilder = DynamicMessage.newBuilder(nestedSchema);
-        var current = getBallerinaStructuredTypeMessageSerializer().getMessageSerializer();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(
-                new TupleMessageSerializer(tupleMessageBuilder, ballerinaTuple,
-                        getBallerinaStructuredTypeMessageSerializer()));
-        DynamicMessage nestedMessage = getBallerinaStructuredTypeMessageSerializer().generateMessage().build();
-        getBallerinaStructuredTypeMessageSerializer().setMessageSerializer(current);
-        getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, nestedMessage);
+        nestedMessageSerializer.setCurrentFieldName(ARRAY_FIELD_NAME);
+        DynamicMessage nestedMessage = getValueOfNestedMessage(nestedMessageSerializer);
+        setCurrentFieldValueInDynamicMessageBuilder(nestedMessage);
     }
 
     @Override
@@ -177,12 +54,5 @@ public class ArrayMessageSerializer extends MessageSerializer {
             messageFieldDataOfArrayElements.add(new MessageFieldData(ARRAY_FIELD_NAME, array.get(i), referredType));
         }
         return messageFieldDataOfArrayElements;
-    }
-
-    @Override
-    public void setMessageFieldValueInMessageBuilder(Object value) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
-        getDynamicMessageBuilder().addRepeatedField(fieldDescriptor, value);
     }
 }
