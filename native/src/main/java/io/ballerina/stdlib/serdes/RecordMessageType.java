@@ -37,24 +37,24 @@ public class RecordMessageType extends MessageType {
 
     @Override
     public void setRecordField(RecordType recordType) {
-        String nestedMessageName = isAnonymousBallerinaRecord(recordType) ?
+        String childMessageName = isAnonymousBallerinaRecord(recordType) ?
                 getCurrentFieldName() + TYPE_SEPARATOR + RECORD_BUILDER : recordType.getName();
-        addNestedMessageDefinitionInMessageBuilder(recordType, nestedMessageName);
-        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
+        addChildMessageDefinitionInMessageBuilder(childMessageName, recordType);
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, childMessageName);
     }
 
     @Override
     public void setMapField(MapType mapType) {
-        String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + MAP_BUILDER;
-        addNestedMessageDefinitionInMessageBuilder(mapType, nestedMessageName);
-        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
+        String childMessageName = getCurrentFieldName() + TYPE_SEPARATOR + MAP_BUILDER;
+        addChildMessageDefinitionInMessageBuilder(childMessageName, mapType);
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, childMessageName);
     }
 
     @Override
     public void setTableField(TableType tableType) {
-        String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + TABLE_BUILDER;
-        addNestedMessageDefinitionInMessageBuilder(tableType, nestedMessageName);
-        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
+        String childMessageName = getCurrentFieldName() + TYPE_SEPARATOR + TABLE_BUILDER;
+        addChildMessageDefinitionInMessageBuilder(childMessageName, tableType);
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, childMessageName);
     }
 
     @Override
@@ -74,16 +74,16 @@ public class RecordMessageType extends MessageType {
 
     @Override
     public void setUnionField(UnionType unionType) {
-        String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + UNION_BUILDER_NAME;
-        addNestedMessageDefinitionInMessageBuilder(unionType, nestedMessageName);
-        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
+        String childMessageName = getCurrentFieldName() + TYPE_SEPARATOR + UNION_BUILDER_NAME;
+        addChildMessageDefinitionInMessageBuilder(childMessageName, unionType);
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, childMessageName);
     }
 
     @Override
     public void setTupleField(TupleType tupleType) {
-        String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + TUPLE_BUILDER;
-        addNestedMessageDefinitionInMessageBuilder(tupleType, nestedMessageName);
-        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
+        String childMessageName = getCurrentFieldName() + TYPE_SEPARATOR + TUPLE_BUILDER;
+        addChildMessageDefinitionInMessageBuilder(childMessageName, tupleType);
+        addMessageFieldInMessageBuilder(OPTIONAL_LABEL, childMessageName);
     }
 
     @Override

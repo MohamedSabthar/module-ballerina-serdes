@@ -46,7 +46,7 @@ public class UnionMessageType extends MessageType {
         super(ballerinaType, messageBuilder, messageGenerator);
     }
 
-    public static Map.Entry<String, Type> mapUnionMemberToMapEntry(Type type) {
+    public static Map.Entry<String, Type> mapUnionMemberToFieldName(Type type) {
         Type referredType = TypeUtils.getReferredType(type);
         String typeName = referredType.getName();
 
@@ -112,7 +112,7 @@ public class UnionMessageType extends MessageType {
             throw createSerdesError(Utils.typeNotSupportedErrorMessage(recordType), SERDES_ERROR);
         }
         String nestedMessageName = recordType.getName();
-        addNestedMessageDefinitionInMessageBuilder(recordType, nestedMessageName);
+        addChildMessageDefinitionInMessageBuilder(nestedMessageName, recordType);
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
     }
 
@@ -151,14 +151,14 @@ public class UnionMessageType extends MessageType {
     @Override
     public void setTupleField(TupleType tupleType) {
         String nestedMessageName = tupleType.getName() + TYPE_SEPARATOR + TUPLE_BUILDER;
-        addNestedMessageDefinitionInMessageBuilder(tupleType, nestedMessageName);
+        addChildMessageDefinitionInMessageBuilder(nestedMessageName, tupleType);
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
     }
 
     @Override
     public List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList() {
         UnionType unionType = (UnionType) getBallerinaType();
-        return unionType.getMemberTypes().stream().map(UnionMessageType::mapUnionMemberToMapEntry)
+        return unionType.getMemberTypes().stream().map(UnionMessageType::mapUnionMemberToFieldName)
                 .sorted(Map.Entry.comparingByKey()).collect(Collectors.toList());
     }
 }

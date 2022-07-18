@@ -44,7 +44,7 @@ public class UnionMessageSerializer extends MessageSerializer {
     public List<MessageFieldData> getListOfMessageFieldData() {
         Object unionValue = getAnydata();
         Type type = TypeUtils.getType(unionValue);
-        Map.Entry<String, Type> filedNameAndReferredType = UnionMessageType.mapUnionMemberToMapEntry(type);
+        Map.Entry<String, Type> filedNameAndReferredType = UnionMessageType.mapUnionMemberToFieldName(type);
         String fieldName = filedNameAndReferredType.getKey();
         Type referredType = filedNameAndReferredType.getValue();
         return List.of(new MessageFieldData(fieldName, unionValue, referredType));

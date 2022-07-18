@@ -155,52 +155,52 @@ public abstract class MessageType {
         ++currentFieldNumber;
     }
 
-    public void addNestedMessageDefinitionInMessageBuilder(RecordType recordType, String recordMessageName) {
-        boolean hasMessageDefinition = messageBuilder.hasMessageDefinitionInMessageTree(recordMessageName);
+    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, RecordType recordType) {
+        boolean hasMessageDefinition = messageBuilder.hasMessageDefinitionInMessageTree(childMessageName);
         // Avoid recursive message definition for ballerina record with cyclic reference
         if (!hasMessageDefinition) {
-            ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(recordMessageName, messageBuilder);
-            MessageType childMessageType = new RecordMessageType(recordType, nestedMessageBuilder, messageGenerator);
-            ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-            messageBuilder.addNestedMessage(nestedMessageDefinition);
+            ProtobufMessageBuilder childMessageBuilder = new ProtobufMessageBuilder(childMessageName, messageBuilder);
+            MessageType childMessageType = new RecordMessageType(recordType, childMessageBuilder, messageGenerator);
+            ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
+            messageBuilder.addNestedMessage(childMessageDefinition);
         }
     }
 
-    public void addNestedMessageDefinitionInMessageBuilder(TupleType tupleType, String tupleMessageName) {
-        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(tupleMessageName, messageBuilder);
-        MessageType childMessageType = new TupleMessageType(tupleType, nestedMessageBuilder, messageGenerator);
-        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-        messageBuilder.addNestedMessage(nestedMessageDefinition);
+    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, TupleType tupleType) {
+        ProtobufMessageBuilder childMessageBuilder = new ProtobufMessageBuilder(childMessageName, messageBuilder);
+        MessageType childMessageType = new TupleMessageType(tupleType, childMessageBuilder, messageGenerator);
+        ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(childMessageDefinition);
     }
 
-    public void addNestedMessageDefinitionInMessageBuilder(UnionType unionType, String unionMessageName) {
-        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(unionMessageName, messageBuilder);
-        MessageType childMessageType = new UnionMessageType(unionType, nestedMessageBuilder, messageGenerator);
-        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-        messageBuilder.addNestedMessage(nestedMessageDefinition);
+    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, UnionType unionType) {
+        ProtobufMessageBuilder childMessageBuilder = new ProtobufMessageBuilder(childMessageName, messageBuilder);
+        MessageType childMessageType = new UnionMessageType(unionType, childMessageBuilder, messageGenerator);
+        ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(childMessageDefinition);
     }
 
-    public void addNestedMessageDefinitionInMessageBuilder(TableType tableType, String tableMessageName) {
-        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(tableMessageName, messageBuilder);
-        MessageType childMessageType = new TableMessageType(tableType, nestedMessageBuilder, messageGenerator);
-        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-        messageBuilder.addNestedMessage(nestedMessageDefinition);
+    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, TableType tableType) {
+        ProtobufMessageBuilder childMessageBuilder = new ProtobufMessageBuilder(childMessageName, messageBuilder);
+        MessageType childMessageType = new TableMessageType(tableType, childMessageBuilder, messageGenerator);
+        ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(childMessageDefinition);
     }
 
-    public void addNestedMessageDefinitionInMessageBuilder(ArrayType arrayType, String arrayMessageName) {
-        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(arrayMessageName, messageBuilder);
+    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, ArrayType arrayType) {
+        ProtobufMessageBuilder childMessageBuilder = new ProtobufMessageBuilder(childMessageName, messageBuilder);
         MessageType parentMessageType = messageGenerator.getMessageType();
-        MessageType childMessageType = ArrayMessageType.withParentMessageType(arrayType, nestedMessageBuilder,
+        MessageType childMessageType = ArrayMessageType.withParentMessageType(arrayType, childMessageBuilder,
                 messageGenerator, parentMessageType);
-        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-        messageBuilder.addNestedMessage(nestedMessageDefinition);
+        ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(childMessageDefinition);
     }
 
-    public void addNestedMessageDefinitionInMessageBuilder(MapType mapType, String mapMessageName) {
-        ProtobufMessageBuilder nestedMessageBuilder = new ProtobufMessageBuilder(mapMessageName, messageBuilder);
-        MessageType childMessageType = new MapMessageType(mapType, nestedMessageBuilder, messageGenerator);
-        ProtobufMessageBuilder nestedMessageDefinition = getNestedMessageDefinition(childMessageType);
-        messageBuilder.addNestedMessage(nestedMessageDefinition);
+    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, MapType mapType) {
+        ProtobufMessageBuilder childMessageBuilder = new ProtobufMessageBuilder(childMessageName, messageBuilder);
+        MessageType childMessageType = new MapMessageType(mapType, childMessageBuilder, messageGenerator);
+        ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(childMessageDefinition);
     }
 
     public ProtobufMessageBuilder getNestedMessageDefinition(MessageType childMessageType) {

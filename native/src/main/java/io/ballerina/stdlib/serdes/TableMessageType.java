@@ -70,14 +70,14 @@ public class TableMessageType extends MessageType {
     @Override
     public void setRecordField(RecordType recordType) {
         String nestedMessageName = isAnonymousBallerinaRecord(recordType) ? RECORD_BUILDER : recordType.getName();
-        addNestedMessageDefinitionInMessageBuilder(recordType, nestedMessageName);
+        addChildMessageDefinitionInMessageBuilder(nestedMessageName, recordType);
         addEntryFieldInMessageBuilder(nestedMessageName);
     }
 
     @Override
     public void setMapField(MapType mapType) {
         String nestedMessageName = MAP_BUILDER;
-        addNestedMessageDefinitionInMessageBuilder(mapType, nestedMessageName);
+        addChildMessageDefinitionInMessageBuilder(nestedMessageName, mapType);
         addEntryFieldInMessageBuilder(nestedMessageName);
     }
 

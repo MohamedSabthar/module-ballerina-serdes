@@ -91,10 +91,9 @@ public class ArrayMessageType extends MessageType {
 
     @Override
     public void setDecimalField(DecimalType decimalType) {
-        ProtobufMessageBuilder nestedMessageBuilder = generateDecimalMessageDefinition();
+        ProtobufMessageBuilder decimalMessageDefinition = generateDecimalMessageDefinition();
         ProtobufMessageBuilder messageBuilder = getMessageBuilder();
-        messageBuilder.addNestedMessage(nestedMessageBuilder);
-
+        messageBuilder.addNestedMessage(decimalMessageDefinition);
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(decimalType.getTag());
         addMessageFieldInMessageBuilder(REPEATED_LABEL, protoType);
     }
@@ -113,119 +112,119 @@ public class ArrayMessageType extends MessageType {
 
     @Override
     public void setRecordField(RecordType recordType) {
-        String nestedMessageName = getNestedRecordMessageName(recordType);
-        addNestedMessageDefinitionInMessageBuilder(recordType, nestedMessageName);
-        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
+        String childMessageName = getNestedRecordMessageName(recordType);
+        addChildMessageDefinitionInMessageBuilder(childMessageName, recordType);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, childMessageName);
     }
 
     private String getNestedRecordMessageName(RecordType recordType) {
         // if not a referenced recordType use "RecordBuilder" as message name
-        String nestedMessageName = isAnonymousBallerinaRecord(recordType) ? RECORD_BUILDER : recordType.getName();
+        String childMessageName = isAnonymousBallerinaRecord(recordType) ? RECORD_BUILDER : recordType.getName();
         if (isAnonymousBallerinaRecord(recordType) && isParentMessageIsRecordMessageOrTupleMessage()) {
-            nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + nestedMessageName;
+            childMessageName = getCurrentFieldName() + TYPE_SEPARATOR + childMessageName;
         }
-        return nestedMessageName;
+        return childMessageName;
     }
 
     @Override
     public void setMapField(MapType mapType) {
-        String nestedMessageName = getNestedMapMessageName();
-        addNestedMessageDefinitionInMessageBuilder(mapType, nestedMessageName);
-        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
+        String childMessageName = getNestedMapMessageName();
+        addChildMessageDefinitionInMessageBuilder(childMessageName, mapType);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, childMessageName);
     }
 
     private String getNestedMapMessageName() {
-        String nestedMessageName = MAP_BUILDER;
+        String childMessageName = MAP_BUILDER;
         if (isParentMessageIsUnionMessage()) {
             // TODO: support array of map as union member
             throw createSerdesError(ARRAY_OF_MAP_AS_UNION_MEMBER_NOT_YET_SUPPORTED, SERDES_ERROR);
         } else if (isParentMessageIsRecordMessageOrTupleMessage()) {
-            nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + nestedMessageName;
+            childMessageName = getCurrentFieldName() + TYPE_SEPARATOR + childMessageName;
         }
-        return nestedMessageName;
+        return childMessageName;
     }
 
     @Override
     public void setTableField(TableType tableType) {
-        String nestedMessageName = getNestedTableMessageName();
-        addNestedMessageDefinitionInMessageBuilder(tableType, nestedMessageName);
-        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
+        String childMessageName = getNestedTableMessageName();
+        addChildMessageDefinitionInMessageBuilder(childMessageName, tableType);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, childMessageName);
     }
 
     private String getNestedTableMessageName() {
-        String nestedMessageName = TABLE_BUILDER;
+        String childMessageName = TABLE_BUILDER;
         if (isParentMessageIsUnionMessage()) {
             // TODO: support array of table union member
             throw createSerdesError(ARRAY_OF_TABLE_AS_UNION_MEMBER_NOT_YET_SUPPORTED, SERDES_ERROR);
         } else if (isParentMessageIsRecordMessageOrTupleMessage()) {
-            nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + nestedMessageName;
+            childMessageName = getCurrentFieldName() + TYPE_SEPARATOR + childMessageName;
         }
-        return nestedMessageName;
+        return childMessageName;
     }
 
     @Override
     public void setArrayField(ArrayType arrayType) {
-        String nestedMessageName = getNestedArrayMessageName();
-        addNestedMessageDefinitionInMessageBuilder(arrayType, nestedMessageName);
-        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
+        String childMessageName = getNestedArrayMessageName();
+        addChildMessageDefinitionInMessageBuilder(childMessageName, arrayType);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, childMessageName);
     }
 
     private String getNestedArrayMessageName() {
-        String nestedMessageName = ARRAY_BUILDER_NAME;
+        String childMessageName = ARRAY_BUILDER_NAME;
         if (isParentMessageIsUnionMessage()) {
             int dimension = Utils.getArrayDimensions((ArrayType) getBallerinaType());
             String ballerinaType = Utils.getBaseElementTypeNameOfBallerinaArray((ArrayType) getBallerinaType());
-            nestedMessageName = ARRAY_BUILDER_NAME + SEPARATOR + (dimension - 1);
-            nestedMessageName = ballerinaType + TYPE_SEPARATOR + nestedMessageName;
+            childMessageName = ARRAY_BUILDER_NAME + SEPARATOR + (dimension - 1);
+            childMessageName = ballerinaType + TYPE_SEPARATOR + childMessageName;
         } else if (isParentMessageIsRecordMessageOrTupleMessage()) {
             int dimension = Utils.getArrayDimensions((ArrayType) getBallerinaType());
-            nestedMessageName = ARRAY_BUILDER_NAME + SEPARATOR + (dimension - 1);
+            childMessageName = ARRAY_BUILDER_NAME + SEPARATOR + (dimension - 1);
             Type ballerinaType = Utils.getBaseElementTypeOfBallerinaArray((ArrayType) getBallerinaType());
             if (ballerinaType.getTag() == TypeTags.MAP_TAG || ballerinaType.getTag() == TypeTags.TABLE_TAG
                     || isAnonymousBallerinaRecord(ballerinaType)) {
-                nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + nestedMessageName;
+                childMessageName = getCurrentFieldName() + TYPE_SEPARATOR + childMessageName;
             } else {
-                nestedMessageName = ballerinaType.getName() + TYPE_SEPARATOR + nestedMessageName;
+                childMessageName = ballerinaType.getName() + TYPE_SEPARATOR + childMessageName;
             }
         }
-        return nestedMessageName;
+        return childMessageName;
     }
 
     @Override
     public void setUnionField(UnionType unionType) {
-        String nestedMessageName = getNestedUnionMessageName();
-        addNestedMessageDefinitionInMessageBuilder(unionType, nestedMessageName);
-        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
+        String childMessageName = getNestedUnionMessageName();
+        addChildMessageDefinitionInMessageBuilder(childMessageName, unionType);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, childMessageName);
     }
 
     private String getNestedUnionMessageName() {
-        String nestedMessageName = UNION_BUILDER_NAME;
+        String childMessageName = UNION_BUILDER_NAME;
         if (isParentMessageIsUnionMessage() || isParentMessageIsRecordMessageOrTupleMessage()) {
             String ballerinaType = Utils.getBaseElementTypeNameOfBallerinaArray((ArrayType) getBallerinaType());
-            nestedMessageName = ballerinaType + TYPE_SEPARATOR + nestedMessageName;
+            childMessageName = ballerinaType + TYPE_SEPARATOR + childMessageName;
         }
-        return nestedMessageName;
+        return childMessageName;
     }
 
     @Override
     public void setTupleField(TupleType tupleType) {
-        String nestedMessageName = getNestedTupleMessageName(tupleType);
-        addNestedMessageDefinitionInMessageBuilder(tupleType, nestedMessageName);
-        addMessageFieldInMessageBuilder(REPEATED_LABEL, nestedMessageName);
+        String childMessageName = getNestedTupleMessageName(tupleType);
+        addChildMessageDefinitionInMessageBuilder(childMessageName, tupleType);
+        addMessageFieldInMessageBuilder(REPEATED_LABEL, childMessageName);
     }
 
     private String getNestedTupleMessageName(TupleType tupleType) {
-        String nestedMessageName = TUPLE_BUILDER;
+        String childMessageName = TUPLE_BUILDER;
         if (isParentMessageIsUnionMessage()) {
             String ballerinaType = tupleType.getName();
             if (ballerinaType.equals(EMPTY_STRING)) {
                 throw createSerdesError(Utils.typeNotSupportedErrorMessage(tupleType), SERDES_ERROR);
             }
-            nestedMessageName = ballerinaType + TYPE_SEPARATOR + TUPLE_BUILDER;
+            childMessageName = ballerinaType + TYPE_SEPARATOR + TUPLE_BUILDER;
         } else if (isParentMessageIsRecordMessageOrTupleMessage()) {
-            nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + nestedMessageName;
+            childMessageName = getCurrentFieldName() + TYPE_SEPARATOR + childMessageName;
         }
-        return nestedMessageName;
+        return childMessageName;
     }
 
     private boolean isParentMessageIsUnionMessage() {

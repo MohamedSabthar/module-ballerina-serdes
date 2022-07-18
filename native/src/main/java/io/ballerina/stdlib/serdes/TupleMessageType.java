@@ -39,21 +39,21 @@ public class TupleMessageType extends MessageType {
     public void setRecordField(RecordType recordType) {
         String nestedMessageName = isAnonymousBallerinaRecord(recordType) ?
                 getCurrentFieldName() + TYPE_SEPARATOR + RECORD_BUILDER : recordType.getName();
-        addNestedMessageDefinitionInMessageBuilder(recordType, nestedMessageName);
+        addChildMessageDefinitionInMessageBuilder(nestedMessageName, recordType);
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
     }
 
     @Override
     public void setMapField(MapType mapType) {
         String nestedMessageName = getCurrentFieldName() + SEPARATOR + MAP_BUILDER;
-        addNestedMessageDefinitionInMessageBuilder(mapType, nestedMessageName);
+        addChildMessageDefinitionInMessageBuilder(nestedMessageName, mapType);
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
     }
 
     @Override
     public void setTableField(TableType tableType) {
         String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + TABLE_BUILDER;
-        addNestedMessageDefinitionInMessageBuilder(tableType, nestedMessageName);
+        addChildMessageDefinitionInMessageBuilder(nestedMessageName, tableType);
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
     }
 
@@ -75,14 +75,14 @@ public class TupleMessageType extends MessageType {
     @Override
     public void setUnionField(UnionType unionType) {
         String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + UNION_BUILDER_NAME;
-        addNestedMessageDefinitionInMessageBuilder(unionType, nestedMessageName);
+        addChildMessageDefinitionInMessageBuilder(nestedMessageName, unionType);
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
     }
 
     @Override
     public void setTupleField(TupleType tupleType) {
         String nestedMessageName = getCurrentFieldName() + TYPE_SEPARATOR + TUPLE_BUILDER;
-        addNestedMessageDefinitionInMessageBuilder(tupleType, nestedMessageName);
+        addChildMessageDefinitionInMessageBuilder(nestedMessageName, tupleType);
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, nestedMessageName);
     }
 
