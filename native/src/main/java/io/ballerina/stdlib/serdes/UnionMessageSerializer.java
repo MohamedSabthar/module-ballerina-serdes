@@ -23,21 +23,19 @@ public class UnionMessageSerializer extends MessageSerializer {
 
     @Override
     public void setStringFieldValue(BString ballerinaString) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
+        String stringValue = ballerinaString.getValue();
+        FieldDescriptor fieldDescriptor = getCurrentFieldDescriptor();
+        // Handle ballerina enum value
         if (fieldDescriptor == null) {
-            // enum value
-            String fieldName = ballerinaString.getValue();
-            fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType().findFieldByName(fieldName);
+            // String value of ballerina enum used as protobuf field name
+            fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType().findFieldByName(stringValue);
         }
-        getDynamicMessageBuilder().setField(fieldDescriptor, ballerinaString.getValue());
+        getDynamicMessageBuilder().setField(fieldDescriptor, stringValue);
     }
 
     @Override
     public void setNullFieldValue(Object ballerinaNil) {
-        FieldDescriptor fieldDescriptor = getDynamicMessageBuilder().getDescriptorForType()
-                .findFieldByName(getCurrentFieldName());
-        getDynamicMessageBuilder().setField(fieldDescriptor, true);
+        setCurrentFieldValueInDynamicMessageBuilder(true);
     }
 
     @Override

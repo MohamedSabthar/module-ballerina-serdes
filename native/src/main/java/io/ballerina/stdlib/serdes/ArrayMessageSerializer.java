@@ -39,7 +39,6 @@ public class ArrayMessageSerializer extends MessageSerializer {
         Builder arrayMessageBuilder = getDynamicMessageBuilderOfCurrentField();
         MessageSerializer nestedMessageSerializer = new ArrayMessageSerializer(arrayMessageBuilder, ballerinaArray,
                 getBallerinaStructuredTypeMessageSerializer());
-        nestedMessageSerializer.setCurrentFieldName(ARRAY_FIELD_NAME);
         DynamicMessage nestedMessage = getValueOfNestedMessage(nestedMessageSerializer);
         setCurrentFieldValueInDynamicMessageBuilder(nestedMessage);
     }

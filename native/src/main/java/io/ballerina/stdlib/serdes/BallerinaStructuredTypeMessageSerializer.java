@@ -1,6 +1,6 @@
 package io.ballerina.stdlib.serdes;
 
-import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.DynamicMessage.Builder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
@@ -16,14 +16,12 @@ import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
 import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 
 /**
- * {@link BallerinaStructuredTypeMessageSerializer} generate protobuf message definition for given ballerina structure
- * type.
+ * {@link BallerinaStructuredTypeMessageSerializer} generates dynamic message by setting field values.
  */
 public class BallerinaStructuredTypeMessageSerializer {
     private MessageSerializer messageSerializer;
 
-    public BallerinaStructuredTypeMessageSerializer(Type type, Object anydata,
-                                                    DynamicMessage.Builder dynamicMessageBuilder) {
+    public BallerinaStructuredTypeMessageSerializer(Type type, Object anydata, Builder dynamicMessageBuilder) {
         switch (type.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
                 setMessageSerializer(new RecordMessageSerializer(dynamicMessageBuilder, anydata, this));
@@ -56,7 +54,7 @@ public class BallerinaStructuredTypeMessageSerializer {
         this.messageSerializer = messageSerializer;
     }
 
-    public DynamicMessage.Builder generateMessage() {
+    public Builder generateMessage() {
         List<MessageFieldData> fieldNamesAndValues = messageSerializer.getListOfMessageFieldData();
 
         for (MessageFieldData entry : fieldNamesAndValues) {

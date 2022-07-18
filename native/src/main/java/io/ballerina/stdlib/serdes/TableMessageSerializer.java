@@ -1,13 +1,11 @@
 package io.ballerina.stdlib.serdes;
 
-import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
-import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 
@@ -60,28 +58,6 @@ public class TableMessageSerializer extends MessageSerializer {
     @Override
     public void setNullFieldValue(Object ballerinaNil) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setRecordFieldValue(BMap<BString, Object> ballerinaRecord) {
-        Builder recordMessageBuilder = getDynamicMessageBuilderOfCurrentField();
-        MessageSerializer nestedMessageSerializer = new RecordMessageSerializer(recordMessageBuilder, ballerinaRecord,
-                getBallerinaStructuredTypeMessageSerializer());
-        DynamicMessage nestedMessage = getValueOfNestedMessage(nestedMessageSerializer);
-        setCurrentFieldValueInDynamicMessageBuilder(nestedMessage);
-    }
-
-    @Override
-    public void setMapFieldValue(BMap<BString, Object> ballerinaMap) {
-        Builder recordMessageBuilder = getDynamicMessageBuilderOfCurrentField();
-        MessageSerializer nestedMessageSerializer = new MapMessageSerializer(recordMessageBuilder, ballerinaMap,
-                getBallerinaStructuredTypeMessageSerializer());
-        DynamicMessage nestedMessage = getValueOfNestedMessage(nestedMessageSerializer);
-        setCurrentFieldValueInDynamicMessageBuilder(nestedMessage);
-    }
-
-    public void setCurrentFieldValueInDynamicMessageBuilder(Object value) {
-        getDynamicMessageBuilder().addRepeatedField(getCurrentFieldDescriptor(), value);
     }
 
     @Override

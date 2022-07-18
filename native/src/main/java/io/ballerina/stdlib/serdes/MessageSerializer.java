@@ -19,7 +19,7 @@ import static io.ballerina.stdlib.serdes.Constants.SCALE;
 import static io.ballerina.stdlib.serdes.Constants.VALUE;
 
 /**
- * {@link io.ballerina.stdlib.serdes.MessageSerializer} provides generic functions for concrete messageTypes.
+ * {@link MessageSerializer} provides generic functions for concrete message serializers.
  */
 public abstract class MessageSerializer {
     private final Builder dynamicMessageBuilder;
