@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.stdlib.serdes.Constants.TABLE_ENTRY;
 
 /**
- * UnionMessageSerializer.
+ * {@link TableMessageSerializer} class handles serialization of ballerina tables.
  */
 public class TableMessageSerializer extends MessageSerializer {
 

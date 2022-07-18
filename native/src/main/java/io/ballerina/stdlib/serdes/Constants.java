@@ -32,7 +32,6 @@ public final class Constants {
 
     // Constants related to ballerina type
     public static final String STRING = "string";
-    public static final String BYTE = "byte";
     public static final String NIL = "()";
 
     // Constants related to protobuf schema

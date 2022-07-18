@@ -21,7 +21,7 @@ import static io.ballerina.stdlib.serdes.Constants.MAP_FIELD;
 import static io.ballerina.stdlib.serdes.Constants.VALUE_NAME;
 
 /**
- * MapMessageSerializer.
+ * {@link MapMessageSerializer} class handles serialization of ballerina maps.
  */
 public class MapMessageSerializer extends MessageSerializer {
     private final Builder mapEntryBuilder;

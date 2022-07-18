@@ -12,7 +12,7 @@ import java.util.List;
 import static io.ballerina.stdlib.serdes.Constants.ARRAY_FIELD_NAME;
 
 /**
- * ArrayMessageSerializer.
+ * {@link ArrayMessageSerializer} class handles serialization of ballerina arrays.
  */
 public class ArrayMessageSerializer extends MessageSerializer {
 

@@ -12,7 +12,7 @@ import static io.ballerina.stdlib.serdes.Constants.SEPARATOR;
 import static io.ballerina.stdlib.serdes.Constants.TUPLE_FIELD_NAME;
 
 /**
- * RecordMessageSerializer.
+ * {@link TupleMessageSerializer} class handles serialization of ballerina tuples.
  */
 public class TupleMessageSerializer extends MessageSerializer {
 

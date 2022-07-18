@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * RecordMessageSerializer.
+ * {@link RecordMessageSerializer} class handles serialization of ballerina records.
  */
 public class RecordMessageSerializer extends MessageSerializer {
 

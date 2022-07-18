@@ -11,7 +11,7 @@ import java.util.Map;
 import static com.google.protobuf.Descriptors.FieldDescriptor;
 
 /**
- * UnionMessageSerializer.
+ * {@link UnionMessageSerializer} class handles serialization of ballerina unions.
  */
 public class UnionMessageSerializer extends MessageSerializer {
 
