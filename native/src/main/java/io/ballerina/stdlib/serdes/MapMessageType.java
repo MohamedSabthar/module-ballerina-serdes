@@ -129,7 +129,6 @@ public class MapMessageType extends MessageType {
 
     @Override
     public void setArrayField(ArrayType arrayType) {
-        addKeyFieldInMapEntryBuilder();
         MessageType parentMessageType = getMessageGenerator().getMessageType();
 
         // Wrap mapEntryBuilder instead of creating new nested message builder

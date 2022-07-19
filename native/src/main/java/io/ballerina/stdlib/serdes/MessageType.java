@@ -1,6 +1,5 @@
 package io.ballerina.stdlib.serdes;
 
-
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.BooleanType;
 import io.ballerina.runtime.api.types.ByteType;
@@ -44,10 +43,48 @@ public abstract class MessageType {
     public MessageType(Type ballerinaType, ProtobufMessageBuilder messageBuilder,
                        BallerinaStructuredTypeMessageGenerator messageGenerator) {
         this.messageBuilder = messageBuilder;
-        this.ballerinaType = ballerinaType;
+        setBallerinaType(ballerinaType);
         this.messageGenerator = messageGenerator;
         setCurrentFieldNumber(1);
     }
+
+    public Type getBallerinaType() {
+        return ballerinaType;
+    }
+
+    public void setBallerinaType(Type ballerinaType) {
+        this.ballerinaType = ballerinaType;
+    }
+
+    public String getCurrentFieldName() {
+        return currentFieldName;
+    }
+
+    public void setCurrentFieldName(String fieldName) {
+        this.currentFieldName = fieldName;
+    }
+
+    public int getCurrentFieldNumber() {
+        return currentFieldNumber;
+    }
+
+    public void setCurrentFieldNumber(int currentFieldNumber) {
+        this.currentFieldNumber = currentFieldNumber;
+    }
+
+    public void incrementFieldNumber() {
+        ++currentFieldNumber;
+    }
+
+    public ProtobufMessageBuilder getMessageBuilder() {
+        return messageBuilder;
+    }
+
+    public BallerinaStructuredTypeMessageGenerator getMessageGenerator() {
+        return messageGenerator;
+    }
+
+    public abstract List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList();
 
     public void setIntField(IntegerType integerType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(integerType.getTag());
@@ -97,7 +134,11 @@ public abstract class MessageType {
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, protoType);
     }
 
-    public abstract List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList();
+    public void addMessageFieldInMessageBuilder(String fieldLabel, String fieldType) {
+        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(fieldLabel, fieldType,
+                currentFieldName, currentFieldNumber);
+        messageBuilder.addField(messageField);
+    }
 
     public void setEnumField(FiniteType finiteType) {
         throw new UnsupportedOperationException();
@@ -119,42 +160,6 @@ public abstract class MessageType {
 
     public abstract void setTupleField(TupleType tupleType);
 
-    public Type getBallerinaType() {
-        return ballerinaType;
-    }
-
-    public void setBallerinaType(Type ballerinaType) {
-        this.ballerinaType = ballerinaType;
-    }
-
-    public ProtobufMessageBuilder getMessageBuilder() {
-        return messageBuilder;
-    }
-
-    public BallerinaStructuredTypeMessageGenerator getMessageGenerator() {
-        return messageGenerator;
-    }
-
-    public String getCurrentFieldName() {
-        return currentFieldName;
-    }
-
-    public void setCurrentFieldName(String fieldName) {
-        this.currentFieldName = fieldName;
-    }
-
-    public int getCurrentFieldNumber() {
-        return currentFieldNumber;
-    }
-
-    public void setCurrentFieldNumber(int currentFieldNumber) {
-        this.currentFieldNumber = currentFieldNumber;
-    }
-
-    public void incrementFieldNumber() {
-        ++currentFieldNumber;
-    }
-
     public void addChildMessageDefinitionInMessageBuilder(String childMessageName, RecordType recordType) {
         boolean hasMessageDefinition = messageBuilder.hasMessageDefinitionInMessageTree(childMessageName);
         // Avoid recursive message definition for ballerina record with cyclic reference
@@ -166,16 +171,9 @@ public abstract class MessageType {
         }
     }
 
-    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, TupleType tupleType) {
+    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, MapType mapType) {
         ProtobufMessageBuilder childMessageBuilder = new ProtobufMessageBuilder(childMessageName, messageBuilder);
-        MessageType childMessageType = new TupleMessageType(tupleType, childMessageBuilder, messageGenerator);
-        ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
-        messageBuilder.addNestedMessage(childMessageDefinition);
-    }
-
-    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, UnionType unionType) {
-        ProtobufMessageBuilder childMessageBuilder = new ProtobufMessageBuilder(childMessageName, messageBuilder);
-        MessageType childMessageType = new UnionMessageType(unionType, childMessageBuilder, messageGenerator);
+        MessageType childMessageType = new MapMessageType(mapType, childMessageBuilder, messageGenerator);
         ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
         messageBuilder.addNestedMessage(childMessageDefinition);
     }
@@ -196,9 +194,16 @@ public abstract class MessageType {
         messageBuilder.addNestedMessage(childMessageDefinition);
     }
 
-    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, MapType mapType) {
+    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, UnionType unionType) {
         ProtobufMessageBuilder childMessageBuilder = new ProtobufMessageBuilder(childMessageName, messageBuilder);
-        MessageType childMessageType = new MapMessageType(mapType, childMessageBuilder, messageGenerator);
+        MessageType childMessageType = new UnionMessageType(unionType, childMessageBuilder, messageGenerator);
+        ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
+        messageBuilder.addNestedMessage(childMessageDefinition);
+    }
+
+    public void addChildMessageDefinitionInMessageBuilder(String childMessageName, TupleType tupleType) {
+        ProtobufMessageBuilder childMessageBuilder = new ProtobufMessageBuilder(childMessageName, messageBuilder);
+        MessageType childMessageType = new TupleMessageType(tupleType, childMessageBuilder, messageGenerator);
         ProtobufMessageBuilder childMessageDefinition = getNestedMessageDefinition(childMessageType);
         messageBuilder.addNestedMessage(childMessageDefinition);
     }
@@ -211,11 +216,5 @@ public abstract class MessageType {
         // switch back to parent message type
         messageGenerator.setMessageType(parentMessageType);
         return childMessageBuilder;
-    }
-
-    public void addMessageFieldInMessageBuilder(String fieldLabel, String fieldType) {
-        ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(fieldLabel, fieldType,
-                currentFieldName, currentFieldNumber);
-        messageBuilder.addField(messageField);
     }
 }

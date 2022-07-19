@@ -47,6 +47,9 @@ public class DataTypeMapper {
         ballerinaPrimitiveType.put("float", "float");
     }
 
+    private DataTypeMapper() {
+    }
+
     public static String mapBallerinaTypeToProtoType(int ballerinaTypeTag) {
         return ballerinaTypeTagToProto.get(ballerinaTypeTag);
     }

@@ -38,6 +38,7 @@ import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.DescriptorValidationException;
 import static io.ballerina.stdlib.serdes.Constants.ARRAY_BUILDER_NAME;
 import static io.ballerina.stdlib.serdes.Constants.BYTES;
+import static io.ballerina.stdlib.serdes.Constants.DECIMAL_VALUE;
 import static io.ballerina.stdlib.serdes.Constants.FAILED_WRITE_FILE;
 import static io.ballerina.stdlib.serdes.Constants.MAP_BUILDER;
 import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
@@ -110,15 +111,14 @@ public class SchemaGenerator {
             case TypeTags.FLOAT_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG: {
-                int fieldNumber = 1;
                 messageName = Utils.createMessageName(referredType.getName());
                 messageBuilder = new ProtobufMessageBuilder(messageName);
-                generateMessageDefinitionForPrimitiveType(messageBuilder, referredType, fieldNumber);
+                generateMessageDefinitionForPrimitiveType(messageBuilder, referredType);
                 break;
             }
 
             case TypeTags.DECIMAL_TAG: {
-                messageName = Utils.createMessageName(referredType.getName());
+                messageName = DECIMAL_VALUE;
                 messageBuilder = new ProtobufMessageBuilder(messageName);
                 generateMessageDefinitionForPrimitiveDecimal(messageBuilder);
                 break;
@@ -175,24 +175,20 @@ public class SchemaGenerator {
 
     // Generate schema for all ballerina primitive types except for decimal type
     private static void generateMessageDefinitionForPrimitiveType(ProtobufMessageBuilder messageBuilder,
-                                                                  Type ballerinaType, int fieldNumber) {
+                                                                  Type ballerinaType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(ballerinaType.getTag());
         ProtobufMessageFieldBuilder messageField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, protoType,
-                Constants.ATOMIC_FIELD_NAME, fieldNumber);
+                Constants.ATOMIC_FIELD_NAME, 1);
         messageBuilder.addField(messageField);
     }
 
     // Generates schema for ballerina decimal type
     private static void generateMessageDefinitionForPrimitiveDecimal(ProtobufMessageBuilder messageBuilder) {
-        int fieldNumber = 1;
-
         // Java BigDecimal representation used for serializing ballerina decimal value
-        ProtobufMessageFieldBuilder scaleField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, UINT32, SCALE,
-                fieldNumber++);
+        ProtobufMessageFieldBuilder scaleField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, UINT32, SCALE, 1);
         ProtobufMessageFieldBuilder precisionField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, UINT32, PRECISION,
-                fieldNumber++);
-        ProtobufMessageFieldBuilder valueField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, BYTES, VALUE,
-                fieldNumber);
+                2);
+        ProtobufMessageFieldBuilder valueField = new ProtobufMessageFieldBuilder(OPTIONAL_LABEL, BYTES, VALUE, 3);
 
         messageBuilder.addField(scaleField);
         messageBuilder.addField(precisionField);

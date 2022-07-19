@@ -65,6 +65,7 @@ public class ArrayMessageType extends MessageType {
 
     @Override
     public void setCurrentFieldName(String fieldName) {
+        // An array builder can have utmost one field
         if (super.getCurrentFieldName() == null) {
             super.setCurrentFieldName(fieldName);
         }
@@ -118,9 +119,10 @@ public class ArrayMessageType extends MessageType {
     }
 
     private String getNestedRecordMessageName(RecordType recordType) {
+        boolean isAnonymousNestedRecord = isAnonymousBallerinaRecord(recordType);
         // if not a referenced recordType use "RecordBuilder" as message name
-        String childMessageName = isAnonymousBallerinaRecord(recordType) ? RECORD_BUILDER : recordType.getName();
-        if (isAnonymousBallerinaRecord(recordType) && isParentMessageIsRecordMessageOrTupleMessage()) {
+        String childMessageName = isAnonymousNestedRecord ? RECORD_BUILDER : recordType.getName();
+        if (isAnonymousNestedRecord && isParentMessageIsRecordMessageOrTupleMessage()) {
             childMessageName = getCurrentFieldName() + TYPE_SEPARATOR + childMessageName;
         }
         return childMessageName;
