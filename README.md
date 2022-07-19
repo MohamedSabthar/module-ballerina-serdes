@@ -1,13 +1,13 @@
-Ballerina SerDes Package
+Ballerina SerDes Library
 ===================
 
 [![Build](https://github.com/ballerina-platform/module-ballerina-serdes/workflows/Build/badge.svg)](https://github.com/ballerina-platform/module-ballerina-serdes/actions?query=workflow%3ABuild)
+[![Trivy](https://github.com/ballerina-platform/module-ballerina-serdes/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-serdes/actions/workflows/trivy-scan.yml)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerina-serdes.svg)](https://github.com/ballerina-platform/module-ballerina-serdes/commits/main)
 [![Github issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-standard-library/module/serdes.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-standard-library/labels/module%2Fserdes)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![codecov](https://codecov.io/gh/ballerina-platform/module-ballerina-serdes/branch/main/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerina-serdes)
 
-The SerDes package is one of the standard library packages of the <a target="_blank" href="https://ballerina.io/">Ballerina</a> language.
+This library provides APIs for serializing and deserializing subtypes of Ballerina anydata type.
 
 ## Issues and Projects
 
@@ -22,7 +22,7 @@ This repository contains only the source code of the package.
 1. Download and install Java SE Development Kit (JDK) version 11 (from one of the following locations).
     * [Oracle](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
 
-    * [OpenJDK](https://adoptopenjdk.net/)
+    * [OpenJDK](https://adoptium.net/)
 
       > **Note:** Set the JAVA_HOME environment variable to the path name of the directory into which you installed JDK.
 
