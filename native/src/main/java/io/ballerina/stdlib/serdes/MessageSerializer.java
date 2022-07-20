@@ -34,7 +34,29 @@ public abstract class MessageSerializer {
         this.ballerinaStructuredTypeMessageSerializer = ballerinaStructuredTypeMessageSerializer;
     }
 
-    public abstract List<MessageFieldData> getListOfMessageFieldData();
+    public Builder getDynamicMessageBuilder() {
+        return dynamicMessageBuilder;
+    }
+
+    public BallerinaStructuredTypeMessageSerializer getBallerinaStructuredTypeMessageSerializer() {
+        return ballerinaStructuredTypeMessageSerializer;
+    }
+
+    public Object getAnydata() {
+        return anydata;
+    }
+
+    public String getCurrentFieldName() {
+        return currentFieldName;
+    }
+
+    public void setCurrentFieldName(String currentFieldName) {
+        this.currentFieldName = currentFieldName;
+    }
+
+    public FieldDescriptor getCurrentFieldDescriptor() {
+        return dynamicMessageBuilder.getDescriptorForType().findFieldByName(currentFieldName);
+    }
 
     public void setIntFieldValue(Object ballerinaInt) {
         setCurrentFieldValueInDynamicMessageBuilder(ballerinaInt);
@@ -53,6 +75,20 @@ public abstract class MessageSerializer {
         Builder decimalMessageBuilder = getDynamicMessageBuilderOfCurrentField();
         DynamicMessage decimalMessage = generateDecimalValueMessage(decimalMessageBuilder, ballerinaDecimal);
         setCurrentFieldValueInDynamicMessageBuilder(decimalMessage);
+    }
+
+    public DynamicMessage generateDecimalValueMessage(Builder decimalMessageBuilder, Object decimal) {
+        BigDecimal bigDecimal = ((BDecimal) decimal).decimalValue();
+        Descriptor decimalSchema = decimalMessageBuilder.getDescriptorForType();
+
+        FieldDescriptor scale = decimalSchema.findFieldByName(SCALE);
+        FieldDescriptor precision = decimalSchema.findFieldByName(PRECISION);
+        FieldDescriptor value = decimalSchema.findFieldByName(VALUE);
+
+        decimalMessageBuilder.setField(scale, bigDecimal.scale());
+        decimalMessageBuilder.setField(precision, bigDecimal.precision());
+        decimalMessageBuilder.setField(value, bigDecimal.unscaledValue().toByteArray());
+        return decimalMessageBuilder.build();
     }
 
     public void setStringFieldValue(BString ballerinaString) {
@@ -117,38 +153,10 @@ public abstract class MessageSerializer {
         setCurrentFieldValueInDynamicMessageBuilder(nestedMessage);
     }
 
-    public DynamicMessage generateDecimalValueMessage(Builder decimalMessageBuilder, Object decimal) {
-        BigDecimal bigDecimal = ((BDecimal) decimal).decimalValue();
-        Descriptor decimalSchema = decimalMessageBuilder.getDescriptorForType();
-
-        FieldDescriptor scale = decimalSchema.findFieldByName(SCALE);
-        FieldDescriptor precision = decimalSchema.findFieldByName(PRECISION);
-        FieldDescriptor value = decimalSchema.findFieldByName(VALUE);
-
-        decimalMessageBuilder.setField(scale, bigDecimal.scale());
-        decimalMessageBuilder.setField(precision, bigDecimal.precision());
-        decimalMessageBuilder.setField(value, bigDecimal.unscaledValue().toByteArray());
-        return decimalMessageBuilder.build();
-    }
-
-    public Builder getDynamicMessageBuilder() {
-        return dynamicMessageBuilder;
-    }
-
-    public BallerinaStructuredTypeMessageSerializer getBallerinaStructuredTypeMessageSerializer() {
-        return ballerinaStructuredTypeMessageSerializer;
-    }
-
-    public Object getAnydata() {
-        return anydata;
-    }
-
-    public String getCurrentFieldName() {
-        return currentFieldName;
-    }
-
-    public void setCurrentFieldName(String currentFieldName) {
-        this.currentFieldName = currentFieldName;
+    public Builder getDynamicMessageBuilderOfCurrentField() {
+        FieldDescriptor fieldDescriptor = getCurrentFieldDescriptor();
+        Descriptor nestedSchema = fieldDescriptor.getMessageType();
+        return DynamicMessage.newBuilder(nestedSchema);
     }
 
     public DynamicMessage getValueOfNestedMessage(MessageSerializer childMessageSerializer) {
@@ -161,16 +169,6 @@ public abstract class MessageSerializer {
         return nestedMessage;
     }
 
-    public FieldDescriptor getCurrentFieldDescriptor() {
-        return dynamicMessageBuilder.getDescriptorForType().findFieldByName(currentFieldName);
-    }
-
-    public Builder getDynamicMessageBuilderOfCurrentField() {
-        FieldDescriptor fieldDescriptor = getCurrentFieldDescriptor();
-        Descriptor nestedSchema = fieldDescriptor.getMessageType();
-        return DynamicMessage.newBuilder(nestedSchema);
-    }
-
     public void setCurrentFieldValueInDynamicMessageBuilder(Object value) {
         FieldDescriptor currentFieldDescriptor = getCurrentFieldDescriptor();
         if (currentFieldDescriptor.isRepeated()) {
@@ -178,6 +176,7 @@ public abstract class MessageSerializer {
         } else {
             getDynamicMessageBuilder().setField(currentFieldDescriptor, value);
         }
-
     }
+
+    public abstract List<MessageFieldData> getListOfMessageFieldData();
 }

@@ -84,8 +84,6 @@ public abstract class MessageType {
         return messageGenerator;
     }
 
-    public abstract List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList();
-
     public void setIntField(IntegerType integerType) {
         String protoType = DataTypeMapper.mapBallerinaTypeToProtoType(integerType.getTag());
         addMessageFieldInMessageBuilder(OPTIONAL_LABEL, protoType);
@@ -159,6 +157,8 @@ public abstract class MessageType {
     public abstract void setUnionField(UnionType unionType);
 
     public abstract void setTupleField(TupleType tupleType);
+
+    public abstract List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList();
 
     public void addChildMessageDefinitionInMessageBuilder(String childMessageName, RecordType recordType) {
         boolean hasMessageDefinition = messageBuilder.hasMessageDefinitionInMessageTree(childMessageName);

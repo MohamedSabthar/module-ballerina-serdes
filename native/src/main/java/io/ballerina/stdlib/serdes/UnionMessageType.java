@@ -46,8 +46,8 @@ public class UnionMessageType extends MessageType {
         super(ballerinaType, messageBuilder, messageGenerator);
     }
 
-    public static Map.Entry<String, Type> mapUnionMemberToFieldName(Type type) {
-        Type referredType = TypeUtils.getReferredType(type);
+    public static Map.Entry<String, Type> mapMemberToFieldName(Type memberType) {
+        Type referredType = TypeUtils.getReferredType(memberType);
         String typeName = referredType.getName();
 
         if (referredType.getTag() == TypeTags.ARRAY_TAG) {
@@ -79,7 +79,7 @@ public class UnionMessageType extends MessageType {
                 String key = typeName + TYPE_SEPARATOR + UNION_FIELD_NAME;
                 return Map.entry(key, referredType);
             } else {
-                throw createSerdesError(Utils.typeNotSupportedErrorMessage(type), SERDES_ERROR);
+                throw createSerdesError(Utils.typeNotSupportedErrorMessage(memberType), SERDES_ERROR);
             }
         }
 
@@ -158,7 +158,7 @@ public class UnionMessageType extends MessageType {
     @Override
     public List<Map.Entry<String, Type>> getFiledNameAndBallerinaTypeEntryList() {
         UnionType unionType = (UnionType) getBallerinaType();
-        return unionType.getMemberTypes().stream().map(UnionMessageType::mapUnionMemberToFieldName)
+        return unionType.getMemberTypes().stream().map(UnionMessageType::mapMemberToFieldName)
                 .sorted(Map.Entry.comparingByKey()).collect(Collectors.toList());
     }
 }
