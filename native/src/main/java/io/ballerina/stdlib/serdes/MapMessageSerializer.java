@@ -100,11 +100,6 @@ public class MapMessageSerializer extends MessageSerializer {
     }
 
     @Override
-    public void setNullFieldValue(Object ballerinaNil) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void setRecordFieldValue(BMap<BString, Object> ballerinaRecord) {
         setKeyFieldValueInMapEntryBuilder();
         Builder recordMessageBuilder = getDynamicMessageBuilderOfCurrentField();

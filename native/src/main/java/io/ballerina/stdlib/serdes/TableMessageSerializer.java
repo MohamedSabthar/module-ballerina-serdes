@@ -74,11 +74,6 @@ public class TableMessageSerializer extends MessageSerializer {
     }
 
     @Override
-    public void setNullFieldValue(Object ballerinaNil) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void setTableFieldValue(BTable<?, ?> ballerinaTable) {
         throw new UnsupportedOperationException();
     }

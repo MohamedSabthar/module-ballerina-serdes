@@ -31,9 +31,13 @@ import java.util.List;
 
 import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.FieldDescriptor;
+import static io.ballerina.stdlib.serdes.Constants.NIL;
 import static io.ballerina.stdlib.serdes.Constants.PRECISION;
 import static io.ballerina.stdlib.serdes.Constants.SCALE;
+import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
 import static io.ballerina.stdlib.serdes.Constants.VALUE;
+import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
+import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 
 /**
  * {@link MessageSerializer} provides generic functions for concrete message serializers.
@@ -117,7 +121,7 @@ public abstract class MessageSerializer {
     }
 
     public void setNullFieldValue(Object ballerinaNil) {
-        throw new UnsupportedOperationException();
+        throw createSerdesError(UNSUPPORTED_DATA_TYPE + NIL, SERDES_ERROR);
     }
 
     public void setRecordFieldValue(BMap<BString, Object> ballerinaRecord) {

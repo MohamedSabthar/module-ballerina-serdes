@@ -41,11 +41,6 @@ public class TupleMessageSerializer extends MessageSerializer {
     }
 
     @Override
-    public void setNullFieldValue(Object ballerinaNil) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public List<MessageFieldData> getListOfMessageFieldData() {
         BArray tuple = (BArray) getAnydata();
         List<MessageFieldData> messageFieldDataOfTupleElements = new ArrayList<>();

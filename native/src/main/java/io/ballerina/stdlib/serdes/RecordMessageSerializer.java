@@ -41,11 +41,6 @@ public class RecordMessageSerializer extends MessageSerializer {
     }
 
     @Override
-    public void setNullFieldValue(Object ballerinaNil) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public List<MessageFieldData> getListOfMessageFieldData() {
         @SuppressWarnings("unchecked") BMap<BString, Object> record = (BMap<BString, Object>) getAnydata();
         Map<String, Field> recordTypeFields = ((RecordType) record.getType()).getFields();
