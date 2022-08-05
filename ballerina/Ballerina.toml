@@ -23,7 +23,7 @@ artifactId = "protobuf-java-util"
 version = "3.21.2"
 
 [[platform.java11.dependency]]
-path = "./lib/protobuf-java-util-1.11.1.jar"
+path = "./lib/avro-1.11.1.jar"
 groupId = "org.apache.avro"
 artifactId = "avro"
 version = "1.11.1"
