@@ -61,7 +61,7 @@ const OPTION4 = true;
 
 type Options OPTION1 | OPTION2 | OPTION3 | OPTION4;
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testPrimitiveUnion() returns error? {
     PrimitiveUnion nums = 3.9d;
 
@@ -73,7 +73,7 @@ public isolated function testPrimitiveUnion() returns error? {
     test:assertEquals(decoded, nums);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testFieldWithNil() returns error? {
     Proto3Schema ser = check new (DecimalOrNil);
     byte[] encoded = check ser.serialize(());
@@ -83,7 +83,7 @@ public isolated function testFieldWithNil() returns error? {
     test:assertEquals(decoded, ());
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnionWithArrays() returns error? {
     int[][] nums = [[1, 9, 2, 1, 6, 8],[1, 9, 2, 1, 6, 8]];
 
@@ -95,7 +95,7 @@ public isolated function testUnionWithArrays() returns error? {
     test:assertEquals(decoded, nums);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnionWithRecords() returns error? {
     Student student = {
         name: "Jack",
@@ -111,7 +111,7 @@ public isolated function testUnionWithRecords() returns error? {
     test:assertEquals(decoded, student);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnionWithPrimitivesAndArrays() returns error? {
     UnionOfPrimitiveAndArrays nums = 3.9d;
 
@@ -123,7 +123,7 @@ public isolated function testUnionWithPrimitivesAndArrays() returns error? {
     test:assertEquals(decoded, nums);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnionOfUnionArrays() returns error? {
     UnionOfUnionArray nums = [[[1],"sredes",()], []];
 
@@ -135,7 +135,7 @@ public isolated function testUnionOfUnionArrays() returns error? {
     test:assertEquals(decoded, nums);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnionWithRecord() returns error? {
     UnionMember member = {name: "Jane", id: 100};
 
@@ -147,7 +147,7 @@ public isolated function testUnionWithRecord() returns error? {
     test:assertEquals(decoded, member);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testComplexUnion() returns error? {
     UnionMember member = {name: "Jane", id: 100};
 
@@ -159,7 +159,7 @@ public isolated function testComplexUnion() returns error? {
     test:assertEquals(decoded, member);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnionOfTuples() returns error? {
     UnionOfTuples data = [10, "serdes"];
 
@@ -171,7 +171,7 @@ public isolated function testUnionOfTuples() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnionOfTupleArrays() returns error? {
     UnionOfTupleArrays data = [[10, "serdes"]];
 
@@ -183,7 +183,7 @@ public isolated function testUnionOfTupleArrays() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnionWithConstantValues()returns error? {
     Options data = OPTION3;
     Proto3Schema ser = check new (Options);

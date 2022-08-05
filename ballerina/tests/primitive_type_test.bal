@@ -16,7 +16,7 @@
 
 import ballerina/test;
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testPrimitiveInt() returns error? {
     int value = 666;
 
@@ -28,7 +28,7 @@ public isolated function testPrimitiveInt() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testPrimitiveBoolean() returns error? {
     boolean value = false;
 
@@ -40,7 +40,7 @@ public isolated function testPrimitiveBoolean() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testPrimitiveFloat() returns error? {
     float value = 6.666;
 
@@ -52,7 +52,7 @@ public isolated function testPrimitiveFloat() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testPrimitiveString() returns error? {
     string value = "module-ballerina-serdes";
 
@@ -64,7 +64,7 @@ public isolated function testPrimitiveString() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testPrimitiveByte() returns error? {
     byte value = 3;
 
@@ -76,7 +76,7 @@ public isolated function testPrimitiveByte() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testPrimitiveDecimal() returns error? {
     decimal value = 1e-10;
 

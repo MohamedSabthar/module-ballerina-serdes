@@ -43,7 +43,7 @@ enum Region {
     EU3 = "EU 3"
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testBasicEnumType() returns error? {
     Color data = RED;
     Proto3Schema ser = check new (Color);
@@ -54,7 +54,7 @@ public isolated function testBasicEnumType() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testBasicEnumType2()returns error? {
     State data = OPEN;
     Proto3Schema ser = check new (State);
@@ -65,7 +65,7 @@ public isolated function testBasicEnumType2()returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithEnumField()returns error? {
     RecordWithEnum data = {color: RED};
     Proto3Schema ser = check new (RecordWithEnum);
@@ -76,7 +76,7 @@ public isolated function testRecordWithEnumField()returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapWithEnumConstraint()returns error? {
     MapWithEnum data = {"color": RED};
     Proto3Schema ser = check new (MapWithEnum);
@@ -87,7 +87,7 @@ public isolated function testMapWithEnumConstraint()returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testEnumWithOptional()returns error? {
     OptionalState data = ();
     Proto3Schema ser = check new (OptionalState);
@@ -98,7 +98,7 @@ public isolated function testEnumWithOptional()returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testEnumWithStringValues()returns error? {
     Region data = EU3;
     Proto3Schema ser = check new (Region);

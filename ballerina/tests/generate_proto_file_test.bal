@@ -19,7 +19,7 @@ import ballerina/io;
 
 const TARGET_PROTO_FILE_DIRECTORY = "tests/target-protofiles/";
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testGenerateProtoFileForDecimalType() returns error? {
     string protofileName = "Decimal.proto";
     string expectedProtoFileContent = check io:fileReadString(TARGET_PROTO_FILE_DIRECTORY + protofileName);
@@ -43,7 +43,7 @@ type Module record {
     Contributor[] contributors;
 };
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testGenerateProtoFileForRecord() returns error? {
     string protofileName = "Module.proto";
     string expectedProtoFileContent = check io:fileReadString(TARGET_PROTO_FILE_DIRECTORY + protofileName);

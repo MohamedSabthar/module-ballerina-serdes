@@ -18,7 +18,7 @@ import ballerina/test;
 
 type EmployeeTable table<map<anydata>>;
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnsupportedDataType() returns error? {
     string expected = "Unsupported data type: anydata";
 
@@ -29,7 +29,7 @@ public isolated function testUnsupportedDataType() returns error? {
     test:assertEquals(err.message(), expected);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testTypeMismatch() returns error? {
     string expected = "Failed to Serialize data: Type mismatch";
 
@@ -52,7 +52,7 @@ type Engineer record {
     int id;
 };
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordTypeMismatch() returns error? {
     string expected = "Failed to Serialize data: Type mismatch";
 
@@ -70,7 +70,7 @@ type MapA map<int>;
 type MapB map<float>;
 type UnionOfMaps MapA|MapB;
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public function testMapUnionMemberNotYetSupporteError() returns error? {
     string expectedErrorMsg = "Serdes not yet support map type as union member";
 
@@ -81,7 +81,7 @@ public function testMapUnionMemberNotYetSupporteError() returns error? {
     test:assertEquals(err.message(), expectedErrorMsg);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapArrayUnionMemberNotYetSupporteError() returns error? {
     string expectedErrorMsg = "Serdes not yet support array of maps as union member";
 
@@ -101,7 +101,7 @@ type TableA table<map<int>>;
 type TableB map<float>;
 type UnionOfTables TableA|TableA;
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public function testTableUnionMemberNotYetSupporteError() returns error? {
     string expectedErrorMsg = "Serdes not yet support table type as union member";
 
@@ -114,7 +114,7 @@ public function testTableUnionMemberNotYetSupporteError() returns error? {
 
 type UnionWithArrayOfTables TableA[]|TableB[][];
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTableArrayUnionMemberNotYetSupporteError() returns error? {
     string expectedErrorMsg = "Serdes not yet support array of tables as union member";
 
@@ -127,7 +127,7 @@ public isolated function testTableArrayUnionMemberNotYetSupporteError() returns 
 
 type UnionWithNonReferenceTupleMembers [int, byte]|[string, decimal];
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnionWithNonReferencedTupleTypeError() returns error? {
     string expectedErrorMsg = getErrorMessageForNonReferenceTypes("[int,byte]");
 
@@ -140,7 +140,7 @@ public isolated function testUnionWithNonReferencedTupleTypeError() returns erro
 
 type UnionWithNonReferencedArrayOfTupleMembers [int, byte][]|[string, decimal][];
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnionWithNonReferencedArrayOfTuplesError() returns error? {
     string expectedErrorMsg = getErrorMessageForNonReferenceTypes("[int,byte]");
 
@@ -153,7 +153,7 @@ public isolated function testUnionWithNonReferencedArrayOfTuplesError() returns 
 
 type UnionWithNonReferencedRecordField record {string name; int age;}|int;
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testUnionWithNonReferencedRecordMemberError() returns error? {
     string expectedErrorMsg = getErrorMessageForNonReferenceTypes("record {| string name; int age; anydata...; |}");
 

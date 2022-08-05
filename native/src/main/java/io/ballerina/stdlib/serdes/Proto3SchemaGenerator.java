@@ -59,7 +59,7 @@ import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 /**
  * Generates a Protobuf schema for a given data type.
  */
-public class SchemaGenerator {
+public class Proto3SchemaGenerator {
 
     /**
      * Creates a schema for a given data type and adds to native data.

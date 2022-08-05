@@ -47,7 +47,7 @@ type MapWithTuple map<TupleWithUnion>;
 type MapWithNonReferencedRecord map<record {string name;}>;
 type MapWithNonReferencedRecordArray map<record {string name;}[][]>;
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapInt() returns error? {
 
     MapInt moduleLevel = {
@@ -67,7 +67,7 @@ public isolated function testMapInt() returns error? {
 }
 
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapFloat() returns error? {
 
     MapFloat coord = {
@@ -85,7 +85,7 @@ public isolated function testMapFloat() returns error? {
     test:assertEquals(decode, coord);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapString() returns error? {
 
     MapString module = {
@@ -102,7 +102,7 @@ public isolated function testMapString() returns error? {
     test:assertEquals(decode, module);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapByte() returns error? {
 
     MapByte 'version = {
@@ -120,7 +120,7 @@ public isolated function testMapByte() returns error? {
     test:assertEquals(decode, 'version);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapDecimal() returns error? {
 
     MapDecimal exchangeRate = {
@@ -138,7 +138,7 @@ public isolated function testMapDecimal() returns error? {
     test:assertEquals(decode, exchangeRate);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapBoolean() returns error? {
 
     MapBoolean data = {
@@ -155,7 +155,7 @@ public isolated function testMapBoolean() returns error? {
     test:assertEquals(decode, data);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapArray() returns error? {
 
     MapArray data = {
@@ -171,7 +171,7 @@ public isolated function testMapArray() returns error? {
     test:assertEquals(decode, data);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapRecord() returns error? {
 
     MapRecord data = {
@@ -188,7 +188,7 @@ public isolated function testMapRecord() returns error? {
     test:assertEquals(decode, data);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapUnion() returns error? {
 
     MapUnion data = {
@@ -205,7 +205,7 @@ public isolated function testMapUnion() returns error? {
     test:assertEquals(decode, data);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapOfMaps() returns error? {
 
     MapOfMaps data = {
@@ -227,7 +227,7 @@ public isolated function testMapOfMaps() returns error? {
     test:assertEquals(decode, data);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapFieldinRecord() returns error? {
 
     RecordWithMapField data = {
@@ -243,7 +243,7 @@ public isolated function testMapFieldinRecord() returns error? {
     test:assertEquals(decode, data);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testNonReferencedMapFieldinRecord() returns error? {
 
     RecordWithNonReferencedMapField data = {
@@ -259,7 +259,7 @@ public isolated function testNonReferencedMapFieldinRecord() returns error? {
     test:assertEquals(decode, data);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapWithTupleElement() returns error? {
     MapWithTuple data = {
        "first": ["serdes", 1.2],
@@ -275,7 +275,7 @@ public isolated function testMapWithTupleElement() returns error? {
     test:assertEquals(decode, data);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapWithNonReferencedRecordElement() returns error? {
     MapWithNonReferencedRecord data = {
         "module": {name: "serdes"}
@@ -290,7 +290,7 @@ public isolated function testMapWithNonReferencedRecordElement() returns error? 
     test:assertEquals(decode, data);
 }
 
-@test:Config{}
+@test:Config { groups: ["proto3"] }
 public isolated function testMapWithNonReferencedRecordArray() returns error? {
     MapWithNonReferencedRecordArray data = {
         "module": [[{name: "serdes"}],[{name: "module"}]]

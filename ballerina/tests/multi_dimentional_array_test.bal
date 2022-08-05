@@ -45,7 +45,7 @@ type AgeMap2DArray AgeMapArray[];
 
 type ArrayOfTuples TupleWithUnion[][];
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testInt2DArray() returns error? {
     Int2DArray data = [
         [1, 2],
@@ -62,7 +62,7 @@ public isolated function testInt2DArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testInt3DArray() returns error? {
     Int3DArray data = [
         [[1, 2]],
@@ -79,7 +79,7 @@ public isolated function testInt3DArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testString4DArray() returns error? {
     String4DArray data = [
         [
@@ -99,7 +99,7 @@ public isolated function testString4DArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testInt4DArray() returns error? {
     Int4DArray data = [
         [
@@ -120,7 +120,7 @@ public isolated function testInt4DArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testByte5DArray() returns error? {
     Byte5DArray data = [
         [
@@ -141,7 +141,7 @@ public isolated function testByte5DArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testDecimal3DArray() returns error? {
     Decimal3DArray data = [
         [[1.90909, 2]],
@@ -158,7 +158,7 @@ public isolated function testDecimal3DArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testNestedArrayWithUnionFields() returns error? {
     TestMember member1 = {fullName: "foo bar", id: 100};
     UnionType[] uType = [1, 2, ["John", "Doe"], member1];
@@ -174,7 +174,7 @@ public isolated function testNestedArrayWithUnionFields() returns error? {
     test:assertEquals(decoded, level2Array);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testArrayofMaps() returns error? {
     AgeMapArray data = [{"Tony Hoare": 88},{"Linus Torvalds": 52}];
 
@@ -186,7 +186,7 @@ public isolated function testArrayofMaps() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function test2DArrayofMaps() returns error? {
     AgeMap2DArray data = [[{"Tony Hoare": 88}],[{"Linus Torvalds": 52}]];
 
@@ -198,7 +198,7 @@ public isolated function test2DArrayofMaps() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testArrayOfTuples() returns error? {
     ArrayOfTuples value = [[["serdes", 1.2d]],[["module", 3.4]]];
 

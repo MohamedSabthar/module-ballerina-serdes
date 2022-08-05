@@ -43,7 +43,7 @@ type RecordWithTableField record {
 type MapWithTableConstraint map<ScoreTable>;
 type TableWihtNonReferenceRocord table<record {int id; string name;}>;
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTableWithRecord() returns error? {
     RecordTable data = table [
         {id: 1, name: "Plato"},
@@ -59,7 +59,7 @@ public isolated function testTableWithRecord() returns error? {
     test:assertEquals(decoded, data);
 }   
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTableWithMap() returns error? {
     ScoreTable data = table [
         {"Manchester City" : 93},
@@ -75,7 +75,7 @@ public isolated function testTableWithMap() returns error? {
 }   
 
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTableWithKey() returns error? {
     ItemTable data = table [
             {id: 1, name: "Item A", price: 1e10},
@@ -90,7 +90,7 @@ public isolated function testTableWithKey() returns error? {
     test:assertEquals(decoded[20], data[20]);
 }   
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testArrayOfTables() returns error? {
     ArrayOfTable data = [
         table [
@@ -108,7 +108,7 @@ public isolated function testArrayOfTables() returns error? {
     test:assertEquals(decoded, data);
 }   
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTableRecordField() returns error? {
     RecordWithTableField data = {
         recordTable: table [
@@ -131,7 +131,7 @@ public isolated function testTableRecordField() returns error? {
     test:assertEquals(decoded, data);
 }  
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTableAsMapConstraint() returns error? {
     MapWithTableConstraint data = {
         "Football clubs": table [
@@ -154,7 +154,7 @@ public isolated function testTableAsMapConstraint() returns error? {
     test:assertEquals(decoded, data);
 }  
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTableWithNonReferenceRecord() returns error? {
     TableWihtNonReferenceRocord data = table[
         {id: 1, name: "io"},

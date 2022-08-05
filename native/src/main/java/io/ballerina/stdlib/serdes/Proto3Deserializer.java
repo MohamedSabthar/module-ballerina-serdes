@@ -76,7 +76,7 @@ import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 /**
  * Deserializer class to generate Ballerina value from byte array.
  */
-public class Deserializer {
+public class Proto3Deserializer {
 
     /**
      * Creates an anydata object from a byte array after deserializing.

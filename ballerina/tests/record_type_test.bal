@@ -155,7 +155,7 @@ type RecordWithNonReferencedArrayOfRecords record {
     record {int id;}[][][] field2;
 };
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithPrimitives() returns error? {
     Employee jhon = {
         name: "Jhon",
@@ -174,7 +174,7 @@ public isolated function testRecordWithPrimitives() returns error? {
     test:assertEquals(decoded, jhon);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testArrayOfRecords() returns error? {
     RecordArray data = [
         {
@@ -203,7 +203,7 @@ public isolated function testArrayOfRecords() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithArrays() returns error? {
     RecordWithArrays arrayRecord = {
         stringArray: ["Jane", "Doe"],
@@ -221,7 +221,7 @@ public isolated function testRecordWithArrays() returns error? {
     test:assertEquals(decoded, arrayRecord);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testNestedRecord() returns error? {
     byte[] img = base16 `aeeecdefabcd12345567888822`;
     Contact phone = {mobile: "+94111111111", home: "+94777777777"};
@@ -235,7 +235,7 @@ public isolated function testNestedRecord() returns error? {
     test:assertEquals(decoded, president);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithOptinalField() returns error? {
     Member member = {name: "Jack", salary: ()};
 
@@ -247,7 +247,7 @@ public isolated function testRecordWithOptinalField() returns error? {
     test:assertEquals(decoded, member);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testComplexRecord() returns error? {
     byte[] byteArray = base16 `aeeecdefabcd12345567888822`;
     Contact phone1 = {mobile: "+123456", home: "789"};
@@ -265,7 +265,7 @@ public isolated function testComplexRecord() returns error? {
     test:assertEquals(decoded, john);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithUnionFields() returns error? {
     RecordWithUnionFields rec = {name: "Jane", membership: ()};
 
@@ -277,7 +277,7 @@ public isolated function testRecordWithUnionFields() returns error? {
     test:assertEquals(decoded, rec);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithUnionArrayField() returns error? {
     RecordWithUnionArrayField rec = {feild1: ["serdes"], feild2: [2.3e10]};
 
@@ -289,7 +289,7 @@ public isolated function testRecordWithUnionArrayField() returns error? {
     test:assertEquals(decoded, rec);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public function testRecordWithMultidimentionalArrays() returns error? {
     Proto3Schema ser = check new Proto3Schema(RecordWithMultidimentionalArrays);
 
@@ -301,7 +301,7 @@ public function testRecordWithMultidimentionalArrays() returns error? {
     test:assertEquals(dec, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public function testRecordWithCyclicReference() returns error? {
 
     RecordWithCyclicReference data = {
@@ -330,7 +330,7 @@ public function testRecordWithCyclicReference() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public function testNestedRecordWithCyclicReference() returns error? {
 
     Nested1 data = {
@@ -356,7 +356,7 @@ public function testNestedRecordWithCyclicReference() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithTupleField() returns error? {
     RecordWithTuple value = {
         field1: ["serdes", 4.5],
@@ -371,7 +371,7 @@ public isolated function testRecordWithTupleField() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithArrayOfTuple() returns error? {
     RecordWithArrayOfTuple value = {
         field1: [[["serdes", 4.5]]],
@@ -386,7 +386,7 @@ public isolated function testRecordWithArrayOfTuple() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithNonReferencedTableField() returns error? {
     RecordWithNonReferencedTableField data = {
         ages: table [{"age": 24}]
@@ -400,7 +400,7 @@ public isolated function testRecordWithNonReferencedTableField() returns error? 
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithMapArray() returns error? {
     RecordWithMapArrayField data = {
         ages: [[[{"Jhon": 23}]]],
@@ -415,7 +415,7 @@ public isolated function testRecordWithMapArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithTupleArray() returns error? {
 
     RecordWithTupleArrayField data = {
@@ -432,7 +432,7 @@ public isolated function testRecordWithTupleArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordNonReferencedArrayOfTuples() returns error? {
     RecordWithNonReferencedArrayTuple data = {
       field1: [[1,2]],
@@ -447,7 +447,7 @@ public isolated function testRecordNonReferencedArrayOfTuples() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithNonReferencedRecordFields() returns error? {
     RecordWithNonReferencedRecordFields data = {
         field1: {name: "serdes"},
@@ -462,7 +462,7 @@ public isolated function testRecordWithNonReferencedRecordFields() returns error
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testRecordWithNonReferencedArrayOfRecords() returns error? {
     RecordWithNonReferencedArrayOfRecords data = {
         field1: [{name: "serdes"}],

@@ -49,7 +49,7 @@ import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
 /**
  * Serializer class to create a byte array for a value.
  */
-public class Serializer {
+public class Proto3Serializer {
 
     /**
      * Creates a BArray for given data after serializing.

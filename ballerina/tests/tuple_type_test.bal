@@ -30,7 +30,7 @@ type TupleWithNonReferenceArrayOfTuple [[int, int][], [boolean, float][]];
 type TupleWithNonReferenceRecords [record {string name;}, record {int id;}];
 type TupleWithNonReferenceArrayOfRecords [record {string name;}[][][], record {int id;}[]];
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithPrimitive() returns error? {
     PrimitiveTuple value = [254, 100000, 1.2, true, "serdes", 3.2e-5];
 
@@ -42,7 +42,7 @@ public isolated function testTupleWithPrimitive() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithUnionElements() returns error? {
     TupleWithUnion value = ["serdes", 3.2e-5];
 
@@ -54,7 +54,7 @@ public isolated function testTupleWithUnionElements() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithArrayElements() returns error? {
     TupleWithArray value = [["serdes"], [[true, false], [false]], [[[1]]], ["serdes"]];
 
@@ -66,7 +66,7 @@ public isolated function testTupleWithArrayElements() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithRecordElements() returns error? {
     TupleWithRecord value = [{name: "Linus Torvalds", courseId: 123, fees: 3.4e10}, {name: "Andrew S. Tanenbaum", courseId: 123, salary: 3.4e10 * 10}];
 
@@ -78,7 +78,7 @@ public isolated function testTupleWithRecordElements() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithMapElements() returns error? {
     TupleWithMap value = [
         {"a": 10, "b": 20, c: 30},
@@ -96,7 +96,7 @@ public isolated function testTupleWithMapElements() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithTableElements() returns error? {
     TupleWithTable value = [
         table [
@@ -117,7 +117,7 @@ public isolated function testTupleWithTableElements() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithTupleElements() returns error? {
     TupleOfTuples value = [[254, 100000, 1.2, true, "serdes", 3.2e-5], ["serdes", 3.4e10]];
 
@@ -129,7 +129,7 @@ public isolated function testTupleWithTupleElements() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithArrayOfTupleElements() returns error? {
     TupleWithTupleArrays value = [[[254, 100000, 1.2, true, "serdes", 3.2e-5]], [[["serdes", 3.4e10]]]];
 
@@ -141,7 +141,7 @@ public isolated function testTupleWithArrayOfTupleElements() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithTableArrayElements() returns error? {
     TupleWithTableArrays value = [
         [[
@@ -166,7 +166,7 @@ public isolated function testTupleWithTableArrayElements() returns error? {
     test:assertEquals(decoded, value);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithNonReferenceArrayOfTuples() returns error? {
     TupleWithNonReferenceArrayOfTuple value = [[[2,3]], [[false, 2.4]]];
 
@@ -179,7 +179,7 @@ public isolated function testTupleWithNonReferenceArrayOfTuples() returns error?
 }
 
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithNonReferencedRecords() returns error? {
     TupleWithNonReferenceRecords data = [
         {name: "serdes"},
@@ -195,7 +195,7 @@ public isolated function testTupleWithNonReferencedRecords() returns error? {
 }
 
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testTupleWithNonReferencedArrayOfRecords() returns error? {
     TupleWithNonReferenceArrayOfRecords data = [
         [[[{name: "serdes"}]]],

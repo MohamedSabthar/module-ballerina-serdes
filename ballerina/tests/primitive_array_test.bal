@@ -23,7 +23,7 @@ type StringArray string[];
 type BooleanArray boolean[];
 type DecimalArray decimal[];
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testIntArray() returns error? {
     IntArray data = [1, 2, 3, 4, 5, 6];
 
@@ -35,7 +35,7 @@ public isolated function testIntArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testByteArray() returns error? {
     ByteArray data = base16 `aeeecdefabcd12345567888822`;
 
@@ -47,7 +47,7 @@ public isolated function testByteArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testFloatArray() returns error? {
     FloatArray data = [1.00, 2, 3.5, 4, 5.99, 6];
 
@@ -59,7 +59,7 @@ public isolated function testFloatArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testStringArray() returns error? {
     StringArray data = ["1", "2", "3", "4", "5", "6"];
 
@@ -71,7 +71,7 @@ public isolated function testStringArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testBooleanArray() returns error? {
     BooleanArray data = [true, true, true, false, false, false];
 
@@ -83,7 +83,7 @@ public isolated function testBooleanArray() returns error? {
     test:assertEquals(decoded, data);
 }
 
-@test:Config {}
+@test:Config { groups: ["proto3"] }
 public isolated function testDecimalArray() returns error? {
     DecimalArray data = [1.2d, 5.6d, 8.9999999999999999d];
 

@@ -21,3 +21,28 @@ path = "./lib/protobuf-java-util-@protobuf.version@.jar"
 groupId = "com.google.protobuf"
 artifactId = "protobuf-java-util"
 version = "@protobuf.version@"
+
+[[platform.java11.dependency]]
+path = "./lib/avro-@avro.version@.jar"
+groupId = "org.apache.avro"
+artifactId = "avro"
+version = "@avro.version@"
+
+[[platform.java11.dependency]]
+path = "./lib/jackson-databind-@jackson-databind.version@.jar"
+groupId = "com.fasterxml.jackson.core"
+artifactId = "jackson-databind"
+version = "@jackson-databind.version@"
+
+[[platform.java11.dependency]]
+path = "./lib/jackson-annotations-@jackson-annotations.version@.jar"
+groupId = "com.fasterxml.jackson.core"
+artifactId = "jackson-annotations"
+version = "@jackson-annotations.version@"
+
+[[platform.java11.dependency]]
+path = "./lib/jackson-core-@jackson-core.version@.jar"
+groupId = "com.fasterxml.jackson.core"
+artifactId = "jackson-core"
+version = "@jackson-core.version@"
+

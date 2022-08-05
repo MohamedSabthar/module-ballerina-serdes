@@ -78,6 +78,18 @@ dependencies {
     externalJars(group: 'com.google.protobuf', name: 'protobuf-java-util', version: "${protobufVersion}") {
         transitive = false
     }
+    externalJars(group: 'org.apache.avro', name: 'avro', version: "${avroVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonDatabindVersion}") {
+        transitive = true
+    }
+    externalJars(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: "${jacksonCoreVersion}") {
+        transitive = true
+    }
+    externalJars(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "${jacksonAnnotationsVersion}") {
+        transitive = true
+    }
 }
 
 task updateTomlFiles {
@@ -85,6 +97,10 @@ task updateTomlFiles {
         def newConfig = ballerinaTomlFilePlaceHolder.text.replace("@project.version@", project.version)
         newConfig = newConfig.replace("@toml.version@", tomlVersion)
         newConfig = newConfig.replace("@protobuf.version@", project.protobufVersion)
+        newConfig = newConfig.replace("@avro.version@", project.avroVersion)
+        newConfig = newConfig.replace("@jackson-databind.version@", project.jacksonDatabindVersion)
+        newConfig = newConfig.replace("@jackson-core.version@", project.jacksonCoreVersion)
+        newConfig = newConfig.replace("@jackson-annotations.version@", project.jacksonAnnotationsVersion)
         ballerinaTomlFile.text = newConfig
     }
 }

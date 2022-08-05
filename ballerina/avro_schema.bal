@@ -1,4 +1,4 @@
-// Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 
-public class Proto3Schema {
+public class AvroSchema {
     *Schema;
     private typedesc<anydata> dataType;
 
@@ -26,7 +26,7 @@ public class Proto3Schema {
     # + return - A `serdes:Error` if the data type is not supported or else `()`
     public isolated function init(typedesc<anydata> ballerinaDataType) returns Error? {
         self.dataType = ballerinaDataType;
-        check generateSchema(self, ballerinaDataType);
+        check generateAvroSchema(self, ballerinaDataType);
     }
 
     # Serializes a given value.
@@ -35,7 +35,7 @@ public class Proto3Schema {
     # + return - A byte array corresponding to the encoded value
     public isolated function serialize(anydata data) returns byte[]|Error = 
     @java:Method {
-        'class: "io.ballerina.stdlib.serdes.Proto3Serializer"
+        'class: "io.ballerina.stdlib.serdes.AvroSerializer"
     }  external;
 
 
@@ -46,21 +46,11 @@ public class Proto3Schema {
     # + return - The value represented by the encoded byte array
     public isolated function deserialize(byte[] encodedMessage, typedesc<anydata> T = <>) returns T|Error =
     @java:Method {
-    'class: "io.ballerina.stdlib.serdes.Proto3Deserializer"
+    'class: "io.ballerina.stdlib.serdes.AvroDeserializer"
     }  external;
-
-    # Writes dynamically generated proto message defintion to a file.
-    #
-    # + filePath - File path along with file name
-    # + return - A `serdes:Error` on invalid file path or else `()`
-    isolated function generateProtoFile(string filePath) returns Error? =
-    @java:Method {
-    'class: "io.ballerina.stdlib.serdes.Proto3SchemaGenerator"
-    }  external;
-
 }
 
-public isolated function generateSchema(Schema serdes, typedesc<anydata> T) returns Error? =
+public isolated function generateAvroSchema(Schema serdes, typedesc<anydata> T) returns Error? =
 @java:Method {
-    'class: "io.ballerina.stdlib.serdes.Proto3SchemaGenerator"
+    'class: "io.ballerina.stdlib.serdes.AvroSchemaGenerator"
 }  external;
