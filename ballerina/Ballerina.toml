@@ -29,7 +29,7 @@ artifactId = "avro"
 version = "1.11.1"
 
 [[platform.java11.dependency]]
-path = "./lib/jackson-databind-2.13.3.jar"
+path = "./lib/jackson-databind-@jackson.version@.jar"
 groupId = "com.fasterxml.jackson.databind"
 artifactId = "jackson-databind"
 version = "2.13.3"
