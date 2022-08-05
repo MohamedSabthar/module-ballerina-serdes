@@ -29,8 +29,20 @@ artifactId = "avro"
 version = "1.11.1"
 
 [[platform.java11.dependency]]
-path = "./lib/jackson-databind-@jackson.version@.jar"
-groupId = "com.fasterxml.jackson.databind"
+path = "./lib/jackson-databind-2.13.3.jar"
+groupId = "com.fasterxml.jackson.core"
 artifactId = "jackson-databind"
+version = "2.13.3"
+
+[[platform.java11.dependency]]
+path = "./lib/jackson-databind-2.13.3.jar"
+groupId = "com.fasterxml.jackson.core"
+artifactId = "jackson-annotations"
+version = "2.13.3"
+
+[[platform.java11.dependency]]
+path = "./lib/jackson-databind-2.13.3.jar"
+groupId = "com.fasterxml.jackson.core"
+artifactId = "jackson-core"
 version = "2.13.3"
 
