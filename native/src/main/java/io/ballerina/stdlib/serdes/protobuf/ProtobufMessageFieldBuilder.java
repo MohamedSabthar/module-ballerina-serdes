@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes.protobuf;
+package io.xlibb.serdes.protobuf;
 
 import static com.google.protobuf.DescriptorProtos.FieldDescriptorProto;
-import static io.ballerina.stdlib.serdes.Constants.EMPTY_STRING;
-import static io.ballerina.stdlib.serdes.Constants.REPEATED_LABEL;
-import static io.ballerina.stdlib.serdes.Constants.SPACE;
+import static io.xlibb.serdes.Constants.EMPTY_STRING;
+import static io.xlibb.serdes.Constants.REPEATED_LABEL;
+import static io.xlibb.serdes.Constants.SPACE;
 
 /**
  * Creates a Protocol Buffer message field.

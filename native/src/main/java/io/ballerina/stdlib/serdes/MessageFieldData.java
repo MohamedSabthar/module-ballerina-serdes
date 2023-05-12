@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import io.ballerina.runtime.api.types.Type;
 

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors.Descriptor;
@@ -49,29 +49,29 @@ import java.math.MathContext;
 import java.util.Collection;
 import java.util.Map;
 
-import static io.ballerina.stdlib.serdes.Constants.ARRAY_BUILDER_NAME;
-import static io.ballerina.stdlib.serdes.Constants.ARRAY_FIELD_NAME;
-import static io.ballerina.stdlib.serdes.Constants.ATOMIC_FIELD_NAME;
-import static io.ballerina.stdlib.serdes.Constants.BALLERINA_TYPEDESC_ATTRIBUTE_NAME;
-import static io.ballerina.stdlib.serdes.Constants.CURLY_BRACE;
-import static io.ballerina.stdlib.serdes.Constants.DECIMAL_VALUE;
-import static io.ballerina.stdlib.serdes.Constants.DESERIALIZATION_ERROR_MESSAGE;
-import static io.ballerina.stdlib.serdes.Constants.KEY_NAME;
-import static io.ballerina.stdlib.serdes.Constants.MAP_FIELD;
-import static io.ballerina.stdlib.serdes.Constants.NULL_FIELD_NAME;
-import static io.ballerina.stdlib.serdes.Constants.PRECISION;
-import static io.ballerina.stdlib.serdes.Constants.SCALE;
-import static io.ballerina.stdlib.serdes.Constants.SCHEMA_NAME;
-import static io.ballerina.stdlib.serdes.Constants.SEPARATOR;
-import static io.ballerina.stdlib.serdes.Constants.TABLE_ENTRY;
-import static io.ballerina.stdlib.serdes.Constants.TUPLE_BUILDER;
-import static io.ballerina.stdlib.serdes.Constants.TUPLE_FIELD_NAME;
-import static io.ballerina.stdlib.serdes.Constants.TYPE_SEPARATOR;
-import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
-import static io.ballerina.stdlib.serdes.Constants.VALUE;
-import static io.ballerina.stdlib.serdes.Constants.VALUE_NAME;
-import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
-import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
+import static io.xlibb.serdes.Constants.ARRAY_BUILDER_NAME;
+import static io.xlibb.serdes.Constants.ARRAY_FIELD_NAME;
+import static io.xlibb.serdes.Constants.ATOMIC_FIELD_NAME;
+import static io.xlibb.serdes.Constants.BALLERINA_TYPEDESC_ATTRIBUTE_NAME;
+import static io.xlibb.serdes.Constants.CURLY_BRACE;
+import static io.xlibb.serdes.Constants.DECIMAL_VALUE;
+import static io.xlibb.serdes.Constants.DESERIALIZATION_ERROR_MESSAGE;
+import static io.xlibb.serdes.Constants.KEY_NAME;
+import static io.xlibb.serdes.Constants.MAP_FIELD;
+import static io.xlibb.serdes.Constants.NULL_FIELD_NAME;
+import static io.xlibb.serdes.Constants.PRECISION;
+import static io.xlibb.serdes.Constants.SCALE;
+import static io.xlibb.serdes.Constants.SCHEMA_NAME;
+import static io.xlibb.serdes.Constants.SEPARATOR;
+import static io.xlibb.serdes.Constants.TABLE_ENTRY;
+import static io.xlibb.serdes.Constants.TUPLE_BUILDER;
+import static io.xlibb.serdes.Constants.TUPLE_FIELD_NAME;
+import static io.xlibb.serdes.Constants.TYPE_SEPARATOR;
+import static io.xlibb.serdes.Constants.UNSUPPORTED_DATA_TYPE;
+import static io.xlibb.serdes.Constants.VALUE;
+import static io.xlibb.serdes.Constants.VALUE_NAME;
+import static io.xlibb.serdes.Utils.SERDES_ERROR;
+import static io.xlibb.serdes.Utils.createSerdesError;
 
 /**
  * Deserializer class to generate Ballerina value from byte array.

@@ -21,5 +21,5 @@ function init() {
 }
 
 function setModule() = @java:Method {
-    'class: "io.ballerina.stdlib.serdes.Utils"
+    'class: "io.xlibb.serdes.Utils"
 } external;

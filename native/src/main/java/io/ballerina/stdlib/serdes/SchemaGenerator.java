@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
@@ -25,10 +25,10 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.stdlib.serdes.protobuf.DataTypeMapper;
-import io.ballerina.stdlib.serdes.protobuf.ProtobufFileBuilder;
-import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
-import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageFieldBuilder;
+import io.xlibb.serdes.protobuf.DataTypeMapper;
+import io.xlibb.serdes.protobuf.ProtobufFileBuilder;
+import io.xlibb.serdes.protobuf.ProtobufMessageBuilder;
+import io.xlibb.serdes.protobuf.ProtobufMessageFieldBuilder;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,25 +36,25 @@ import java.nio.charset.StandardCharsets;
 
 import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.DescriptorValidationException;
-import static io.ballerina.stdlib.serdes.Constants.ARRAY_BUILDER_NAME;
-import static io.ballerina.stdlib.serdes.Constants.BYTES;
-import static io.ballerina.stdlib.serdes.Constants.DECIMAL_VALUE;
-import static io.ballerina.stdlib.serdes.Constants.FAILED_WRITE_FILE;
-import static io.ballerina.stdlib.serdes.Constants.MAP_BUILDER;
-import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
-import static io.ballerina.stdlib.serdes.Constants.PRECISION;
-import static io.ballerina.stdlib.serdes.Constants.PROTO3;
-import static io.ballerina.stdlib.serdes.Constants.SCALE;
-import static io.ballerina.stdlib.serdes.Constants.SCHEMA_GENERATION_FAILURE;
-import static io.ballerina.stdlib.serdes.Constants.SCHEMA_NAME;
-import static io.ballerina.stdlib.serdes.Constants.TABLE_BUILDER;
-import static io.ballerina.stdlib.serdes.Constants.TUPLE_BUILDER;
-import static io.ballerina.stdlib.serdes.Constants.UINT32;
-import static io.ballerina.stdlib.serdes.Constants.UNION_BUILDER_NAME;
-import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
-import static io.ballerina.stdlib.serdes.Constants.VALUE;
-import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
-import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
+import static io.xlibb.serdes.Constants.ARRAY_BUILDER_NAME;
+import static io.xlibb.serdes.Constants.BYTES;
+import static io.xlibb.serdes.Constants.DECIMAL_VALUE;
+import static io.xlibb.serdes.Constants.FAILED_WRITE_FILE;
+import static io.xlibb.serdes.Constants.MAP_BUILDER;
+import static io.xlibb.serdes.Constants.OPTIONAL_LABEL;
+import static io.xlibb.serdes.Constants.PRECISION;
+import static io.xlibb.serdes.Constants.PROTO3;
+import static io.xlibb.serdes.Constants.SCALE;
+import static io.xlibb.serdes.Constants.SCHEMA_GENERATION_FAILURE;
+import static io.xlibb.serdes.Constants.SCHEMA_NAME;
+import static io.xlibb.serdes.Constants.TABLE_BUILDER;
+import static io.xlibb.serdes.Constants.TUPLE_BUILDER;
+import static io.xlibb.serdes.Constants.UINT32;
+import static io.xlibb.serdes.Constants.UNION_BUILDER_NAME;
+import static io.xlibb.serdes.Constants.UNSUPPORTED_DATA_TYPE;
+import static io.xlibb.serdes.Constants.VALUE;
+import static io.xlibb.serdes.Utils.SERDES_ERROR;
+import static io.xlibb.serdes.Utils.createSerdesError;
 
 /**
  * Generates a Protobuf schema for a given data type.

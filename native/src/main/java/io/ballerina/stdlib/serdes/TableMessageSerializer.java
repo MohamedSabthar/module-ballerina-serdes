@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import com.google.protobuf.DynamicMessage.Builder;
 import io.ballerina.runtime.api.types.TableType;
@@ -30,7 +30,7 @@ import io.ballerina.runtime.api.values.BTable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.ballerina.stdlib.serdes.Constants.TABLE_ENTRY;
+import static io.xlibb.serdes.Constants.TABLE_ENTRY;
 
 /**
  * {@link TableMessageSerializer} class handles serialization of ballerina tables.

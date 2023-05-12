@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
 
 import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.FieldDescriptor;
-import static io.ballerina.stdlib.serdes.Constants.KEY_NAME;
-import static io.ballerina.stdlib.serdes.Constants.MAP_FIELD;
-import static io.ballerina.stdlib.serdes.Constants.VALUE_NAME;
+import static io.xlibb.serdes.Constants.KEY_NAME;
+import static io.xlibb.serdes.Constants.MAP_FIELD;
+import static io.xlibb.serdes.Constants.VALUE_NAME;
 
 /**
  * {@link MapMessageSerializer} class handles serialization of ballerina maps.

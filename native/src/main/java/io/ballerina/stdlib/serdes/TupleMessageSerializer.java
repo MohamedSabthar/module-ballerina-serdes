@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import com.google.protobuf.DynamicMessage.Builder;
 import io.ballerina.runtime.api.types.TupleType;
@@ -27,8 +27,8 @@ import io.ballerina.runtime.api.values.BArray;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.stdlib.serdes.Constants.SEPARATOR;
-import static io.ballerina.stdlib.serdes.Constants.TUPLE_FIELD_NAME;
+import static io.xlibb.serdes.Constants.SEPARATOR;
+import static io.xlibb.serdes.Constants.TUPLE_FIELD_NAME;
 
 /**
  * {@link TupleMessageSerializer} class handles serialization of ballerina tuples.

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes.protobuf;
+package io.xlibb.serdes.protobuf;
 
 import java.util.HashMap;
 import java.util.Map;

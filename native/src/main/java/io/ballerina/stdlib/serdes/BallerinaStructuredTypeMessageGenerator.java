@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -34,14 +34,14 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
-import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
+import io.xlibb.serdes.protobuf.ProtobufMessageBuilder;
 
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
-import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
-import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
+import static io.xlibb.serdes.Constants.UNSUPPORTED_DATA_TYPE;
+import static io.xlibb.serdes.Utils.SERDES_ERROR;
+import static io.xlibb.serdes.Utils.createSerdesError;
 
 /**
  * {@link BallerinaStructuredTypeMessageGenerator} generate protobuf message definition for given ballerina structure

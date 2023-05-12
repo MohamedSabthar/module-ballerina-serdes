@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.BooleanType;
@@ -33,20 +33,20 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
-import io.ballerina.stdlib.serdes.protobuf.DataTypeMapper;
-import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
-import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageFieldBuilder;
+import io.xlibb.serdes.protobuf.DataTypeMapper;
+import io.xlibb.serdes.protobuf.ProtobufMessageBuilder;
+import io.xlibb.serdes.protobuf.ProtobufMessageFieldBuilder;
 
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.stdlib.serdes.Constants.BYTES;
-import static io.ballerina.stdlib.serdes.Constants.DECIMAL_VALUE;
-import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
-import static io.ballerina.stdlib.serdes.Constants.PRECISION;
-import static io.ballerina.stdlib.serdes.Constants.SCALE;
-import static io.ballerina.stdlib.serdes.Constants.UINT32;
-import static io.ballerina.stdlib.serdes.Constants.VALUE;
+import static io.xlibb.serdes.Constants.BYTES;
+import static io.xlibb.serdes.Constants.DECIMAL_VALUE;
+import static io.xlibb.serdes.Constants.OPTIONAL_LABEL;
+import static io.xlibb.serdes.Constants.PRECISION;
+import static io.xlibb.serdes.Constants.SCALE;
+import static io.xlibb.serdes.Constants.UINT32;
+import static io.xlibb.serdes.Constants.VALUE;
 
 /**
  * {@link MessageType} provides generic functions for concrete messageTypes.

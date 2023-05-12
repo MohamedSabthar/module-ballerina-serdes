@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
@@ -34,17 +34,17 @@ import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.math.BigDecimal;
 
-import static io.ballerina.stdlib.serdes.Constants.ATOMIC_FIELD_NAME;
-import static io.ballerina.stdlib.serdes.Constants.BALLERINA_TYPEDESC_ATTRIBUTE_NAME;
-import static io.ballerina.stdlib.serdes.Constants.PRECISION;
-import static io.ballerina.stdlib.serdes.Constants.SCALE;
-import static io.ballerina.stdlib.serdes.Constants.SCHEMA_NAME;
-import static io.ballerina.stdlib.serdes.Constants.SERIALIZATION_ERROR_MESSAGE;
-import static io.ballerina.stdlib.serdes.Constants.TYPE_MISMATCH_ERROR_MESSAGE;
-import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
-import static io.ballerina.stdlib.serdes.Constants.VALUE;
-import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
-import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
+import static io.xlibb.serdes.Constants.ATOMIC_FIELD_NAME;
+import static io.xlibb.serdes.Constants.BALLERINA_TYPEDESC_ATTRIBUTE_NAME;
+import static io.xlibb.serdes.Constants.PRECISION;
+import static io.xlibb.serdes.Constants.SCALE;
+import static io.xlibb.serdes.Constants.SCHEMA_NAME;
+import static io.xlibb.serdes.Constants.SERIALIZATION_ERROR_MESSAGE;
+import static io.xlibb.serdes.Constants.TYPE_MISMATCH_ERROR_MESSAGE;
+import static io.xlibb.serdes.Constants.UNSUPPORTED_DATA_TYPE;
+import static io.xlibb.serdes.Constants.VALUE;
+import static io.xlibb.serdes.Utils.SERDES_ERROR;
+import static io.xlibb.serdes.Utils.createSerdesError;
 
 /**
  * Serializer class to create a byte array for a value.

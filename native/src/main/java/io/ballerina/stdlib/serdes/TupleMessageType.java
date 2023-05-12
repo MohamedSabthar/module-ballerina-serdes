@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.MapType;
@@ -26,23 +26,23 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
-import io.ballerina.stdlib.serdes.protobuf.ProtobufMessageBuilder;
+import io.xlibb.serdes.protobuf.ProtobufMessageBuilder;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static io.ballerina.stdlib.serdes.Constants.MAP_BUILDER;
-import static io.ballerina.stdlib.serdes.Constants.OPTIONAL_LABEL;
-import static io.ballerina.stdlib.serdes.Constants.RECORD_BUILDER;
-import static io.ballerina.stdlib.serdes.Constants.SEPARATOR;
-import static io.ballerina.stdlib.serdes.Constants.TABLE_BUILDER;
-import static io.ballerina.stdlib.serdes.Constants.TUPLE_BUILDER;
-import static io.ballerina.stdlib.serdes.Constants.TUPLE_FIELD_NAME;
-import static io.ballerina.stdlib.serdes.Constants.TYPE_SEPARATOR;
-import static io.ballerina.stdlib.serdes.Constants.UNION_BUILDER_NAME;
-import static io.ballerina.stdlib.serdes.Utils.isAnonymousBallerinaRecord;
+import static io.xlibb.serdes.Constants.MAP_BUILDER;
+import static io.xlibb.serdes.Constants.OPTIONAL_LABEL;
+import static io.xlibb.serdes.Constants.RECORD_BUILDER;
+import static io.xlibb.serdes.Constants.SEPARATOR;
+import static io.xlibb.serdes.Constants.TABLE_BUILDER;
+import static io.xlibb.serdes.Constants.TUPLE_BUILDER;
+import static io.xlibb.serdes.Constants.TUPLE_FIELD_NAME;
+import static io.xlibb.serdes.Constants.TYPE_SEPARATOR;
+import static io.xlibb.serdes.Constants.UNION_BUILDER_NAME;
+import static io.xlibb.serdes.Utils.isAnonymousBallerinaRecord;
 
 /**
  * {@link TupleMessageType} class generate protobuf message definition for ballerina tuples.

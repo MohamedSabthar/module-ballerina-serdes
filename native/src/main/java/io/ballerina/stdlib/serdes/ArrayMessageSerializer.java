@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.values.BArray;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.stdlib.serdes.Constants.ARRAY_FIELD_NAME;
+import static io.xlibb.serdes.Constants.ARRAY_FIELD_NAME;
 
 /**
  * {@link ArrayMessageSerializer} class handles serialization of ballerina arrays.

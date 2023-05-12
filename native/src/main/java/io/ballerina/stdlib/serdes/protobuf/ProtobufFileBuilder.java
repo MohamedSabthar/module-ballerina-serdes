@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes.protobuf;
+package io.xlibb.serdes.protobuf;
 
 import static com.google.protobuf.DescriptorProtos.FileDescriptorProto;
 import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.DescriptorValidationException;
 import static com.google.protobuf.Descriptors.FileDescriptor;
-import static io.ballerina.stdlib.serdes.Constants.PROTO3;
-import static io.ballerina.stdlib.serdes.Constants.SYNTAX;
+import static io.xlibb.serdes.Constants.PROTO3;
+import static io.xlibb.serdes.Constants.SYNTAX;
 
 /**
  * Dynamically create and build a proto file.

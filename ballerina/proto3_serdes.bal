@@ -35,7 +35,7 @@ public class Proto3Schema {
     # + return - A byte array corresponding to the encoded value
     public isolated function serialize(anydata data) returns byte[]|Error = 
     @java:Method {
-        'class: "io.ballerina.stdlib.serdes.Serializer"
+        'class: "io.xlibb.serdes.Serializer"
     }  external;
 
 
@@ -46,7 +46,7 @@ public class Proto3Schema {
     # + return - The value represented by the encoded byte array
     public isolated function deserialize(byte[] encodedMessage, typedesc<anydata> T = <>) returns T|Error =
     @java:Method {
-    'class: "io.ballerina.stdlib.serdes.Deserializer"
+    'class: "io.xlibb.serdes.Deserializer"
     }  external;
 
     # Writes dynamically generated proto message defintion to a file.
@@ -55,12 +55,12 @@ public class Proto3Schema {
     # + return - A `serdes:Error` on invalid file path or else `()`
     isolated function generateProtoFile(string filePath) returns Error? =
     @java:Method {
-    'class: "io.ballerina.stdlib.serdes.SchemaGenerator"
+    'class: "io.xlibb.serdes.SchemaGenerator"
     }  external;
 
 }
 
 public isolated function generateSchema(Schema serdes, typedesc<anydata> T) returns Error? =
 @java:Method {
-    'class: "io.ballerina.stdlib.serdes.SchemaGenerator"
+    'class: "io.xlibb.serdes.SchemaGenerator"
 }  external;

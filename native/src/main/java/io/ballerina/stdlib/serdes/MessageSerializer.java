@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.DynamicMessage.Builder;
@@ -31,13 +31,13 @@ import java.util.List;
 
 import static com.google.protobuf.Descriptors.Descriptor;
 import static com.google.protobuf.Descriptors.FieldDescriptor;
-import static io.ballerina.stdlib.serdes.Constants.NIL;
-import static io.ballerina.stdlib.serdes.Constants.PRECISION;
-import static io.ballerina.stdlib.serdes.Constants.SCALE;
-import static io.ballerina.stdlib.serdes.Constants.UNSUPPORTED_DATA_TYPE;
-import static io.ballerina.stdlib.serdes.Constants.VALUE;
-import static io.ballerina.stdlib.serdes.Utils.SERDES_ERROR;
-import static io.ballerina.stdlib.serdes.Utils.createSerdesError;
+import static io.xlibb.serdes.Constants.NIL;
+import static io.xlibb.serdes.Constants.PRECISION;
+import static io.xlibb.serdes.Constants.SCALE;
+import static io.xlibb.serdes.Constants.UNSUPPORTED_DATA_TYPE;
+import static io.xlibb.serdes.Constants.VALUE;
+import static io.xlibb.serdes.Utils.SERDES_ERROR;
+import static io.xlibb.serdes.Utils.createSerdesError;
 
 /**
  * {@link MessageSerializer} provides generic functions for concrete message serializers.

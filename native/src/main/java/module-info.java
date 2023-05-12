@@ -16,7 +16,7 @@
  * under the License.
  */
 
-module io.ballerina.stdlib.serdes {
+module io.xlibb.serdes {
     requires io.ballerina.runtime;
     requires io.ballerina.lang;
     requires com.google.protobuf;

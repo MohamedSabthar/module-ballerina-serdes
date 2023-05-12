@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.serdes;
+package io.xlibb.serdes;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BError;
 
 import java.util.Locale;
 
-import static io.ballerina.stdlib.serdes.Constants.CURLY_BRACE;
+import static io.xlibb.serdes.Constants.CURLY_BRACE;
 
 /**
  * Utility functions of SerDes module.
