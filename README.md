@@ -1,13 +1,12 @@
 Ballerina SerDes Library
 ===================
 
-[![Build](https://github.com/ballerina-platform/module-ballerina-serdes/workflows/Build/badge.svg)](https://github.com/ballerina-platform/module-ballerina-serdes/actions?query=workflow%3ABuild)
-[![codecov](https://codecov.io/gh/ballerina-platform/module-ballerina-serdes/branch/main/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerina-serdes)
-[![Trivy](https://github.com/ballerina-platform/module-ballerina-serdes/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-serdes/actions/workflows/trivy-scan.yml)
-[![GraalVM Check](https://github.com/ballerina-platform/module-ballerina-serdes/actions/workflows/build-with-bal-test-native.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-serdes/actions/workflows/build-with-bal-test-native.yml)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerina-serdes.svg)](https://github.com/ballerina-platform/module-ballerina-serdes/commits/main)
-[![Github issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-standard-library/module/serdes.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-standard-library/labels/module%2Fserdes)
+[![Build](https://github.com/xlibb/module-serdes/actions/workflows/build-timestamped-master.yml/badge.svg)](https://github.com/xlibb/module-serdes/actions/workflows/build-timestamped-master.yml)
+[![codecov](https://codecov.io/gh/xlibb/module-serdes/branch/main/graph/badge.svg)](https://codecov.io/gh/xlibb/module-serdes)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/xlibb/module-serdes.svg)](https://github.com/xlibb/module-serdes/commits/main)
+[![Github issues](https://img.shields.io/github/issues/xlibb/module-serdes/module/serdes.svg?label=Open%20Issues)](https://github.com/xlibb/module-serdes/labels/module%2Fserdes)
 
+**Note:** This library was originally developed as a standard library for Ballerina, but was later moved to the xlibb organization.
 
 This library provides APIs for serializing and deserializing subtypes of Ballerina anydata type.
 
