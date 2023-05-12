@@ -38,19 +38,6 @@ dependencies = [
 
 [[package]]
 org = "ballerina"
-name = "serdes"
-version = "0.2.0"
-dependencies = [
-	{org = "ballerina", name = "io"},
-	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "test"}
-]
-modules = [
-	{org = "ballerina", packageName = "serdes", moduleName = "serdes"}
-]
-
-[[package]]
-org = "ballerina"
 name = "test"
 version = "0.0.0"
 scope = "testOnly"
@@ -59,5 +46,18 @@ dependencies = [
 ]
 modules = [
 	{org = "ballerina", packageName = "test", moduleName = "test"}
+]
+
+[[package]]
+org = "xlibb"
+name = "serdes"
+version = "0.2.1"
+dependencies = [
+	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "test"}
+]
+modules = [
+	{org = "xlibb", packageName = "serdes", moduleName = "serdes"}
 ]
 
